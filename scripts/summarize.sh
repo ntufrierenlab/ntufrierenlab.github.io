@@ -41,9 +41,17 @@ date = meta('DC.Date') or meta('citation_publication_date') or meta('article:pub
 doi = meta('citation_doi') or ''
 abstract = meta('DC.Description') or meta('og:description') or ''
 
-# Extract authors (multiple meta tags)
-authors = re.findall(r'<meta\s+(?:name=\"(?:DC\.Contributor|citation_author)\"\s+content=\"([^\"]*?)\"|content=\"([^\"]*?)\"\s+name=\"(?:DC\.Contributor|citation_author)\")', data)
+# Extract authors — use citation_author only to avoid duplicates with DC.Contributor
+authors = re.findall(r'<meta\s+(?:name=\"citation_author\"\s+content=\"([^\"]*?)\"|content=\"([^\"]*?)\"\s+name=\"citation_author\")', data)
 author_list = [a[0] or a[1] for a in authors if (a[0] or a[1]).strip()]
+# Deduplicate while preserving order
+seen = set()
+unique_authors = []
+for a in author_list:
+    if a not in seen:
+        seen.add(a)
+        unique_authors.append(a)
+author_list = unique_authors
 
 if date and '/' in date:
     # Convert MM/DD/YYYY or YYYY/MM/DD to YYYY-MM-DD
@@ -248,12 +256,12 @@ if [ -z "$SUMMARY" ]; then
 fi
 echo "Claude response received (${#SUMMARY} chars)" >&2
 
-# Extract one-line summaries
-ONE_LINE_EN=$(echo "$SUMMARY" | grep '^ONE_LINE_EN=' | cut -d= -f2- | sed 's/^"//;s/"$//')
-ONE_LINE_ZH=$(echo "$SUMMARY" | grep '^ONE_LINE_ZH=' | cut -d= -f2- | sed 's/^"//;s/"$//')
+# Extract one-line summaries and sanitize (remove quotes that break YAML)
+ONE_LINE_EN=$(echo "$SUMMARY" | grep '^ONE_LINE_EN=' | cut -d= -f2- | sed 's/^"//;s/"$//;s/"//g')
+ONE_LINE_ZH=$(echo "$SUMMARY" | grep '^ONE_LINE_ZH=' | cut -d= -f2- | sed 's/^"//;s/"$//;s/"//g')
 
-# Remove the ONE_LINE markers from the body
-BODY=$(echo "$SUMMARY" | grep -v '^ONE_LINE_EN=' | grep -v '^ONE_LINE_ZH=')
+# Remove the ONE_LINE markers and any Claude preamble before the first <div> from the body
+BODY=$(echo "$SUMMARY" | grep -v '^ONE_LINE_EN=' | grep -v '^ONE_LINE_ZH=' | sed '1,/<div class="lang-en">/{/<div class="lang-en">/!d}')
 
 # ── Generate the full markdown file ────────────────────────────────
 

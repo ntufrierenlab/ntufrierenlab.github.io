@@ -5,18 +5,13 @@ authors:
   - "Takuma Morimoto"
   - "Robert J. Lee"
   - "Hannah E. Smithson"
-  - "Takuma Morimoto"
-  - "Robert J. Lee"
-  - "Hannah E. Smithson"
 arxiv_url: "https://www.biorxiv.org/content/biorxiv/early/2026/01/24/2026.01.22.700600"
 pdf_url: "https://www.biorxiv.org/content/10.64898/2026.01.22.700600v1.full.pdf"
-one_line_summary: " Human observers use geometric regularities of specular highlights rather than simply the "brightest is white" heuristic to achieve color constancy, performing better when highlights appear on dark textured regions."
-one_line_summary_zh: " 人類觀察者利用鏡面高光的幾何規律性而非簡單的「最亮即白」啟發式來實現顏色恆常性，當高光出現在暗色紋理區域時表現更佳。"
+one_line_summary: "Human observers use geometric regularities of specular highlights rather than simply the brightest-is-white heuristic to achieve color constancy, performing better when highlights appear on dark textured regions."
+one_line_summary_zh: "人類觀察者利用鏡面高光的幾何規律性而非簡單的「最亮即白」啟發式來實現顏色恆常性，當高光出現在暗色紋理區域時表現更佳。"
 topics: ["Auto White Balance"]
 tags: []
 ---
-
-Let me generate the structured summary based on the paper content provided:
 
 <div class="lang-en">
 
