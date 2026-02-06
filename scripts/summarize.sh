@@ -249,7 +249,7 @@ Important:
 # ── Call Claude ────────────────────────────────────────────────────
 
 echo "Calling Claude API..." >&2
-SUMMARY=$(echo "$PROMPT" | claude --print --model claude-sonnet-4-5-20250929 2>&2)
+SUMMARY=$(echo "$PROMPT" | claude --print --model claude-haiku-4-5-20251001 2>&2)
 if [ -z "$SUMMARY" ]; then
     echo "Error: Claude returned empty response" >&2
     exit 1
