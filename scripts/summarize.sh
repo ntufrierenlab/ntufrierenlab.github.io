@@ -9,7 +9,7 @@
 # Example:
 #   ./scripts/summarize.sh https://arxiv.org/abs/2004.01354 "Auto White Balance"
 #
-set -euo pipefail
+set -uo pipefail
 
 ARXIV_URL="${1:?Usage: summarize.sh <arxiv-url> [topic-name]}"
 TOPIC_NAME="${2:-General}"
@@ -21,11 +21,18 @@ if [ -z "$ARXIV_ID" ]; then
     exit 1
 fi
 
+echo "Processing arXiv ID: ${ARXIV_ID}" >&2
 PDF_URL="https://arxiv.org/pdf/${ARXIV_ID}"
 
 # Fetch paper abstract from arXiv API
-ABSTRACT=$(curl -sL "https://export.arxiv.org/api/query?id_list=${ARXIV_ID}" | \
-    python3 -c "
+echo "Fetching metadata from arXiv API..." >&2
+ARXIV_XML=$(curl -sL "https://export.arxiv.org/api/query?id_list=${ARXIV_ID}")
+if [ -z "$ARXIV_XML" ]; then
+    echo "Error: Empty response from arXiv API" >&2
+    exit 1
+fi
+
+ABSTRACT=$(echo "$ARXIV_XML" | python3 -c "
 import sys, xml.etree.ElementTree as ET, re
 data = sys.stdin.read()
 ns = {'atom': 'http://www.w3.org/2005/Atom'}
@@ -40,7 +47,18 @@ if entry is not None:
     print(f'AUTHORS={chr(44).join(authors)}')
     print(f'DATE={published}')
     print(f'ABSTRACT={summary}')
-")
+else:
+    print('ERROR=No entry found', file=sys.stderr)
+    sys.exit(1)
+" 2>&1)
+
+if echo "$ABSTRACT" | grep -q '^TITLE='; then
+    echo "Metadata extracted successfully" >&2
+else
+    echo "Error: Failed to extract metadata" >&2
+    echo "$ABSTRACT" >&2
+    exit 1
+fi
 
 # Parse metadata
 TITLE=$(echo "$ABSTRACT" | grep '^TITLE=' | cut -d= -f2-)
@@ -128,7 +146,13 @@ Important:
 - Also output two one-line summaries: one in English and one in Traditional Chinese, on separate lines prefixed with ONE_LINE_EN= and ONE_LINE_ZH="
 
 # Call Claude
-SUMMARY=$(echo "$PROMPT" | claude --print --model claude-sonnet-4-5-20250929 2>&1)
+echo "Calling Claude API..." >&2
+SUMMARY=$(echo "$PROMPT" | claude --print --model claude-sonnet-4-5-20250929 2>&2)
+if [ -z "$SUMMARY" ]; then
+    echo "Error: Claude returned empty response" >&2
+    exit 1
+fi
+echo "Claude response received (${#SUMMARY} chars)" >&2
 
 # Extract one-line summaries
 ONE_LINE_EN=$(echo "$SUMMARY" | grep '^ONE_LINE_EN=' | cut -d= -f2- | sed 's/^"//;s/"$//')

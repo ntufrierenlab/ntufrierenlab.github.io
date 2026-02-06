@@ -32,6 +32,8 @@ jobs:
         run: |
           chmod +x scripts/summarize.sh
           bash scripts/summarize.sh "${{ inputs.arxiv_url }}" "${{ inputs.topic }}" > /tmp/paper-summary.md
+          echo "--- Generated file preview ---"
+          head -20 /tmp/paper-summary.md
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
