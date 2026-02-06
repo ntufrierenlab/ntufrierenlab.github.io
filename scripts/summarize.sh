@@ -69,12 +69,34 @@ PAPER_ABSTRACT=$(echo "$ABSTRACT" | grep '^ABSTRACT=' | cut -d= -f2-)
 # Format authors as YAML list
 AUTHORS_YAML=$(echo "$AUTHORS" | tr ',' '\n' | sed 's/^ *//' | sed 's/^/  - "/' | sed 's/$/"/')
 
+# Download PDF and extract text
+echo "Downloading PDF from ${PDF_URL}..." >&2
+curl -sL -o /tmp/paper.pdf "$PDF_URL"
+PDF_SIZE=$(wc -c < /tmp/paper.pdf)
+echo "PDF downloaded (${PDF_SIZE} bytes)" >&2
+
+echo "Extracting text from PDF..." >&2
+PAPER_TEXT=$(pdftotext /tmp/paper.pdf - 2>/dev/null | head -c 150000)
+TEXT_LEN=${#PAPER_TEXT}
+echo "Extracted ${TEXT_LEN} chars of text" >&2
+
+if [ "$TEXT_LEN" -lt 500 ]; then
+    echo "Warning: Very little text extracted from PDF, using abstract only" >&2
+    PAPER_TEXT="$PAPER_ABSTRACT"
+fi
+
 # Build the Claude prompt
 PROMPT="You are a research paper analyst. Read this paper and generate a structured summary in BOTH English and Chinese.
 
 Paper title: ${TITLE}
 Paper abstract: ${PAPER_ABSTRACT}
 PDF URL: ${PDF_URL}
+
+--- FULL PAPER TEXT ---
+${PAPER_TEXT}
+--- END OF PAPER TEXT ---
+
+You have been given the full paper text above. Use the actual content, data, and results from the paper to generate a detailed and accurate summary.
 
 Please generate the summary content (NOT the front matter, just the body) in this exact format:
 
