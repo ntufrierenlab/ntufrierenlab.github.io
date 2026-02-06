@@ -1,38 +1,86 @@
 #!/usr/bin/env bash
 #
-# Summarize an arXiv paper using Claude CLI.
+# Summarize a preprint paper (arXiv or bioRxiv) using Claude CLI.
 # Generates a bilingual (EN/ZH) Hugo markdown file.
 #
 # Usage:
-#   ./scripts/summarize.sh <arxiv-url> [topic-name]
+#   ./scripts/summarize.sh <paper-url> [topic-name]
 #
-# Example:
+# Examples:
 #   ./scripts/summarize.sh https://arxiv.org/abs/2004.01354 "Auto White Balance"
+#   ./scripts/summarize.sh https://www.biorxiv.org/content/10.1101/2026.01.22.700600v1 "Topic"
 #
 set -uo pipefail
 
-ARXIV_URL="${1:?Usage: summarize.sh <arxiv-url> [topic-name]}"
+PAPER_URL="${1:?Usage: summarize.sh <paper-url> [topic-name]}"
 TOPIC_NAME="${2:-General}"
 
-# Extract arXiv ID
-ARXIV_ID=$(echo "$ARXIV_URL" | grep -oE '[0-9]{4}\.[0-9]+' | head -1)
-if [ -z "$ARXIV_ID" ]; then
-    echo "Error: Could not extract arXiv ID from URL" >&2
-    exit 1
-fi
+# ── Detect source and extract metadata ─────────────────────────────
 
-echo "Processing arXiv ID: ${ARXIV_ID}" >&2
-PDF_URL="https://arxiv.org/pdf/${ARXIV_ID}"
+if echo "$PAPER_URL" | grep -qi 'biorxiv\.org'; then
+    SOURCE="bioRxiv"
+    echo "Detected bioRxiv paper" >&2
 
-# Fetch paper abstract from arXiv API
-echo "Fetching metadata from arXiv API..." >&2
-ARXIV_XML=$(curl -sL "https://export.arxiv.org/api/query?id_list=${ARXIV_ID}")
-if [ -z "$ARXIV_XML" ]; then
-    echo "Error: Empty response from arXiv API" >&2
-    exit 1
-fi
+    # Extract DOI suffix from various bioRxiv URL formats
+    # e.g. /content/10.1101/2026.01.22.700600v1
+    # e.g. /content/biorxiv/early/2026/01/24/2026.01.22.700600
+    BIORXIV_ID=$(echo "$PAPER_URL" | grep -oE '[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+' | head -1)
+    if [ -z "$BIORXIV_ID" ]; then
+        echo "Error: Could not extract bioRxiv ID from URL" >&2
+        exit 1
+    fi
 
-ABSTRACT=$(echo "$ARXIV_XML" | python3 -c "
+    DOI="10.1101/${BIORXIV_ID}"
+    echo "Processing bioRxiv DOI: ${DOI}" >&2
+
+    # PDF URL
+    PDF_URL="https://www.biorxiv.org/content/${DOI}v1.full.pdf"
+
+    # Fetch metadata from bioRxiv API
+    echo "Fetching metadata from bioRxiv API..." >&2
+    BIORXIV_JSON=$(curl -sL "https://api.biorxiv.org/details/biorxiv/${DOI}")
+
+    METADATA=$(echo "$BIORXIV_JSON" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+coll = data.get('collection', [])
+if not coll:
+    print('ERROR=No entry found', file=sys.stderr)
+    sys.exit(1)
+entry = coll[0]
+title = entry.get('title', '').strip()
+authors = entry.get('authors', '').strip()
+date = entry.get('date', '').strip()
+abstract = entry.get('abstract', '').strip()
+# bioRxiv authors are semicolon-separated
+author_list = [a.strip() for a in authors.split(';') if a.strip()]
+print(f'TITLE={title}')
+print(f'AUTHORS={chr(44).join(author_list)}')
+print(f'DATE={date}')
+print(f'ABSTRACT={abstract}')
+" 2>&1)
+
+else
+    SOURCE="arXiv"
+    # Extract arXiv ID
+    ARXIV_ID=$(echo "$PAPER_URL" | grep -oE '[0-9]{4}\.[0-9]+' | head -1)
+    if [ -z "$ARXIV_ID" ]; then
+        echo "Error: Could not extract arXiv ID from URL" >&2
+        exit 1
+    fi
+
+    echo "Processing arXiv ID: ${ARXIV_ID}" >&2
+    PDF_URL="https://arxiv.org/pdf/${ARXIV_ID}"
+
+    # Fetch metadata from arXiv API
+    echo "Fetching metadata from arXiv API..." >&2
+    ARXIV_XML=$(curl -sL "https://export.arxiv.org/api/query?id_list=${ARXIV_ID}")
+    if [ -z "$ARXIV_XML" ]; then
+        echo "Error: Empty response from arXiv API" >&2
+        exit 1
+    fi
+
+    METADATA=$(echo "$ARXIV_XML" | python3 -c "
 import sys, xml.etree.ElementTree as ET, re
 data = sys.stdin.read()
 ns = {'atom': 'http://www.w3.org/2005/Atom'}
@@ -51,25 +99,29 @@ else:
     print('ERROR=No entry found', file=sys.stderr)
     sys.exit(1)
 " 2>&1)
+fi
 
-if echo "$ABSTRACT" | grep -q '^TITLE='; then
+# ── Validate metadata ──────────────────────────────────────────────
+
+if echo "$METADATA" | grep -q '^TITLE='; then
     echo "Metadata extracted successfully" >&2
 else
     echo "Error: Failed to extract metadata" >&2
-    echo "$ABSTRACT" >&2
+    echo "$METADATA" >&2
     exit 1
 fi
 
 # Parse metadata
-TITLE=$(echo "$ABSTRACT" | grep '^TITLE=' | cut -d= -f2-)
-AUTHORS=$(echo "$ABSTRACT" | grep '^AUTHORS=' | cut -d= -f2-)
-DATE=$(echo "$ABSTRACT" | grep '^DATE=' | cut -d= -f2-)
-PAPER_ABSTRACT=$(echo "$ABSTRACT" | grep '^ABSTRACT=' | cut -d= -f2-)
+TITLE=$(echo "$METADATA" | grep '^TITLE=' | cut -d= -f2-)
+AUTHORS=$(echo "$METADATA" | grep '^AUTHORS=' | cut -d= -f2-)
+DATE=$(echo "$METADATA" | grep '^DATE=' | cut -d= -f2-)
+PAPER_ABSTRACT=$(echo "$METADATA" | grep '^ABSTRACT=' | cut -d= -f2-)
 
 # Format authors as YAML list
 AUTHORS_YAML=$(echo "$AUTHORS" | tr ',' '\n' | sed 's/^ *//' | sed 's/^/  - "/' | sed 's/$/"/')
 
-# Download PDF and extract text
+# ── Download PDF and extract text ──────────────────────────────────
+
 echo "Downloading PDF from ${PDF_URL}..." >&2
 curl -sL -o /tmp/paper.pdf "$PDF_URL"
 PDF_SIZE=$(wc -c < /tmp/paper.pdf)
@@ -85,7 +137,8 @@ if [ "$TEXT_LEN" -lt 500 ]; then
     PAPER_TEXT="$PAPER_ABSTRACT"
 fi
 
-# Build the Claude prompt
+# ── Build the Claude prompt ────────────────────────────────────────
+
 PROMPT="You are a research paper analyst. Read this paper and generate a structured summary in BOTH English and Chinese.
 
 Paper title: ${TITLE}
@@ -167,7 +220,8 @@ Important:
 - Be specific with numbers and data from the paper
 - Also output two one-line summaries: one in English and one in Traditional Chinese, on separate lines prefixed with ONE_LINE_EN= and ONE_LINE_ZH="
 
-# Call Claude
+# ── Call Claude ────────────────────────────────────────────────────
+
 echo "Calling Claude API..." >&2
 SUMMARY=$(echo "$PROMPT" | claude --print --model claude-sonnet-4-5-20250929 2>&2)
 if [ -z "$SUMMARY" ]; then
@@ -183,14 +237,15 @@ ONE_LINE_ZH=$(echo "$SUMMARY" | grep '^ONE_LINE_ZH=' | cut -d= -f2- | sed 's/^"/
 # Remove the ONE_LINE markers from the body
 BODY=$(echo "$SUMMARY" | grep -v '^ONE_LINE_EN=' | grep -v '^ONE_LINE_ZH=')
 
-# Generate the full markdown file
+# ── Generate the full markdown file ────────────────────────────────
+
 cat <<FRONTMATTER
 ---
 title: "${TITLE}"
 date: ${DATE}
 authors:
 ${AUTHORS_YAML}
-arxiv_url: "${ARXIV_URL}"
+arxiv_url: "${PAPER_URL}"
 pdf_url: "${PDF_URL}"
 one_line_summary: "${ONE_LINE_EN}"
 one_line_summary_zh: "${ONE_LINE_ZH}"

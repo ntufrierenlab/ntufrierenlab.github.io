@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       arxiv_url:
-        description: 'arXiv paper URL (e.g., https://arxiv.org/abs/2004.01354)'
+        description: 'Paper URL (arXiv or bioRxiv)'
         required: true
         type: string
       topic:
