@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Add Paper to Knowledge Base"]
+    types: [completed]
 
 permissions:
   contents: read
@@ -21,6 +24,7 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     env:
       HUGO_VERSION: 0.139.3
     steps:
