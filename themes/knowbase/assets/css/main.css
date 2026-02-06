@@ -1643,6 +1643,222 @@ a.tag:hover {
   transform: scale(1.05);
 }
 
+/* --- Notification Bell --- */
+.notif-bell {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 400;
+}
+
+.notif-bell-btn {
+  position: relative;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition);
+}
+
+.notif-bell-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: var(--shadow-lg);
+}
+
+.notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  border-radius: 999px;
+  padding: 0 4px;
+  border: 2px solid var(--bg-secondary);
+}
+
+.notif-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 340px;
+  max-height: 400px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.notif-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.notif-dropdown-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.notif-clear-btn {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+}
+
+.notif-clear-btn:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.notif-dropdown-body {
+  max-height: 330px;
+  overflow-y: auto;
+}
+
+.notif-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+}
+
+.notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+}
+
+.notif-item:last-child {
+  border-bottom: none;
+}
+
+.notif-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.notif-item-icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+.notif-item-icon.pending {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.notif-item-icon.processing {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.notif-item-icon.completed {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.notif-item-icon.failed {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+[data-theme="dark"] .notif-item-icon.processing {
+  background: #422006;
+}
+
+[data-theme="dark"] .notif-item-icon.completed {
+  background: #064e3b;
+}
+
+[data-theme="dark"] .notif-item-icon.failed {
+  background: #450a0a;
+}
+
+.notif-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-item-title {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notif-item-status {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.notif-item-time {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.notif-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@media (max-width: 768px) {
+  .notif-bell {
+    top: 1rem;
+    right: 4rem;
+  }
+
+  .notif-dropdown {
+    width: calc(100vw - 2rem);
+    right: -0.5rem;
+  }
+}
+
 /* --- Scrollbar --- */
 ::-webkit-scrollbar {
   width: 6px;

@@ -484,7 +484,7 @@
   localStorage.removeItem('kb-password');
   localStorage.removeItem('worker-url');
 
-  var sessionPassword = '';
+  var sessionPassword = sessionStorage.getItem('kb-session-pwd') || '';
   var WORKER_URL = 'https://frieren-lab-proxy.ntufrierenlab.workers.dev';
 
   // ── Add paper (via Cloudflare Worker proxy) ────────────────────
@@ -514,6 +514,21 @@
           'Queued!';
         btn.classList.add('btn-success');
         showToast();
+
+        // Save pending paper for notification tracking
+        var pending = [];
+        try { pending = JSON.parse(sessionStorage.getItem('kb-pending-papers') || '[]'); } catch (e) { pending = []; }
+        pending.push({
+          title: title,
+          arxivUrl: paperUrl,
+          topic: topic,
+          triggeredAt: new Date().toISOString(),
+          status: 'pending',
+          runId: null,
+          readByUser: false
+        });
+        sessionStorage.setItem('kb-pending-papers', JSON.stringify(pending));
+        window.dispatchEvent(new CustomEvent('kb-paper-added'));
       } else {
         throw new Error(data.error || 'Failed to trigger workflow');
       }
@@ -568,7 +583,10 @@
   if (saveBtn) {
     saveBtn.addEventListener('click', function () {
       var pwd = passwordInput.value.trim();
-      if (pwd) sessionPassword = pwd;
+      if (pwd) {
+        sessionPassword = pwd;
+        sessionStorage.setItem('kb-session-pwd', pwd);
+      }
       settingsModal.style.display = 'none';
     });
   }

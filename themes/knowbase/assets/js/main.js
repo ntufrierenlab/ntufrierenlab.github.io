@@ -217,3 +217,267 @@
     }
   });
 })();
+
+// ── Notification Bell System ─────────────────────────────────────
+(function () {
+  var WORKER_URL = 'https://frieren-lab-proxy.ntufrierenlab.workers.dev';
+  var POLL_INTERVAL = 20000;
+  var MATCH_WINDOW = 120000;
+  var pollTimer = null;
+
+  var bellContainer = document.getElementById('notification-bell');
+  var bellBtn = document.getElementById('notif-bell-btn');
+  var badge = document.getElementById('notif-badge');
+  var dropdown = document.getElementById('notif-dropdown');
+  var dropdownBody = document.getElementById('notif-dropdown-body');
+  var clearBtn = document.getElementById('notif-clear-btn');
+  if (!bellContainer) return;
+
+  // ── State via sessionStorage ────────────────────────────────────
+  function getPapers() {
+    try { return JSON.parse(sessionStorage.getItem('kb-pending-papers') || '[]'); }
+    catch (e) { return []; }
+  }
+
+  function savePapers(papers) {
+    sessionStorage.setItem('kb-pending-papers', JSON.stringify(papers));
+  }
+
+  function getPassword() {
+    return sessionStorage.getItem('kb-session-pwd') || '';
+  }
+
+  // ── Bell visibility ─────────────────────────────────────────────
+  function updateBellVisibility() {
+    bellContainer.style.display = getPapers().length > 0 ? '' : 'none';
+  }
+
+  // ── Badge ───────────────────────────────────────────────────────
+  function updateBadge() {
+    var unread = getPapers().filter(function (p) {
+      return !p.readByUser && (p.status === 'completed' || p.status === 'failed');
+    }).length;
+    if (unread > 0) {
+      badge.textContent = unread;
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  // ── Render dropdown items ───────────────────────────────────────
+  function renderDropdown() {
+    var papers = getPapers();
+    dropdownBody.innerHTML = '';
+
+    if (papers.length === 0) {
+      dropdownBody.innerHTML = '<div class="notif-empty">No pending papers</div>';
+      return;
+    }
+
+    papers.slice().reverse().forEach(function (paper) {
+      var item = document.createElement('div');
+      item.className = 'notif-item';
+
+      var iconClass = paper.status;
+      var iconContent = '';
+      var statusText = '';
+
+      if (paper.status === 'pending') {
+        iconContent = '<div class="notif-spinner"></div>';
+        statusText = 'Queued...';
+      } else if (paper.status === 'processing') {
+        iconContent = '<div class="notif-spinner"></div>';
+        statusText = 'Generating summary...';
+      } else if (paper.status === 'completed') {
+        iconContent = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+        statusText = 'Paper is live!';
+      } else if (paper.status === 'failed') {
+        iconContent = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+        statusText = 'Workflow failed';
+      }
+
+      var timeAgo = relativeTime(paper.triggeredAt);
+      var safeTitle = escapeHtml(paper.title.length > 60 ? paper.title.substring(0, 60) + '...' : paper.title);
+
+      item.innerHTML =
+        '<div class="notif-item-icon ' + iconClass + '">' + iconContent + '</div>' +
+        '<div class="notif-item-content">' +
+          '<div class="notif-item-title">' + safeTitle + '</div>' +
+          '<div class="notif-item-status">' + statusText + '</div>' +
+          '<div class="notif-item-time">' + timeAgo + '</div>' +
+        '</div>';
+
+      dropdownBody.appendChild(item);
+    });
+  }
+
+  // ── Dropdown toggle ─────────────────────────────────────────────
+  var isOpen = false;
+
+  function openDropdown() {
+    renderDropdown();
+    dropdown.style.display = '';
+    isOpen = true;
+
+    // Mark all terminal items as read
+    var papers = getPapers();
+    var changed = false;
+    papers.forEach(function (p) {
+      if (!p.readByUser && (p.status === 'completed' || p.status === 'failed')) {
+        p.readByUser = true;
+        changed = true;
+      }
+    });
+    if (changed) {
+      savePapers(papers);
+      updateBadge();
+    }
+  }
+
+  function closeDropdown() {
+    dropdown.style.display = 'none';
+    isOpen = false;
+  }
+
+  bellBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    isOpen ? closeDropdown() : openDropdown();
+  });
+
+  document.addEventListener('click', function (e) {
+    if (isOpen && !bellContainer.contains(e.target)) closeDropdown();
+  });
+
+  clearBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    sessionStorage.removeItem('kb-pending-papers');
+    stopPolling();
+    updateBellVisibility();
+    updateBadge();
+    closeDropdown();
+  });
+
+  // ── Polling ─────────────────────────────────────────────────────
+  function startPolling() {
+    if (pollTimer) return;
+    pollStatus();
+    pollTimer = setInterval(pollStatus, POLL_INTERVAL);
+  }
+
+  function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
+
+  function pollStatus() {
+    var password = getPassword();
+    if (!password) return;
+
+    var papers = getPapers();
+    var hasActive = papers.some(function (p) {
+      return p.status === 'pending' || p.status === 'processing';
+    });
+    if (!hasActive) { stopPolling(); return; }
+
+    fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: password, action: 'status' })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (!data.ok || !data.runs) return;
+      var runs = data.runs;
+      var papers = getPapers();
+      var changed = false;
+
+      // Collect already-matched run IDs
+      var claimed = {};
+      papers.forEach(function (p) { if (p.runId) claimed[p.runId] = true; });
+
+      papers.forEach(function (paper) {
+        if (paper.status === 'completed' || paper.status === 'failed') return;
+
+        // Already matched — update from that run
+        if (paper.runId) {
+          var run = runs.find(function (r) { return r.id === paper.runId; });
+          if (run) {
+            var s = mapStatus(run);
+            if (s !== paper.status) { paper.status = s; changed = true; }
+          }
+          return;
+        }
+
+        // Not yet matched — find by timestamp
+        var triggerMs = new Date(paper.triggeredAt).getTime();
+        var best = null;
+        var bestDiff = Infinity;
+        runs.forEach(function (run) {
+          if (claimed[run.id]) return;
+          var diff = new Date(run.created_at).getTime() - triggerMs;
+          if (diff >= -5000 && diff <= MATCH_WINDOW && diff < bestDiff) {
+            bestDiff = diff;
+            best = run;
+          }
+        });
+
+        if (best) {
+          paper.runId = best.id;
+          claimed[best.id] = true;
+          paper.status = mapStatus(best);
+          changed = true;
+        }
+      });
+
+      if (changed) {
+        savePapers(papers);
+        updateBadge();
+        updateBellVisibility();
+        if (isOpen) renderDropdown();
+      }
+
+      if (!papers.some(function (p) { return p.status === 'pending' || p.status === 'processing'; })) {
+        stopPolling();
+      }
+    })
+    .catch(function () {});
+  }
+
+  function mapStatus(run) {
+    if (run.status === 'completed') return run.conclusion === 'success' ? 'completed' : 'failed';
+    if (run.status === 'in_progress') return 'processing';
+    return 'pending';
+  }
+
+  // ── Helpers ─────────────────────────────────────────────────────
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function relativeTime(iso) {
+    var sec = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+    if (sec < 60) return 'Just now';
+    var min = Math.floor(sec / 60);
+    if (min < 60) return min + 'm ago';
+    var hr = Math.floor(min / 60);
+    if (hr < 24) return hr + 'h ago';
+    return Math.floor(hr / 24) + 'd ago';
+  }
+
+  // ── Listen for new papers from search page ──────────────────────
+  window.addEventListener('kb-paper-added', function () {
+    updateBellVisibility();
+    updateBadge();
+    startPolling();
+    if (isOpen) renderDropdown();
+  });
+
+  // ── Init ────────────────────────────────────────────────────────
+  updateBellVisibility();
+  updateBadge();
+  if (getPapers().some(function (p) { return p.status === 'pending' || p.status === 'processing'; })) {
+    startPolling();
+  }
+})();

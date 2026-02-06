@@ -22,49 +22,86 @@ export default {
       return jsonResponse(400, { error: 'Invalid JSON' });
     }
 
-    const { password, arxiv_url, topic } = body;
-
     // Validate password
-    if (!password || password !== env.AUTH_PASSWORD) {
+    if (!body.password || body.password !== env.AUTH_PASSWORD) {
       return jsonResponse(401, { error: 'Invalid password' });
     }
 
-    if (!arxiv_url) {
-      return jsonResponse(400, { error: 'Missing arxiv_url' });
+    // Route by action
+    if (body.action === 'status') {
+      return handleStatus(env);
     }
 
-    // Trigger GitHub Actions workflow
-    const repo = env.GITHUB_REPO || 'ntufrierenlab/ntufrierenlab.github.io';
-    const apiUrl = `https://api.github.com/repos/${repo}/actions/workflows/add-paper.yml/dispatches`;
-
-    const ghResponse = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${env.GITHUB_PAT}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json',
-        'User-Agent': 'FrierenLab-Worker',
-      },
-      body: JSON.stringify({
-        ref: 'main',
-        inputs: {
-          arxiv_url: arxiv_url,
-          topic: topic || 'General',
-        },
-      }),
-    });
-
-    if (ghResponse.status === 204) {
-      return jsonResponse(200, { ok: true, message: 'Workflow triggered' });
-    }
-
-    const ghData = await ghResponse.text();
-    return jsonResponse(ghResponse.status, {
-      error: 'GitHub API error',
-      detail: ghData,
-    });
+    return handleTrigger(body, env);
   },
 };
+
+async function handleStatus(env) {
+  const repo = env.GITHUB_REPO || 'ntufrierenlab/ntufrierenlab.github.io';
+  const apiUrl = `https://api.github.com/repos/${repo}/actions/workflows/add-paper.yml/runs?per_page=10`;
+
+  const ghResponse = await fetch(apiUrl, {
+    headers: {
+      'Authorization': `Bearer ${env.GITHUB_PAT}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'User-Agent': 'FrierenLab-Worker',
+    },
+  });
+
+  if (!ghResponse.ok) {
+    const detail = await ghResponse.text();
+    return jsonResponse(ghResponse.status, { error: 'GitHub API error', detail });
+  }
+
+  const data = await ghResponse.json();
+  const runs = (data.workflow_runs || []).map(run => ({
+    id: run.id,
+    status: run.status,
+    conclusion: run.conclusion,
+    created_at: run.created_at,
+    updated_at: run.updated_at,
+  }));
+
+  return jsonResponse(200, { ok: true, runs });
+}
+
+async function handleTrigger(body, env) {
+  const { arxiv_url, topic } = body;
+
+  if (!arxiv_url) {
+    return jsonResponse(400, { error: 'Missing arxiv_url' });
+  }
+
+  const repo = env.GITHUB_REPO || 'ntufrierenlab/ntufrierenlab.github.io';
+  const apiUrl = `https://api.github.com/repos/${repo}/actions/workflows/add-paper.yml/dispatches`;
+
+  const ghResponse = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.GITHUB_PAT}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'FrierenLab-Worker',
+    },
+    body: JSON.stringify({
+      ref: 'main',
+      inputs: {
+        arxiv_url: arxiv_url,
+        topic: topic || 'General',
+      },
+    }),
+  });
+
+  if (ghResponse.status === 204) {
+    return jsonResponse(200, { ok: true, message: 'Workflow triggered' });
+  }
+
+  const ghData = await ghResponse.text();
+  return jsonResponse(ghResponse.status, {
+    error: 'GitHub API error',
+    detail: ghData,
+  });
+}
 
 function corsHeaders() {
   return {
