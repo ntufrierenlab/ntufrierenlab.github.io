@@ -1,0 +1,80 @@
+{{ define "main" }}
+<div class="search-page">
+  <div class="search-page-header">
+    <h1 class="list-title">Search Preprint Papers</h1>
+    <p class="search-page-desc">Search for papers on arXiv and bioRxiv, then add them to the knowledge base with one click.</p>
+  </div>
+
+  <div class="arxiv-search-bar">
+    <div class="arxiv-search-input-wrap">
+      <svg class="arxiv-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="arxiv-search-input" placeholder="Search by title, keyword, or author..." autocomplete="off">
+      <button class="btn btn-primary" id="arxiv-search-btn">Search</button>
+    </div>
+  </div>
+
+  <div id="arxiv-results" class="arxiv-results"></div>
+  <div id="arxiv-loading" class="arxiv-loading" style="display:none;">
+    <div class="spinner"></div>
+    <span>Searching arXiv &amp; bioRxiv...</span>
+  </div>
+  <div id="arxiv-empty" class="arxiv-empty" style="display:none;">
+    <p>No results found. Try different keywords.</p>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal" style="display:none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h2>Settings</h2>
+      <p class="modal-desc">Enter the password to add papers to the knowledge base.</p>
+      <div class="form-group">
+        <label for="kb-password">Password</label>
+        <input type="password" id="kb-password" placeholder="Enter password...">
+      </div>
+      <div class="form-group">
+        <label for="worker-url">Worker URL</label>
+        <input type="text" id="worker-url" placeholder="https://frieren-lab-proxy.your-account.workers.dev">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="settings-cancel">Cancel</button>
+        <button class="btn btn-primary" id="settings-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Topic Picker Modal -->
+  <div id="topic-modal" class="modal" style="display:none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h2>Select Topic</h2>
+      <p class="modal-desc">Choose a topic for this paper, or create a new one.</p>
+      <div id="topic-list" class="topic-picker-list"></div>
+      <div class="topic-picker-new">
+        <input type="text" id="new-topic-input" placeholder="New topic name...">
+        <button class="btn btn-outline btn-sm" id="new-topic-add">Add</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="topic-cancel">Cancel</button>
+        <button class="btn btn-primary" id="topic-confirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Processing toast -->
+  <div id="process-toast" class="toast" style="display:none;">
+    <div class="toast-icon">
+      <div class="spinner-small"></div>
+    </div>
+    <div class="toast-text">
+      <strong>Processing paper...</strong>
+      <span>GitHub Actions is generating the summary. It will appear on the site shortly.</span>
+    </div>
+  </div>
+
+  <!-- Settings button (floating) -->
+  <button class="fab-settings" id="open-settings" title="Settings">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+  </button>
+</div>
+{{ end }}

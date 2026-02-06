@@ -1,0 +1,71 @@
+{{ define "main" }}
+<article class="paper-detail">
+  <header class="paper-detail-header">
+    <div class="paper-meta-top">
+      <time datetime="{{ .Date | time.Format "2006-01-02" }}">{{ .Date | time.Format "January 2, 2006" }}</time>
+      {{ with .Params.topics }}
+      <div class="paper-topics">
+        {{ range . }}
+        <a href="{{ printf "topics/%s/" (urlize .) | relURL }}" class="topic-badge">{{ . }}</a>
+        {{ end }}
+      </div>
+      {{ end }}
+    </div>
+    <h1 class="paper-detail-title">{{ .Title }}</h1>
+    {{ with .Params.authors }}
+    <p class="paper-detail-authors">{{ delimit . ", " }}</p>
+    {{ end }}
+    <div class="paper-detail-actions">
+      <div class="paper-detail-links">
+        {{ with .Params.arxiv_url }}
+        <a href="{{ . }}" class="btn btn-outline" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          arXiv
+        </a>
+        {{ end }}
+        {{ with .Params.pdf_url }}
+        <a href="{{ . }}" class="btn btn-outline" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          PDF
+        </a>
+        {{ end }}
+      </div>
+      {{ if .Params.one_line_summary_zh }}
+      <button class="btn btn-lang-toggle" id="lang-toggle" data-lang="en">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span class="lang-label">中文</span>
+      </button>
+      {{ end }}
+    </div>
+  </header>
+
+  {{ if .Params.one_line_summary_zh }}
+  <div class="paper-highlight lang-en">
+    <p>{{ .Params.one_line_summary }}</p>
+  </div>
+  <div class="paper-highlight lang-zh" style="display:none;">
+    <p>{{ .Params.one_line_summary_zh }}</p>
+  </div>
+  {{ else }}
+  {{ with .Params.one_line_summary }}
+  <div class="paper-highlight">
+    <p>{{ . }}</p>
+  </div>
+  {{ end }}
+  {{ end }}
+
+  <div class="paper-content">
+    {{ .Content }}
+  </div>
+
+  {{ with .Params.tags }}
+  <footer class="paper-detail-footer">
+    <div class="paper-tags-full">
+      {{ range . }}
+      <a href="{{ printf "tags/%s/" (urlize .) | relURL }}" class="tag">{{ . }}</a>
+      {{ end }}
+    </div>
+  </footer>
+  {{ end }}
+</article>
+{{ end }}
