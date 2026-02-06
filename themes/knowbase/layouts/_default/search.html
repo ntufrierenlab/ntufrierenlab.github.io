@@ -27,14 +27,10 @@
     <div class="modal-overlay"></div>
     <div class="modal-content">
       <h2>Settings</h2>
-      <p class="modal-desc">Enter credentials to add papers. Password is kept in memory only and never stored.</p>
+      <p class="modal-desc">Enter the password to add papers. It is kept in memory only and cleared when you close the tab.</p>
       <div class="form-group">
-        <label for="kb-password">Password <span class="label-hint">(session only, not stored)</span></label>
+        <label for="kb-password">Password</label>
         <input type="password" id="kb-password" placeholder="Enter password..." autocomplete="off">
-      </div>
-      <div class="form-group">
-        <label for="worker-url">Worker URL <span class="label-hint">(session only)</span></label>
-        <input type="text" id="worker-url" placeholder="https://frieren-lab-proxy.your-account.workers.dev" autocomplete="off">
       </div>
       <div class="modal-actions">
         <button class="btn btn-outline" id="settings-cancel">Cancel</button>

@@ -239,8 +239,8 @@
   var pendingPaper = { url: '', title: '', btn: null };
 
   function openTopicPicker(url, title, btn) {
-    if (!sessionPassword || !sessionWorkerUrl) {
-      openSettings('Please enter your password and Worker URL first.');
+    if (!sessionPassword) {
+      openSettings('Please enter the password first.');
       return;
     }
     pendingPaper = { url: url, title: title, btn: btn };
@@ -485,7 +485,7 @@
   localStorage.removeItem('worker-url');
 
   var sessionPassword = '';
-  var sessionWorkerUrl = '';
+  var WORKER_URL = 'https://frieren-lab-proxy.ntufrierenlab.workers.dev';
 
   // ── Add paper (via Cloudflare Worker proxy) ────────────────────
   function addPaper(paperUrl, title, btn, topic) {
@@ -495,7 +495,7 @@
       'Processing...';
 
     var password = sessionPassword;
-    var workerUrl = sessionWorkerUrl;
+    var workerUrl = WORKER_URL;
 
     fetch(workerUrl, {
       method: 'POST',
@@ -552,16 +552,11 @@
   var cancelBtn = document.getElementById('settings-cancel');
   var saveBtn = document.getElementById('settings-save');
   var passwordInput = document.getElementById('kb-password');
-  var workerUrlInput = document.getElementById('worker-url');
 
   function openSettings(msg) {
-    // Password always starts empty — never pre-filled
     passwordInput.value = '';
-    workerUrlInput.value = sessionWorkerUrl;
     settingsModal.style.display = 'flex';
-    if (msg) {
-      alert(msg);
-    }
+    if (msg) alert(msg);
   }
 
   if (openSettingsBtn) {
@@ -573,9 +568,7 @@
   if (saveBtn) {
     saveBtn.addEventListener('click', function () {
       var pwd = passwordInput.value.trim();
-      var wurl = workerUrlInput.value.trim();
       if (pwd) sessionPassword = pwd;
-      if (wurl) sessionWorkerUrl = wurl;
       settingsModal.style.display = 'none';
     });
   }
