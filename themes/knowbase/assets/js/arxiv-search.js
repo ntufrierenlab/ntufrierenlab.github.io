@@ -14,7 +14,7 @@
   var currentPage = 1;
   var ARXIV_SOURCE = 's4306400194';
   var SELECT_FIELDS = 'id,title,authorships,publication_date,primary_location,cited_by_count,abstract_inverted_index';
-  var DEFAULT_TOPICS = ['Color Constancy', 'Auto White Balance'];
+  var DEFAULT_TOPICS = ['Auto White Balance'];
 
   // ── Topic Management ──────────────────────────────────────────
   function getTopics() {

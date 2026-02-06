@@ -70,7 +70,7 @@
 
 // Sidebar topic management (shared across all pages)
 (function () {
-  var DEFAULT_TOPICS = ['Color Constancy', 'Auto White Balance'];
+  var DEFAULT_TOPICS = ['Auto White Balance'];
 
   function getTopics() {
     var stored = localStorage.getItem('kb-topics');
