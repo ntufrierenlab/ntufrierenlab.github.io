@@ -239,10 +239,8 @@
   var pendingPaper = { url: '', title: '', btn: null };
 
   function openTopicPicker(url, title, btn) {
-    var pwd = localStorage.getItem('kb-password');
-    var wurl = localStorage.getItem('worker-url');
-    if (!pwd || !wurl) {
-      openSettings('Please configure your password and Worker URL first.');
+    if (!sessionPassword || !sessionWorkerUrl) {
+      openSettings('Please enter your password and Worker URL first.');
       return;
     }
     pendingPaper = { url: url, title: title, btn: btn };
@@ -481,6 +479,14 @@
     if (header) header.scrollIntoView({ behavior: 'smooth' });
   }
 
+  // ── Credentials (memory-only, never persisted) ──────────────────
+  // Clean up any old localStorage entries from previous versions
+  localStorage.removeItem('kb-password');
+  localStorage.removeItem('worker-url');
+
+  var sessionPassword = '';
+  var sessionWorkerUrl = '';
+
   // ── Add paper (via Cloudflare Worker proxy) ────────────────────
   function addPaper(paperUrl, title, btn, topic) {
     btn.disabled = true;
@@ -488,8 +494,8 @@
       '<div class="spinner-small"></div>' +
       'Processing...';
 
-    var password = localStorage.getItem('kb-password');
-    var workerUrl = localStorage.getItem('worker-url');
+    var password = sessionPassword;
+    var workerUrl = sessionWorkerUrl;
 
     fetch(workerUrl, {
       method: 'POST',
@@ -549,8 +555,9 @@
   var workerUrlInput = document.getElementById('worker-url');
 
   function openSettings(msg) {
-    passwordInput.value = localStorage.getItem('kb-password') || '';
-    workerUrlInput.value = localStorage.getItem('worker-url') || '';
+    // Password always starts empty — never pre-filled
+    passwordInput.value = '';
+    workerUrlInput.value = sessionWorkerUrl;
     settingsModal.style.display = 'flex';
     if (msg) {
       alert(msg);
@@ -567,8 +574,8 @@
     saveBtn.addEventListener('click', function () {
       var pwd = passwordInput.value.trim();
       var wurl = workerUrlInput.value.trim();
-      if (pwd) localStorage.setItem('kb-password', pwd);
-      if (wurl) localStorage.setItem('worker-url', wurl);
+      if (pwd) sessionPassword = pwd;
+      if (wurl) sessionWorkerUrl = wurl;
       settingsModal.style.display = 'none';
     });
   }
