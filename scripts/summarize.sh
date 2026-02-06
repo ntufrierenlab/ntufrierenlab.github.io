@@ -21,44 +21,62 @@ if echo "$PAPER_URL" | grep -qi 'biorxiv\.org'; then
     SOURCE="bioRxiv"
     echo "Detected bioRxiv paper" >&2
 
-    # Extract DOI suffix from various bioRxiv URL formats
-    # e.g. /content/10.1101/2026.01.22.700600v1
-    # e.g. /content/biorxiv/early/2026/01/24/2026.01.22.700600
-    BIORXIV_ID=$(echo "$PAPER_URL" | grep -oE '[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+' | head -1)
-    if [ -z "$BIORXIV_ID" ]; then
-        echo "Error: Could not extract bioRxiv ID from URL" >&2
-        exit 1
-    fi
+    # Fetch the HTML page and extract metadata from <meta> tags
+    echo "Fetching metadata from bioRxiv page..." >&2
+    PAGE_HTML=$(curl -sL "$PAPER_URL")
 
-    DOI="10.1101/${BIORXIV_ID}"
-    echo "Processing bioRxiv DOI: ${DOI}" >&2
+    METADATA=$(echo "$PAGE_HTML" | python3 -c "
+import sys, re, html as htmlmod
+data = sys.stdin.read()
 
-    # PDF URL
-    PDF_URL="https://www.biorxiv.org/content/${DOI}v1.full.pdf"
+def meta(name):
+    # Match <meta name=\"...\" content=\"...\"> or <meta property=\"...\" content=\"...\">
+    m = re.search(r'<meta\s+(?:name|property)=\"' + re.escape(name) + r'\"\s+content=\"([^\"]*?)\"', data)
+    if not m:
+        m = re.search(r'<meta\s+content=\"([^\"]*?)\"\s+(?:name|property)=\"' + re.escape(name) + r'\"', data)
+    return htmlmod.unescape(m.group(1).strip()) if m else ''
 
-    # Fetch metadata from bioRxiv API
-    echo "Fetching metadata from bioRxiv API..." >&2
-    BIORXIV_JSON=$(curl -sL "https://api.biorxiv.org/details/biorxiv/${DOI}")
+title = meta('DC.Title') or meta('citation_title') or meta('og:title') or ''
+date = meta('DC.Date') or meta('citation_publication_date') or meta('article:published_time') or ''
+doi = meta('citation_doi') or ''
+abstract = meta('DC.Description') or meta('og:description') or ''
 
-    METADATA=$(echo "$BIORXIV_JSON" | python3 -c "
-import sys, json
-data = json.load(sys.stdin)
-coll = data.get('collection', [])
-if not coll:
-    print('ERROR=No entry found', file=sys.stderr)
+# Extract authors (multiple meta tags)
+authors = re.findall(r'<meta\s+(?:name=\"(?:DC\.Contributor|citation_author)\"\s+content=\"([^\"]*?)\"|content=\"([^\"]*?)\"\s+name=\"(?:DC\.Contributor|citation_author)\")', data)
+author_list = [a[0] or a[1] for a in authors if (a[0] or a[1]).strip()]
+
+if date and '/' in date:
+    # Convert MM/DD/YYYY or YYYY/MM/DD to YYYY-MM-DD
+    parts = date.split('/')
+    if len(parts[0]) == 4:
+        date = f'{parts[0]}-{parts[1].zfill(2)}-{parts[2].zfill(2)}'
+    else:
+        date = f'{parts[2]}-{parts[0].zfill(2)}-{parts[1].zfill(2)}'
+
+if not title:
+    print('ERROR=No title found in page', file=sys.stderr)
     sys.exit(1)
-entry = coll[0]
-title = entry.get('title', '').strip()
-authors = entry.get('authors', '').strip()
-date = entry.get('date', '').strip()
-abstract = entry.get('abstract', '').strip()
-# bioRxiv authors are semicolon-separated
-author_list = [a.strip() for a in authors.split(';') if a.strip()]
+
 print(f'TITLE={title}')
 print(f'AUTHORS={chr(44).join(author_list)}')
-print(f'DATE={date}')
+print(f'DATE={date[:10]}')
 print(f'ABSTRACT={abstract}')
+print(f'DOI={doi}')
 " 2>&1)
+
+    # Extract DOI for PDF URL construction
+    PAGE_DOI=$(echo "$METADATA" | grep '^DOI=' | cut -d= -f2-)
+    if [ -n "$PAGE_DOI" ]; then
+        PDF_URL="https://www.biorxiv.org/content/${PAGE_DOI}v1.full.pdf"
+    else
+        # Fallback: try to get PDF URL from the page
+        PDF_URL=$(echo "$PAGE_HTML" | grep -oE 'https://www\.biorxiv\.org/content/[^"]+\.full\.pdf' | head -1)
+        if [ -z "$PDF_URL" ]; then
+            echo "Error: Could not determine PDF URL" >&2
+            exit 1
+        fi
+    fi
+    echo "PDF URL: ${PDF_URL}" >&2
 
 else
     SOURCE="arXiv"
