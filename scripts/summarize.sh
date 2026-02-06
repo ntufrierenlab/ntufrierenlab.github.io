@@ -24,7 +24,7 @@ fi
 PDF_URL="https://arxiv.org/pdf/${ARXIV_ID}"
 
 # Fetch paper abstract from arXiv API
-ABSTRACT=$(curl -s "http://export.arxiv.org/api/query?id_list=${ARXIV_ID}" | \
+ABSTRACT=$(curl -sL "https://export.arxiv.org/api/query?id_list=${ARXIV_ID}" | \
     python3 -c "
 import sys, xml.etree.ElementTree as ET, re
 data = sys.stdin.read()
@@ -128,7 +128,7 @@ Important:
 - Also output two one-line summaries: one in English and one in Traditional Chinese, on separate lines prefixed with ONE_LINE_EN= and ONE_LINE_ZH="
 
 # Call Claude
-SUMMARY=$(echo "$PROMPT" | claude --print 2>/dev/null)
+SUMMARY=$(echo "$PROMPT" | claude --print --model claude-sonnet-4-5-20250929 2>&1)
 
 # Extract one-line summaries
 ONE_LINE_EN=$(echo "$SUMMARY" | grep '^ONE_LINE_EN=' | cut -d= -f2- | sed 's/^"//;s/"$//')
