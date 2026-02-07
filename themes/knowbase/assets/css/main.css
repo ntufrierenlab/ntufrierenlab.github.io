@@ -783,7 +783,7 @@ a.tag:hover {
 }
 
 .paper-highlight p {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 500;
   color: var(--text-primary);
   line-height: 1.6;
@@ -791,7 +791,7 @@ a.tag:hover {
 
 /* --- Paper Content (Markdown) --- */
 .paper-content {
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   line-height: 1.8;
   overflow-wrap: break-word;
   word-wrap: break-word;
