@@ -1,11 +1,42 @@
 {{ define "main" }}
+  {{ $papers := where site.RegularPages "Section" "papers" }}
+  {{ $weekAgo := now.AddDate 0 0 -7 }}
+  {{ $thisWeek := where $papers.ByDate.Reverse "Date" "ge" $weekAgo }}
+  {{ if $thisWeek }}
+  <section class="weekly-digest">
+    <div class="section-header">
+      <h2 class="section-title">This Week</h2>
+      <span class="weekly-digest-meta">{{ len $thisWeek }} {{ if eq (len $thisWeek) 1 }}paper{{ else }}papers{{ end }} added</span>
+    </div>
+    <div class="weekly-digest-list">
+      {{ range $thisWeek }}
+      <a href="{{ .RelPermalink }}" class="weekly-digest-item">
+        <div class="weekly-digest-item-left">
+          <span class="weekly-digest-date">{{ .Date | time.Format "Jan 2" }}</span>
+          {{ with .Params.topics }}
+          {{ range first 1 . }}
+          <span class="topic-badge">{{ . }}</span>
+          {{ end }}
+          {{ end }}
+        </div>
+        <div class="weekly-digest-item-right">
+          <span class="weekly-digest-title">{{ .Title }}</span>
+          {{ with .Params.one_line_summary }}
+          <span class="weekly-digest-summary">{{ . }}</span>
+          {{ end }}
+        </div>
+      </a>
+      {{ end }}
+    </div>
+  </section>
+  {{ end }}
+
   <section class="recent-papers">
     <div class="section-header">
       <h2 class="section-title">Recent Papers</h2>
       <a href="{{ "papers/" | relURL }}" class="view-all">View all &rarr;</a>
     </div>
     <div class="paper-grid">
-      {{ $papers := where site.RegularPages "Section" "papers" }}
       {{ range first 9 $papers.ByDate.Reverse }}
       <article class="paper-card">
         <div class="paper-card-header">
