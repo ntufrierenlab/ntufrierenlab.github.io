@@ -736,19 +736,9 @@ a.tag:hover {
 
 /* --- Language Toggle Button --- */
 .btn-lang-toggle {
-  background: var(--accent-subtle);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  padding: 0.45rem 0.9rem;
-  border-radius: 999px;
   font-weight: 600;
   font-size: 0.82rem;
   letter-spacing: 0.02em;
-}
-
-.btn-lang-toggle:hover {
-  background: var(--accent);
-  color: var(--text-on-accent);
 }
 
 .btn-lang-toggle svg {

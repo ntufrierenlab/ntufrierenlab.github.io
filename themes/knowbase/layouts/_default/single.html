@@ -29,13 +29,13 @@
           PDF
         </a>
         {{ end }}
+        {{ if .Params.one_line_summary_zh }}
+        <button class="btn btn-outline btn-lang-toggle" id="lang-toggle" data-lang="en">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span class="lang-label">中文</span>
+        </button>
+        {{ end }}
       </div>
-      {{ if .Params.one_line_summary_zh }}
-      <button class="btn btn-lang-toggle" id="lang-toggle" data-lang="en">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        <span class="lang-label">中文</span>
-      </button>
-      {{ end }}
       <button class="btn btn-danger btn-delete-paper" id="btn-delete-paper"
               data-filename="{{ .File.LogicalName }}"
               data-title="{{ .Title }}"
