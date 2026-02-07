@@ -278,16 +278,21 @@
       if (editMode && topicName) {
         if (!existing) {
           var anchor = li.querySelector('a');
+          var countEl = li.querySelector('.topic-count');
+          var count = countEl ? parseInt(countEl.textContent, 10) || 0 : 0;
           var btn = document.createElement('button');
-          btn.className = 'topic-delete-btn';
+          btn.className = 'topic-delete-btn' + (count > 0 ? ' disabled' : '');
           btn.setAttribute('data-topic', topicName);
-          btn.title = 'Remove topic';
+          btn.title = count > 0 ? 'Remove all papers first' : 'Remove topic';
           btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
           btn.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
             var name = this.getAttribute('data-topic');
-            if (getTopics().length <= 1) return;
+            var li = this.closest('li');
+            var cEl = li ? li.querySelector('.topic-count') : null;
+            var c = cEl ? parseInt(cEl.textContent, 10) || 0 : 0;
+            if (c > 0 || getTopics().length <= 1) return;
             removeTopic(name);
             refreshSidebarTopics();
           });

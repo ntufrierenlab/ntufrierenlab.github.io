@@ -1928,6 +1928,16 @@ a.tag:hover {
   background: rgba(239, 68, 68, 0.1);
 }
 
+.topic-delete-btn.disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.topic-delete-btn.disabled:hover {
+  color: var(--text-tertiary);
+  background: none;
+}
+
 .sidebar-topic-add-form {
   padding: 0.5rem 0.75rem 0.5rem 1rem;
 }
