@@ -7,7 +7,7 @@ theme = 'knowbase'
   home = ['HTML', 'JSON']
 
 [params]
-  description = 'A curated knowledge base of research papers by NTU Frieren Lab'
+  description = 'Computer Vision & Image Processing Research'
   subtitle = 'Research Paper Knowledge Base'
   github_repo = 'https://github.com/ntufrierenlab/ntufrierenlab.github.io'
 
