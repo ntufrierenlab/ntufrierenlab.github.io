@@ -60,66 +60,6 @@
         "Cong Wei",
         "Sun Sun"
       ]
-    },
-    {
-      "title": "RISE-Video: Can Video Generators Decode Implicit World Rules?",
-      "url": "https://huggingface.co/papers/2602.05986",
-      "arxiv_url": "https://arxiv.org/abs/2602.05986",
-      "summary": "RISE-Video presents a novel benchmark for evaluating text-image-to-video synthesis models based on cognitive reasoning rather than visual fidelity, using a multi-dimensional metric system and automated LMM-based evaluation.",
-      "upvotes": 25,
-      "authors": [
-        "Mingxin Liu",
-        "Shuran Ma",
-        "Shibei Meng"
-      ]
-    },
-    {
-      "title": "Accurate Failure Prediction in Agents Does Not Imply Effective Failure Prevention",
-      "url": "https://huggingface.co/papers/2602.03338",
-      "arxiv_url": "https://arxiv.org/abs/2602.03338",
-      "summary": "LLM critic models with high offline accuracy can cause variable performance impacts at deployment, necessitating pre-deployment testing to determine intervention safety and effectiveness.",
-      "upvotes": 25,
-      "authors": [
-        "Rakshith Vasudev",
-        "Melisa Russak",
-        "Dan Bikel"
-      ]
-    },
-    {
-      "title": "DFlash: Block Diffusion for Flash Speculative Decoding",
-      "url": "https://huggingface.co/papers/2602.06036",
-      "arxiv_url": "https://arxiv.org/abs/2602.06036",
-      "summary": "DFlash is a speculative decoding framework that uses a lightweight block diffusion model for parallel token drafting, achieving significant speedup over existing autoregressive methods while maintaining high-quality outputs.",
-      "upvotes": 23,
-      "authors": [
-        "Jian Chen",
-        "Yesheng Liang",
-        "Zhijian Liu"
-      ]
-    },
-    {
-      "title": "ProAct: Agentic Lookahead in Interactive Environments",
-      "url": "https://huggingface.co/papers/2602.05327",
-      "arxiv_url": "https://arxiv.org/abs/2602.05327",
-      "summary": "ProAct enhances LLM agents' long-horizon planning by combining supervised fine-tuning with search-derived trajectories and a Monte-Carlo critic for improved policy optimization.",
-      "upvotes": 21,
-      "authors": [
-        "Yangbin Yu",
-        "Mingyu Yang",
-        "Junyou Li"
-      ]
-    },
-    {
-      "title": "Dr. Kernel: Reinforcement Learning Done Right for Triton Kernel Generations",
-      "url": "https://huggingface.co/papers/2602.05885",
-      "arxiv_url": "https://arxiv.org/abs/2602.05885",
-      "summary": "Reinforcement learning approach for kernel generation addresses reward hacking and optimization issues through specialized environment and unbiased policy gradient methods, achieving competitive performance with state-of-the-art models.",
-      "upvotes": 19,
-      "authors": [
-        "Wei Liu",
-        "Jiawei Xu",
-        "Yingru Li"
-      ]
     }
   ]
 }
