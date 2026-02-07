@@ -118,43 +118,52 @@ papers = json.load(sys.stdin)
 for i, p in enumerate(papers):
     print(f\"\\n--- Paper {i+1} ---\")
     print(f\"Title: {p['title']}\")
-    print(f\"Abstract: {p['abstract'][:500]}\")
+    print(f\"Abstract: {p['abstract']}\")
 ")"
 
 # ── Call Claude ──────────────────────────────────────────────────
 
 echo "Calling Claude for summaries..." >&2
-SUMMARIES=$(echo "$PROMPT" | claude --print --model claude-haiku-4-5-20251001 2>/dev/null)
+echo "$PROMPT" | claude --print --model claude-haiku-4-5-20251001 2>/dev/null > /tmp/claude_summaries.txt
 
-if [ -z "$SUMMARIES" ]; then
+if [ ! -s /tmp/claude_summaries.txt ]; then
     echo "Error: Claude returned empty response" >&2
     exit 1
 fi
-echo "Claude response received (${#SUMMARIES} chars)" >&2
+echo "Claude response received ($(wc -c < /tmp/claude_summaries.txt) bytes)" >&2
 
 # ── Merge summaries with paper metadata into final JSON ──────────
 
 TODAY=$(date +%Y-%m-%d)
 
-python3 -c "
-import sys, json, re
+echo "$PAPERS_JSON" > /tmp/papers_meta.json
 
-papers_raw = json.loads('''$PAPERS_JSON''')
-summaries_raw = '''$(echo "$SUMMARIES" | sed "s/'/'\\''/g")'''
+python3 << 'PYEOF'
+import json, re, sys
 
-# Extract JSON array from Claude response (strip any markdown fences)
-summaries_raw = re.sub(r'^[^\[]*', '', summaries_raw, count=1)
-summaries_raw = re.sub(r'[^\]]*$', '', summaries_raw, count=1)
+with open('/tmp/papers_meta.json') as f:
+    papers_raw = json.load(f)
 
-try:
-    summaries = json.loads(summaries_raw)
-except json.JSONDecodeError:
-    print('Error: Failed to parse Claude JSON response', file=sys.stderr)
+with open('/tmp/claude_summaries.txt') as f:
+    summaries_raw = f.read()
+
+# Extract JSON array from Claude response (strip any markdown fences or preamble)
+match = re.search(r'\[.*\]', summaries_raw, re.DOTALL)
+if not match:
+    print('Error: No JSON array found in Claude response', file=sys.stderr)
     print(summaries_raw[:500], file=sys.stderr)
     sys.exit(1)
 
+try:
+    summaries = json.loads(match.group(0))
+except json.JSONDecodeError:
+    print('Error: Failed to parse Claude JSON response', file=sys.stderr)
+    print(match.group(0)[:500], file=sys.stderr)
+    sys.exit(1)
+
+import datetime
 result = {
-    'date': '$TODAY',
+    'date': datetime.date.today().isoformat(),
     'papers': []
 }
 
@@ -173,8 +182,9 @@ for i, paper in enumerate(papers_raw):
         entry['summary_zh'] = ''
     result['papers'].append(entry)
 
-print(json.dumps(result, indent=2, ensure_ascii=False))
-" > /tmp/latest_digest.json
+with open('/tmp/latest_digest.json', 'w') as f:
+    json.dump(result, f, indent=2, ensure_ascii=False)
+PYEOF
 
 if [ $? -ne 0 ]; then
     echo "Error: Failed to generate digest JSON" >&2
