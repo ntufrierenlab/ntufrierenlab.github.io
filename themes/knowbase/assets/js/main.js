@@ -1,3 +1,14 @@
+// Wrap tables in scrollable containers
+(function () {
+  var tables = document.querySelectorAll('.paper-content table');
+  for (var i = 0; i < tables.length; i++) {
+    var wrapper = document.createElement('div');
+    wrapper.className = 'table-scroll';
+    tables[i].parentNode.insertBefore(wrapper, tables[i]);
+    wrapper.appendChild(tables[i]);
+  }
+})();
+
 // Theme toggle
 (function () {
   var toggle = document.getElementById('theme-toggle');

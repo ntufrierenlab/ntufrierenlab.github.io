@@ -798,6 +798,7 @@ a.tag:hover {
   line-height: 1.8;
   overflow-wrap: break-word;
   word-wrap: break-word;
+  overflow-x: hidden;
 }
 
 .paper-content img {
@@ -881,12 +882,15 @@ a.tag:hover {
   padding: 0;
 }
 
-.paper-content table {
-  display: block;
+.table-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border-collapse: collapse;
   margin-bottom: 1.5rem;
+}
+
+.paper-content table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 0.9rem;
 }
 
