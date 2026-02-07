@@ -1,6 +1,7 @@
 ---
 title: "4KAgent: Agentic Any Image to 4K Super-Resolution"
 date: 2025-07-09
+date_added: 2026-02-07
 authors:
   - "Yushen Zuo"
   - "Qi Zheng"

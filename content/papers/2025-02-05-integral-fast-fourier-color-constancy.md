@@ -12,6 +12,7 @@ arxiv_url: "https://arxiv.org/abs/2502.03494"
 pdf_url: "https://arxiv.org/pdf/2502.03494"
 one_line_summary: " Integral Fast Fourier Color Constancy (IFFCC) achieves real-time multi-illuminant auto white balance comparable to neural networks while being 400× more parameter-efficient and 20-100× faster by leveraging integral UV histograms and parallelized Fourier convolutions."
 one_line_summary_zh: " 積分快速傅立葉色彩恆定性(IFFCC)藉由積分UV直方圖與平行化傅立葉卷積,實現與神經網路相當的多光源自動白平衡,同時參數數量減少400倍,運算速度提升20-100倍。"
+date_added: 2026-02-06
 topics: ["Auto White Balance"]
 tags: []
 ---

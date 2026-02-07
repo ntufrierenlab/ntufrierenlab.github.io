@@ -1,7 +1,14 @@
 {{ define "main" }}
   {{ $papers := where site.RegularPages "Section" "papers" }}
   {{ $weekAgo := now.AddDate 0 0 -7 }}
-  {{ $thisWeek := where $papers.ByDate.Reverse "Date" "ge" $weekAgo }}
+  {{ $thisWeek := slice }}
+  {{ range $papers.ByDate.Reverse }}
+    {{ if .Params.date_added }}
+      {{ if ge (time .Params.date_added) $weekAgo }}
+        {{ $thisWeek = $thisWeek | append . }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
   {{ if $thisWeek }}
   <section class="weekly-digest">
     <div class="section-header">
@@ -12,7 +19,7 @@
       {{ range $thisWeek }}
       <a href="{{ .RelPermalink }}" class="weekly-digest-item">
         <div class="weekly-digest-item-left">
-          <span class="weekly-digest-date">{{ .Date | time.Format "Jan 2" }}</span>
+          <span class="weekly-digest-date">{{ time.Format "Jan 2" .Params.date_added }}</span>
           {{ with .Params.topics }}
           {{ range first 1 . }}
           <span class="topic-badge">{{ . }}</span>

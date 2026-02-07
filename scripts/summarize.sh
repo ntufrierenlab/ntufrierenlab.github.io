@@ -428,6 +428,7 @@ arxiv_url: "${PAPER_URL}"
 pdf_url: "${PDF_URL}"
 one_line_summary: "${ONE_LINE_EN}"
 one_line_summary_zh: "${ONE_LINE_ZH}"
+date_added: $(date +%Y-%m-%d)
 topics: ["${TOPIC_NAME}"]
 tags: []
 ---

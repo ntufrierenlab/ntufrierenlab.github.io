@@ -12,6 +12,7 @@ arxiv_url: "https://arxiv.org/abs/1709.09602"
 pdf_url: "https://arxiv.org/pdf/1709.09602"
 one_line_summary: "Exposure presents a white-box photo retouching system combining reinforcement learning and unpaired GANs to generate interpretable operation sequences that scale to megapixel images, outperforming CycleGAN and Pix2pix while revealing understandable aesthetic transformations."
 one_line_summary_zh: "Exposure 提出了結合強化學習和非配對 GAN 的白盒照片修飾系統，生成可伸縮到百萬像素級的可解釋操作序列，超越 CycleGAN 和 Pix2pix 同時揭示可理解的美學變換。"
+date_added: 2026-02-07
 topics: ["Aesthetic"]
 tags: []
 ---

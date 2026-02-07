@@ -11,6 +11,7 @@ arxiv_url: "https://arxiv.org/abs/2601.05249"
 pdf_url: "https://arxiv.org/pdf/2601.05249"
 one_line_summary: " RL-AWB combines a novel statistical color constancy algorithm (SGP-LRD) with Soft Actor-Critic reinforcement learning for adaptive per-image parameter tuning in nighttime auto white balance, achieving superior cross-sensor generalization with minimal training data (5 images)."
 one_line_summary_zh: " RL-AWB 結合新穎的統計色彩恆常性演算法 (SGP-LRD) 與軟執行者批評強化學習，進行自適應逐幀參數調整以實現夜間自動白平衡，以最少訓練數據 (5 張影像) 達成卓越的跨傳感器泛化能力。"
+date_added: 2026-02-06
 topics: ["Auto White Balance"]
 tags: []
 notes:
