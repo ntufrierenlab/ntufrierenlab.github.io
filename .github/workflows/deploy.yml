@@ -5,7 +5,7 @@ on:
     branches: [main]
   workflow_dispatch:
   workflow_run:
-    workflows: ["Add Paper to Knowledge Base", "Delete Paper from Knowledge Base", "Add Note to Paper"]
+    workflows: ["Add Paper to Knowledge Base", "Delete Paper from Knowledge Base", "Add Note to Paper", "Daily Digest"]
     types: [completed]
 
 permissions:
