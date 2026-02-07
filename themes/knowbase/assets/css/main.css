@@ -170,14 +170,8 @@ a:hover {
 .logo-icon {
   width: 34px;
   height: 34px;
-  background: linear-gradient(135deg, var(--accent), #7c3aed);
   border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: white;
+  object-fit: cover;
 }
 
 .sidebar-close {
