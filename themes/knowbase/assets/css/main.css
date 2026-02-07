@@ -1158,6 +1158,42 @@ a.tag:hover {
   margin: 0 0 1rem 0;
 }
 
+.paper-deleted-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+}
+
+.paper-deleted-notice svg {
+  color: var(--text-tertiary);
+  margin-bottom: 1.5rem;
+}
+
+.paper-deleted-notice h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.75rem 0;
+}
+
+.paper-deleted-notice .deleted-title {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0 0 0.5rem 0;
+  max-width: 500px;
+}
+
+.paper-deleted-notice .deleted-desc {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  margin: 0 0 2rem 0;
+}
+
 /* arXiv Result Cards */
 .arxiv-results {
   display: flex;
@@ -1692,19 +1728,21 @@ a.tag:hover {
 
 .notif-badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: -6px;
+  right: -6px;
   background: #ef4444;
   color: white;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 700;
   min-width: 18px;
   height: 18px;
-  line-height: 18px;
-  text-align: center;
   border-radius: 999px;
-  padding: 0 4px;
+  padding: 0 5px;
   border: 2px solid var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .notif-dropdown {

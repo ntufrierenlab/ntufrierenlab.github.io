@@ -577,6 +577,12 @@
 (function () {
   var WORKER_URL = 'https://frieren-lab-proxy.ntufrierenlab.workers.dev';
 
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
   var deleteBtn = document.getElementById('btn-delete-paper');
   if (!deleteBtn) return;
 
@@ -647,8 +653,23 @@
         // Notify bell system
         window.dispatchEvent(new CustomEvent('kb-paper-added'));
 
-        // Hide delete button
-        deleteBtn.style.display = 'none';
+        // Replace page content with "deleted" confirmation
+        var article = document.querySelector('.paper-detail');
+        if (article) {
+          article.innerHTML =
+            '<div class="paper-deleted-notice">' +
+              '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">' +
+                '<polyline points="3 6 5 6 21 6"/>' +
+                '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>' +
+              '</svg>' +
+              '<h2>Paper Deleted</h2>' +
+              '<p class="deleted-title">' + escapeHtml(title) + '</p>' +
+              '<p class="deleted-desc">The deletion is being processed. The site will update shortly.</p>' +
+              '<a href="/" class="btn btn-primary">Back to Home</a>' +
+            '</div>';
+        }
+        var delModal = document.getElementById('delete-confirm-modal');
+        if (delModal) delModal.style.display = 'none';
       } else {
         alert('Failed to trigger delete: ' + (data.error || 'Unknown error'));
       }
