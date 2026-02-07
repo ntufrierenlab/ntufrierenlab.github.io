@@ -47,5 +47,10 @@ jobs:
           else
             FILENAME="${{ inputs.paper_filename }}"
             git commit -m "Delete paper: ${FILENAME}"
-            git push
+            for i in 1 2 3 4 5; do
+              git push && break
+              echo "Push failed (attempt $i), pulling and retrying..."
+              git pull --rebase
+              sleep 2
+            done
           fi

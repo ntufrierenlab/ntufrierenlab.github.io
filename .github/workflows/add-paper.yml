@@ -73,5 +73,10 @@ jobs:
           else
             TITLE=$(grep '^title:' /tmp/paper-summary.md | head -1 | sed 's/^title: "//;s/"$//' | head -c 80)
             git commit -m "Add paper: ${TITLE}"
-            git push
+            for i in 1 2 3 4 5; do
+              git push && break
+              echo "Push failed (attempt $i), pulling and retrying..."
+              git pull --rebase
+              sleep 2
+            done
           fi
