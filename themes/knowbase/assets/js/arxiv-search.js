@@ -65,11 +65,10 @@
     currentPage = 1;
 
     var url = API_BASE +
-      '?search=' + encodeURIComponent(query) +
+      '?filter=title.search:' + encodeURIComponent(query) + ',is_oa:true' +
       '&sort=publication_date:desc' +
       '&select=' + SELECT_FIELDS +
       '&per_page=100' +
-      '&filter=is_oa:true' +
       '&mailto=ntufrierenlab@gmail.com';
 
     fetch(url)
