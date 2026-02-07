@@ -12,7 +12,7 @@ arxiv_url: "https://arxiv.org/abs/1709.09602"
 pdf_url: "https://arxiv.org/pdf/1709.09602"
 one_line_summary: ""
 one_line_summary_zh: ""
-topics: ["Auto White Balance"]
+topics: ["Aesthetic"]
 tags: []
 ---
 

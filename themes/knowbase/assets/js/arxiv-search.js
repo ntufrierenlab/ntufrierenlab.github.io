@@ -328,14 +328,15 @@
     topicModal.style.display = 'flex';
   }
 
-  function renderTopicList() {
+  function renderTopicList(selectedTopic) {
     var topics = getTopics();
     topicListEl.innerHTML = '';
     topics.forEach(function (t) {
       var label = document.createElement('label');
       label.className = 'topic-picker-item';
+      var isSelected = selectedTopic ? (t === selectedTopic) : false;
       label.innerHTML =
-        '<input type="radio" name="topic-pick" value="' + escapeAttr(t) + '">' +
+        '<input type="radio" name="topic-pick" value="' + escapeAttr(t) + '"' + (isSelected ? ' checked' : '') + '>' +
         '<span class="topic-picker-radio"></span>' +
         '<span class="topic-picker-name">' + escapeHtml(t) + '</span>' +
         '<button class="topic-picker-delete" data-topic="' + escapeAttr(t) + '" title="Remove topic">' +
@@ -344,9 +345,11 @@
       topicListEl.appendChild(label);
     });
 
-    // Select first by default
-    var firstRadio = topicListEl.querySelector('input[type="radio"]');
-    if (firstRadio) firstRadio.checked = true;
+    // If no topic was pre-selected, select the first one
+    if (!selectedTopic) {
+      var firstRadio = topicListEl.querySelector('input[type="radio"]');
+      if (firstRadio) firstRadio.checked = true;
+    }
 
     // Attach delete handlers
     var delBtns = topicListEl.querySelectorAll('.topic-picker-delete');
@@ -368,13 +371,8 @@
       var name = newTopicInput.value.trim();
       if (name && addTopic(name)) {
         newTopicInput.value = '';
-        renderTopicList();
+        renderTopicList(name);
         refreshSidebarTopics();
-        // Select the newly added topic
-        var radios = topicListEl.querySelectorAll('input[type="radio"]');
-        radios.forEach(function (r) {
-          if (r.value === name) r.checked = true;
-        });
       }
     });
   }
