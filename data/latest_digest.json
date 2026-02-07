@@ -1,0 +1,21 @@
+{
+  "date": "2026-02-07",
+  "papers": [
+    {
+      "title": "DiffIR: Efficient Diffusion Model for Image Restoration",
+      "url": "https://arxiv.org/abs/2602.00001",
+      "category": "cs.CV",
+      "authors": ["Alice Chen", "Bob Zhang", "Carol Li"],
+      "summary": "DiffIR proposes a compact diffusion model that achieves state-of-the-art image restoration by introducing wavelet-based noise scheduling and a lightweight U-Net with channel attention. It outperforms previous methods on denoising, deblurring, and super-resolution benchmarks while being 5x faster at inference.",
+      "summary_zh": "DiffIR 提出一種緊湊的擴散模型，透過引入基於小波的噪聲調度和帶通道注意力的輕量 U-Net，實現最先進的影像修復效果。該方法在去噪、去模糊和超解析度基準測試中超越先前方法，同時推理速度快 5 倍。"
+    },
+    {
+      "title": "FlashSplat: Real-Time Gaussian Splatting with Hardware-Aware Optimization",
+      "url": "https://arxiv.org/abs/2602.00002",
+      "category": "cs.CV",
+      "authors": ["David Wu", "Emily Park"],
+      "summary": "FlashSplat introduces hardware-aware tiling and adaptive Gaussian pruning to achieve real-time 3D Gaussian splatting at 120 FPS on consumer GPUs. The method maintains visual quality comparable to 3DGS while reducing memory usage by 60%.",
+      "summary_zh": "FlashSplat 引入硬體感知分塊和自適應高斯剪枝，在消費級 GPU 上以 120 FPS 實現即時 3D 高斯潑濺。該方法在維持與 3DGS 相當的視覺品質的同時，減少了 60% 的記憶體使用。"
+    }
+  ]
+}

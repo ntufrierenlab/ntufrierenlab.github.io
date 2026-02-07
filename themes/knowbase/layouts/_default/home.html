@@ -1,44 +1,38 @@
 {{ define "main" }}
   {{ $papers := where site.RegularPages "Section" "papers" }}
-  {{ $weekAgo := now.AddDate 0 0 -7 }}
-  {{ $thisWeek := slice }}
-  {{ range $papers }}
-    {{ if .Params.date_added }}
-      {{ if ge (time .Params.date_added) $weekAgo }}
-        {{ $thisWeek = $thisWeek | append . }}
-      {{ end }}
-    {{ end }}
-  {{ end }}
-  {{ $thisWeek = sort $thisWeek "Params.date_added" "desc" }}
-  {{ if $thisWeek }}
-  <section class="weekly-digest">
+  {{ with site.Data.latest_digest }}
+  {{ if .papers }}
+  <section class="latest-digest">
     <div class="section-header">
-      <h2 class="section-title">This Week</h2>
-      <span class="weekly-digest-meta">{{ len $thisWeek }} {{ if eq (len $thisWeek) 1 }}paper{{ else }}papers{{ end }} added</span>
+      <h2 class="section-title">Latest Digest</h2>
+      <div class="latest-digest-header-right">
+        <span class="latest-digest-meta">{{ len .papers }} papers · {{ .date }}</span>
+        {{ if (index (index .papers 0) "summary_zh") }}
+        <button class="btn btn-outline btn-sm btn-lang-toggle" id="digest-lang-toggle" data-lang="en">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span class="lang-label">中文</span>
+        </button>
+        {{ end }}
+      </div>
     </div>
-    <div class="weekly-digest-list">
-      {{ range $thisWeek }}
-      <a href="{{ .RelPermalink }}" class="weekly-digest-item">
-        <div class="weekly-digest-item-left">
-          <span class="weekly-digest-date">{{ time.Format "Jan 2" .Params.date_added }}</span>
-        </div>
-        <div class="weekly-digest-item-right">
-          <div class="weekly-digest-title-row">
-            <span class="weekly-digest-title">{{ .Title }}</span>
-            {{ with .Params.topics }}
-            {{ range first 1 . }}
-            <span class="topic-badge">{{ . }}</span>
-            {{ end }}
-            {{ end }}
+    <div class="latest-digest-list">
+      {{ range .papers }}
+      <a href="{{ .url }}" class="latest-digest-item" target="_blank" rel="noopener">
+        <div class="latest-digest-item-right">
+          <div class="latest-digest-title-row">
+            <span class="latest-digest-title">{{ .title }}</span>
+            <span class="latest-digest-category">{{ .category }}</span>
           </div>
-          {{ with .Params.one_line_summary }}
-          <span class="weekly-digest-summary">{{ . }}</span>
+          <span class="latest-digest-summary lang-en">{{ .summary }}</span>
+          {{ with .summary_zh }}
+          <span class="latest-digest-summary lang-zh" style="display:none;">{{ . }}</span>
           {{ end }}
         </div>
       </a>
       {{ end }}
     </div>
   </section>
+  {{ end }}
   {{ end }}
 
   <section class="recent-papers">

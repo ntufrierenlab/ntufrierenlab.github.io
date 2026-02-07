@@ -497,28 +497,33 @@ a:hover {
   color: var(--accent);
 }
 
-/* --- Weekly Digest --- */
-.weekly-digest {
+/* --- Latest Digest --- */
+.latest-digest {
   margin-bottom: 2.5rem;
 }
 
-.weekly-digest-meta {
+.latest-digest-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.latest-digest-meta {
   font-size: 0.85rem;
   color: var(--text-muted);
   font-weight: 500;
 }
 
-.weekly-digest-list {
+.latest-digest-list {
   background: var(--bg-secondary);
   border-left: 3px solid var(--accent);
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
   overflow: hidden;
 }
 
-.weekly-digest-item {
+.latest-digest-item {
   display: flex;
   align-items: flex-start;
-  gap: 1rem;
   padding: 0.875rem 1.25rem;
   text-decoration: none;
   color: inherit;
@@ -526,67 +531,47 @@ a:hover {
   border-bottom: 1px solid var(--border);
 }
 
-.weekly-digest-item:last-child {
+.latest-digest-item:last-child {
   border-bottom: none;
 }
 
-.weekly-digest-item:hover {
+.latest-digest-item:hover {
   background: var(--bg-tertiary);
 }
 
-.weekly-digest-item-left {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-
-.weekly-digest-title-row {
+.latest-digest-title-row {
   display: flex;
   align-items: baseline;
   gap: 0.75rem;
 }
 
-.weekly-digest-date {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.weekly-digest-item-right {
+.latest-digest-item-right {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   min-width: 0;
+  flex: 1;
 }
 
-.weekly-digest-title {
+.latest-digest-title {
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-primary);
   line-height: 1.4;
 }
 
-.weekly-digest-summary {
+.latest-digest-category {
+  font-size: 0.7rem;
+  color: var(--accent);
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.latest-digest-summary {
   font-size: 0.85rem;
   color: var(--text-secondary);
   line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-@media (max-width: 768px) {
-  .weekly-digest-item {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .weekly-digest-item-left {
-    min-width: auto;
-  }
 }
 
 /* --- Paper Card Grid --- */
