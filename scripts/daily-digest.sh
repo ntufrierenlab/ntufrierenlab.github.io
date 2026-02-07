@@ -28,16 +28,22 @@ fi
 
 # ── Parse and select top papers by upvotes ───────────────────────
 
-python3 << PYEOF > /tmp/latest_digest.json
-import json, sys
+echo "$HF_JSON" > /tmp/hf_papers.json
 
-raw = json.loads('''$(echo "$HF_JSON" | python3 -c "import sys,json; json.dump(json.load(sys.stdin), sys.stdout)")''')
+export MAX_PAPERS TODAY
+python3 << 'PYEOF' > /tmp/latest_digest.json
+import json, sys, os
 
-# Sort by upvotes descending, take top ${MAX_PAPERS}
-papers = sorted(raw, key=lambda x: x.get('paper', {}).get('upvotes', 0), reverse=True)[:${MAX_PAPERS}]
+with open('/tmp/hf_papers.json') as f:
+    raw = json.load(f)
+
+MAX_PAPERS = int(os.environ.get('MAX_PAPERS', '10'))
+TODAY = os.environ.get('TODAY', '')
+
+papers = sorted(raw, key=lambda x: x.get('paper', {}).get('upvotes', 0), reverse=True)[:MAX_PAPERS]
 
 result = {
-    'date': '${TODAY}',
+    'date': TODAY,
     'papers': []
 }
 
