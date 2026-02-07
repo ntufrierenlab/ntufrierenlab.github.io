@@ -7,7 +7,7 @@
 #
 set -uo pipefail
 
-MAX_PAPERS=10
+MAX_PAPERS=5
 TODAY=$(date +%Y-%m-%d)
 
 # ── Fetch papers from Hugging Face Daily Papers API ──────────────
