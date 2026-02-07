@@ -59,19 +59,48 @@
   cancelBtn.addEventListener('click', closeModal);
   overlay.addEventListener('click', closeModal);
 
-  saveBtn.addEventListener('click', function () {
+  var WORKER_URL = 'https://frieren-lab-proxy.ntufrierenlab.workers.dev';
+
+  function verifyAndSave() {
     var pwd = passwordInput.value.trim();
-    if (pwd) {
+    if (!pwd) return;
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Verifying...';
+
+    fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pwd, action: 'status' })
+    })
+    .then(function (r) {
+      if (r.status === 401) {
+        throw new Error('Invalid password');
+      }
+      return r.json();
+    })
+    .then(function () {
       sessionStorage.setItem('kb-session-pwd', pwd);
-    }
-    closeModal();
-    updateAuthState();
-  });
+      closeModal();
+      updateAuthState();
+    })
+    .catch(function (err) {
+      passwordInput.value = '';
+      passwordInput.placeholder = err.message === 'Invalid password' ? 'Wrong password, try again...' : 'Error, try again...';
+      passwordInput.focus();
+    })
+    .finally(function () {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save';
+    });
+  }
+
+  saveBtn.addEventListener('click', verifyAndSave);
 
   passwordInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') {
       e.preventDefault();
-      saveBtn.click();
+      verifyAndSave();
     }
   });
 
