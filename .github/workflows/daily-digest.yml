@@ -2,8 +2,8 @@ name: Daily Digest
 
 on:
   schedule:
-    # Run every hour to keep upvote counts fresh
-    - cron: '0 * * * *'
+    # Run every hour Mon-Fri only (HF doesn't update on weekends)
+    - cron: '0 * * * 1-5'
   workflow_dispatch:
 
 permissions:

@@ -12,18 +12,23 @@ TODAY=$(date +%Y-%m-%d)
 
 # ── Fetch papers from Hugging Face Daily Papers API ──────────────
 
-echo "Fetching papers from Hugging Face Daily Papers (${TODAY})..." >&2
-
-HF_JSON=$(curl -sL "https://huggingface.co/api/daily_papers?date=${TODAY}")
-
-# If today has no papers yet (e.g. early morning), try yesterday
-PAPER_COUNT=$(echo "$HF_JSON" | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "0")
+# Try today, then go back up to 3 days to find the latest date with papers
+HF_JSON=""
+for OFFSET in 0 1 2 3; do
+    TRY_DATE=$(date -d "-${OFFSET} days" +%Y-%m-%d 2>/dev/null || date -v-${OFFSET}d +%Y-%m-%d)
+    echo "Trying ${TRY_DATE}..." >&2
+    HF_JSON=$(curl -sL "https://huggingface.co/api/daily_papers?date=${TRY_DATE}")
+    PAPER_COUNT=$(echo "$HF_JSON" | python3 -c "import sys,json; print(len(json.load(sys.stdin)))" 2>/dev/null || echo "0")
+    if [ "$PAPER_COUNT" -gt 0 ]; then
+        TODAY="$TRY_DATE"
+        echo "Found ${PAPER_COUNT} papers for ${TODAY}" >&2
+        break
+    fi
+done
 
 if [ "$PAPER_COUNT" -eq 0 ]; then
-    YESTERDAY=$(date -d "yesterday" +%Y-%m-%d 2>/dev/null || date -v-1d +%Y-%m-%d)
-    echo "No papers for today, trying ${YESTERDAY}..." >&2
-    HF_JSON=$(curl -sL "https://huggingface.co/api/daily_papers?date=${YESTERDAY}")
-    TODAY="$YESTERDAY"
+    echo "No papers found in the last 4 days, skipping" >&2
+    exit 0
 fi
 
 # ── Parse and select top papers by upvotes ───────────────────────
