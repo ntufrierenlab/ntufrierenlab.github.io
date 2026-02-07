@@ -49,6 +49,11 @@
     if (manageBtn) {
       manageBtn.style.display = authed ? '' : 'none';
     }
+    // Show/hide note form on paper pages
+    var noteForm = document.getElementById('note-form');
+    if (noteForm) {
+      noteForm.style.display = authed ? '' : 'none';
+    }
     // Notify other modules about auth state change
     window.dispatchEvent(new CustomEvent('kb-auth-changed', { detail: { authenticated: authed } }));
   }
@@ -786,5 +791,112 @@
       confirmBtn.textContent = 'Delete';
       alert('Network error: ' + err.message);
     });
+  });
+})();
+
+// ── Add Note ──────────────────────────────────────────────────────
+(function () {
+  var WORKER_URL = 'https://frieren-lab-proxy.ntufrierenlab.workers.dev';
+
+  var notesSection = document.getElementById('paper-notes');
+  var noteInput = document.getElementById('note-input');
+  var noteSubmit = document.getElementById('note-submit');
+  var notesList = document.getElementById('notes-list');
+  var notesCount = document.getElementById('notes-count');
+  if (!notesSection || !noteInput || !noteSubmit) return;
+
+  var paperFilename = notesSection.getAttribute('data-filename');
+
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function formatDate(date) {
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var h = date.getHours();
+    var m = date.getMinutes();
+    var ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    var mm = m < 10 ? '0' + m : m;
+    return months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear() + ' · ' + h + ':' + mm + ' ' + ampm;
+  }
+
+  function submitNote() {
+    var text = noteInput.value.trim();
+    if (!text) return;
+
+    var password = sessionStorage.getItem('kb-session-pwd');
+    if (!password) return;
+
+    noteSubmit.disabled = true;
+    noteSubmit.textContent = 'Submitting...';
+
+    fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        password: password,
+        action: 'add-note',
+        paper_filename: paperFilename,
+        note_text: text
+      })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.ok) {
+        // Remove "No notes yet" placeholder
+        var empty = document.getElementById('notes-empty');
+        if (empty) empty.remove();
+
+        // Insert note optimistically
+        var noteItem = document.createElement('div');
+        noteItem.className = 'note-item note-new';
+        noteItem.innerHTML =
+          '<div class="note-body"><p>' + escapeHtml(text) + '</p></div>' +
+          '<div class="note-meta">' + formatDate(new Date()) + '</div>';
+        notesList.appendChild(noteItem);
+
+        // Update count
+        var currentCount = notesList.querySelectorAll('.note-item').length;
+        notesCount.textContent = '(' + currentCount + ')';
+
+        // Clear input
+        noteInput.value = '';
+
+        // Track in notification bell
+        var pending = [];
+        try { pending = JSON.parse(sessionStorage.getItem('kb-pending-papers') || '[]'); } catch (e) { pending = []; }
+        pending.push({
+          title: 'Note added',
+          type: 'note',
+          triggeredAt: new Date().toISOString(),
+          status: 'pending',
+          runId: null,
+          readByUser: false
+        });
+        sessionStorage.setItem('kb-pending-papers', JSON.stringify(pending));
+        window.dispatchEvent(new CustomEvent('kb-paper-added'));
+      } else {
+        throw new Error(data.error || 'Failed to add note');
+      }
+    })
+    .catch(function (err) {
+      alert('Error: ' + err.message);
+    })
+    .finally(function () {
+      noteSubmit.disabled = false;
+      noteSubmit.textContent = 'Add Note';
+    });
+  }
+
+  noteSubmit.addEventListener('click', submitNote);
+
+  noteInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      submitNote();
+    }
   });
 })();
