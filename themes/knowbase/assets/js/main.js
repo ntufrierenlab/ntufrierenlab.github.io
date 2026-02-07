@@ -135,9 +135,15 @@
 (function () {
   var sidebar = document.getElementById('sidebar');
   var openBtn = document.getElementById('sidebar-toggle');
+  var mobileToggle = document.getElementById('mobile-sidebar-toggle');
   var closeBtn = document.getElementById('sidebar-close');
   if (openBtn && sidebar) {
     openBtn.addEventListener('click', function () {
+      sidebar.classList.add('open');
+    });
+  }
+  if (mobileToggle && sidebar) {
+    mobileToggle.addEventListener('click', function () {
       sidebar.classList.add('open');
     });
   }
@@ -145,6 +151,15 @@
     closeBtn.addEventListener('click', function () {
       sidebar.classList.remove('open');
     });
+  }
+})();
+
+// Mobile top bar: move notification bell into top bar on mobile
+(function () {
+  var topbarActions = document.getElementById('mobile-topbar-actions');
+  var notifBell = document.getElementById('notification-bell');
+  if (topbarActions && notifBell && window.innerWidth <= 768) {
+    topbarActions.appendChild(notifBell);
   }
 })();
 

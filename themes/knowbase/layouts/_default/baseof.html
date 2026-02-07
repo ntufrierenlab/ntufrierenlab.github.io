@@ -13,6 +13,17 @@
 </head>
 <body>
   <div class="layout">
+    <div class="mobile-topbar" id="mobile-topbar">
+      <button class="mobile-topbar-menu" id="mobile-sidebar-toggle" aria-label="Open sidebar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <a href="{{ site.BaseURL }}" class="mobile-topbar-logo">
+        <span class="logo-icon">F</span>
+        <span>Frieren Lab</span>
+      </a>
+      <div class="mobile-topbar-actions" id="mobile-topbar-actions">
+      </div>
+    </div>
     {{ partial "sidebar.html" . }}
     <div class="main-wrapper">
       {{ partial "header.html" . }}

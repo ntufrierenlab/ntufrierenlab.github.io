@@ -1135,6 +1135,11 @@ a.tag:hover {
   margin-top: 0.15rem;
 }
 
+/* --- Mobile Top Bar --- */
+.mobile-topbar {
+  display: none;
+}
+
 /* --- Responsive --- */
 @media (max-width: 1024px) {
   .content {
@@ -1149,7 +1154,81 @@ a.tag:hover {
 }
 
 @media (max-width: 768px) {
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1rem;
+    z-index: 200;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .mobile-topbar-menu {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+  }
+
+  .mobile-topbar-menu:hover {
+    background: var(--bg-tertiary);
+  }
+
+  .mobile-topbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: 0.75rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+
+  .mobile-topbar-logo .logo-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+  }
+
+  .mobile-topbar-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Hide the old floating hamburger button on mobile */
+  .sidebar-toggle {
+    display: none !important;
+  }
+
+  /* When notification bell is inside topbar, reset its fixed positioning */
+  .mobile-topbar .notif-bell {
+    position: static;
+    z-index: auto;
+  }
+
+  /* Push page content below the fixed top bar */
+  .main-wrapper {
+    margin-left: 0;
+    padding-top: 56px;
+  }
+
+  /* Sidebar should slide in below the top bar */
   .sidebar {
+    top: 56px;
+    height: calc(100vh - 56px);
     transform: translateX(-100%);
   }
 
@@ -1160,14 +1239,6 @@ a.tag:hover {
 
   .sidebar-close {
     display: block;
-  }
-
-  .sidebar-toggle {
-    display: block;
-  }
-
-  .main-wrapper {
-    margin-left: 0;
   }
 
   .content {
@@ -2153,11 +2224,6 @@ a.tag:hover {
 }
 
 @media (max-width: 768px) {
-  .notif-bell {
-    top: 1rem;
-    right: 4rem;
-  }
-
   .notif-dropdown {
     width: calc(100vw - 2rem);
     right: -0.5rem;
