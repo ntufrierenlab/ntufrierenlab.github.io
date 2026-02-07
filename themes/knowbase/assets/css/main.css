@@ -560,12 +560,17 @@ a:hover {
   line-height: 1.4;
 }
 
-.latest-digest-category {
-  font-size: 0.7rem;
-  color: var(--accent);
+.latest-digest-upvotes {
+  font-size: 0.75rem;
+  color: var(--text-muted);
   font-weight: 500;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+.latest-digest-upvotes::before {
+  content: "\25B2 ";
+  font-size: 0.6rem;
 }
 
 .latest-digest-summary {

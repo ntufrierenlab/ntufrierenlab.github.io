@@ -196,33 +196,6 @@
   }
 })();
 
-// Digest language toggle (homepage)
-(function () {
-  var btn = document.getElementById('digest-lang-toggle');
-  if (!btn) return;
-
-  var lang = 'en';
-  btn.addEventListener('click', function () {
-    lang = lang === 'en' ? 'zh' : 'en';
-    var label = btn.querySelector('.lang-label');
-    var container = document.querySelector('.latest-digest-list');
-    if (!container) return;
-    var enEls = container.querySelectorAll('.lang-en');
-    var zhEls = container.querySelectorAll('.lang-zh');
-    if (lang === 'zh') {
-      enEls.forEach(function (el) { el.style.display = 'none'; });
-      zhEls.forEach(function (el) { el.style.display = ''; });
-      label.textContent = 'EN';
-      btn.setAttribute('data-lang', 'zh');
-    } else {
-      enEls.forEach(function (el) { el.style.display = ''; });
-      zhEls.forEach(function (el) { el.style.display = 'none'; });
-      label.textContent = '中文';
-      btn.setAttribute('data-lang', 'en');
-    }
-  });
-})();
-
 // Sidebar topic management (shared across all pages)
 (function () {
   var DEFAULT_TOPICS = ['Auto White Balance'];
