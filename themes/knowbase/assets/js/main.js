@@ -525,6 +525,12 @@
         updateBadge();
         updateBellVisibility();
         if (isOpen) renderDropdown();
+
+        // Show refresh banner if any paper just completed
+        var hasNewlyCompleted = papers.some(function (p) {
+          return p.status === 'completed' && !p.readByUser;
+        });
+        if (hasNewlyCompleted) showRefreshBanner();
       }
 
       if (!papers.some(function (p) { return p.status === 'pending' || p.status === 'processing'; })) {
@@ -555,6 +561,30 @@
     var hr = Math.floor(min / 60);
     if (hr < 24) return hr + 'h ago';
     return Math.floor(hr / 24) + 'd ago';
+  }
+
+  // ── Refresh banner ──────────────────────────────────────────────
+  function showRefreshBanner() {
+    if (document.getElementById('kb-refresh-banner')) return;
+    var banner = document.createElement('div');
+    banner.id = 'kb-refresh-banner';
+    banner.className = 'refresh-banner';
+    banner.innerHTML =
+      '<div class="refresh-banner-content">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>' +
+        '<span>Site has been updated — <a href="javascript:location.reload()">Refresh</a> to see new content</span>' +
+        '<button class="refresh-banner-close" aria-label="Dismiss">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+        '</button>' +
+      '</div>';
+    document.body.appendChild(banner);
+    banner.querySelector('.refresh-banner-close').addEventListener('click', function () {
+      banner.remove();
+    });
+    // Auto-show with slide animation
+    requestAnimationFrame(function () {
+      banner.classList.add('visible');
+    });
   }
 
   // ── Listen for new papers from search page ──────────────────────

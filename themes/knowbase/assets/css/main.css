@@ -1194,6 +1194,58 @@ a.tag:hover {
   margin: 0 0 2rem 0;
 }
 
+/* ── Refresh banner ─────────────────────────────────────── */
+.refresh-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+
+.refresh-banner.visible {
+  transform: translateY(0);
+}
+
+.refresh-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: var(--accent);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+  justify-content: center;
+}
+
+.refresh-banner-content svg {
+  flex-shrink: 0;
+}
+
+.refresh-banner-content a {
+  color: white;
+  text-decoration: underline;
+  font-weight: 700;
+}
+
+.refresh-banner-close {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 2px;
+  margin-left: 0.5rem;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.refresh-banner-close:hover {
+  opacity: 1;
+}
+
 /* arXiv Result Cards */
 .arxiv-results {
   display: flex;
