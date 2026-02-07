@@ -64,11 +64,11 @@
     currentPapers = [];
     currentPage = 1;
 
-    // Use relevance_score sort (OpenAlex default) for precise results
     var url = API_BASE +
       '?search=' + encodeURIComponent(query) +
+      '&sort=publication_date:desc' +
       '&select=' + SELECT_FIELDS +
-      '&per_page=50' +
+      '&per_page=100' +
       '&filter=is_oa:true' +
       '&mailto=ntufrierenlab@gmail.com';
 
