@@ -191,6 +191,13 @@
     return d.innerHTML;
   }
 
+  var editMode = false;
+
+  function removeTopic(name) {
+    var topics = getTopics().filter(function (t) { return t !== name; });
+    saveTopics(topics);
+  }
+
   function refreshSidebarTopics() {
     var list = document.getElementById('sidebar-topic-list');
     if (!list) return;
@@ -216,9 +223,36 @@
         list.appendChild(li);
       }
     });
+
+    // Add or remove delete buttons based on edit mode
+    var allItems = list.querySelectorAll('li');
+    allItems.forEach(function (li) {
+      var existing = li.querySelector('.topic-delete-btn');
+      var topicName = li.getAttribute('data-hugo-topic') || li.getAttribute('data-js-topic');
+      if (editMode && topicName) {
+        if (!existing) {
+          var btn = document.createElement('button');
+          btn.className = 'topic-delete-btn';
+          btn.setAttribute('data-topic', topicName);
+          btn.title = 'Remove topic';
+          btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var name = this.getAttribute('data-topic');
+            if (getTopics().length <= 1) return;
+            removeTopic(name);
+            refreshSidebarTopics();
+          });
+          li.appendChild(btn);
+        }
+      } else if (existing) {
+        existing.remove();
+      }
+    });
   }
 
-  // Sidebar add-topic form
+  // Sidebar manage-topic button: toggles edit mode
   var sidebarAddBtn = document.getElementById('sidebar-add-topic');
   var sidebarTopicForm = document.getElementById('sidebar-topic-form');
   var sidebarTopicInput = document.getElementById('sidebar-topic-input');
@@ -227,21 +261,32 @@
 
   if (sidebarAddBtn) {
     sidebarAddBtn.addEventListener('click', function () {
-      sidebarTopicForm.style.display = 'block';
-      sidebarTopicInput.value = '';
-      sidebarTopicInput.focus();
+      editMode = !editMode;
+      sidebarAddBtn.classList.toggle('active', editMode);
+      if (editMode) {
+        sidebarTopicForm.style.display = 'block';
+        sidebarTopicInput.value = '';
+        sidebarTopicInput.focus();
+      } else {
+        sidebarTopicForm.style.display = 'none';
+      }
+      refreshSidebarTopics();
     });
   }
   if (sidebarTopicCancel) {
     sidebarTopicCancel.addEventListener('click', function () {
+      editMode = false;
+      sidebarAddBtn.classList.remove('active');
       sidebarTopicForm.style.display = 'none';
+      refreshSidebarTopics();
     });
   }
   if (sidebarTopicSave) {
     sidebarTopicSave.addEventListener('click', function () {
       var name = sidebarTopicInput.value.trim();
       if (name && addTopicItem(name)) {
-        sidebarTopicForm.style.display = 'none';
+        sidebarTopicInput.value = '';
+        sidebarTopicInput.focus();
         refreshSidebarTopics();
       }
     });
