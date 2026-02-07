@@ -283,18 +283,20 @@
       var iconContent = '';
       var statusText = '';
 
+      var isDelete = paper.type === 'delete';
+
       if (paper.status === 'pending') {
         iconContent = '<div class="notif-spinner"></div>';
-        statusText = 'Queued...';
+        statusText = isDelete ? 'Queued for deletion...' : 'Queued...';
       } else if (paper.status === 'processing') {
         iconContent = '<div class="notif-spinner"></div>';
-        statusText = 'Generating summary...';
+        statusText = isDelete ? 'Deleting paper...' : 'Generating summary...';
       } else if (paper.status === 'completed') {
         iconContent = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
-        statusText = 'Paper is live!';
+        statusText = isDelete ? 'Paper deleted!' : 'Paper is live!';
       } else if (paper.status === 'failed') {
         iconContent = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-        statusText = 'Workflow failed';
+        statusText = isDelete ? 'Delete failed' : 'Workflow failed';
       }
 
       var timeAgo = relativeTime(paper.triggeredAt);
@@ -480,4 +482,98 @@
   if (getPapers().some(function (p) { return p.status === 'pending' || p.status === 'processing'; })) {
     startPolling();
   }
+})();
+
+// ── Delete Paper ─────────────────────────────────────────────────
+(function () {
+  var WORKER_URL = 'https://frieren-lab-proxy.ntufrierenlab.workers.dev';
+
+  var deleteBtn = document.getElementById('btn-delete-paper');
+  if (!deleteBtn) return;
+
+  var modal = document.getElementById('delete-confirm-modal');
+  var modalOverlay = document.getElementById('delete-modal-overlay');
+  var confirmBtn = document.getElementById('delete-confirm');
+  var cancelBtn = document.getElementById('delete-cancel');
+  var titleEl = document.getElementById('delete-confirm-title');
+
+  // Show delete button only if password exists
+  if (sessionStorage.getItem('kb-session-pwd')) {
+    deleteBtn.style.display = '';
+  }
+
+  function openModal() {
+    titleEl.textContent = deleteBtn.getAttribute('data-title');
+    modal.style.display = '';
+  }
+
+  function closeModal() {
+    modal.style.display = 'none';
+  }
+
+  deleteBtn.addEventListener('click', openModal);
+  cancelBtn.addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', closeModal);
+
+  confirmBtn.addEventListener('click', function () {
+    var filename = deleteBtn.getAttribute('data-filename');
+    var title = deleteBtn.getAttribute('data-title');
+    var password = sessionStorage.getItem('kb-session-pwd');
+
+    if (!password) {
+      closeModal();
+      return;
+    }
+
+    // Disable button to prevent double-click
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Deleting...';
+
+    fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        password: password,
+        action: 'delete',
+        paper_filename: filename
+      })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      closeModal();
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Delete';
+
+      if (data.ok) {
+        // Add to pending papers for notification tracking
+        var papers = [];
+        try { papers = JSON.parse(sessionStorage.getItem('kb-pending-papers') || '[]'); }
+        catch (e) { papers = []; }
+
+        papers.push({
+          title: title,
+          type: 'delete',
+          triggeredAt: new Date().toISOString(),
+          status: 'pending',
+          runId: null,
+          readByUser: false
+        });
+        sessionStorage.setItem('kb-pending-papers', JSON.stringify(papers));
+
+        // Notify bell system
+        window.dispatchEvent(new CustomEvent('kb-paper-added'));
+
+        // Hide delete button
+        deleteBtn.style.display = 'none';
+      } else {
+        alert('Failed to trigger delete: ' + (data.error || 'Unknown error'));
+      }
+    })
+    .catch(function (err) {
+      closeModal();
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Delete';
+      alert('Network error: ' + err.message);
+    });
+  });
 })();

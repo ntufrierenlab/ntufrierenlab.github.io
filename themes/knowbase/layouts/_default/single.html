@@ -36,6 +36,13 @@
         <span class="lang-label">中文</span>
       </button>
       {{ end }}
+      <button class="btn btn-danger btn-delete-paper" id="btn-delete-paper"
+              data-filename="{{ .File.LogicalName }}"
+              data-title="{{ .Title }}"
+              style="display:none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        Delete
+      </button>
     </div>
   </header>
 
@@ -68,4 +75,17 @@
   </footer>
   {{ end }}
 </article>
+
+<div id="delete-confirm-modal" class="modal" style="display:none;">
+  <div class="modal-overlay" id="delete-modal-overlay"></div>
+  <div class="modal-content">
+    <h2>Delete this paper?</h2>
+    <p id="delete-confirm-title" class="delete-confirm-title"></p>
+    <p class="delete-confirm-warn">This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="delete-cancel">Cancel</button>
+      <button class="btn btn-danger" id="delete-confirm">Delete</button>
+    </div>
+  </div>
+</div>
 {{ end }}

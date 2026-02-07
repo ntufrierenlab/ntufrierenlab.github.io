@@ -165,7 +165,7 @@ fi
 
 # ── Build the Claude prompt ────────────────────────────────────────
 
-PROMPT="You are a research paper analyst. Read this paper and generate a structured summary in BOTH English and Chinese.
+PROMPT="You are a senior researcher and top-conference (NeurIPS/CVPR/ICLR/ICML) reviewer. Read this paper thoroughly and generate a structured, in-depth summary in BOTH English and Traditional Chinese.
 
 Paper title: ${TITLE}
 Paper abstract: ${PAPER_ABSTRACT}
@@ -175,7 +175,7 @@ PDF URL: ${PDF_URL}
 ${PAPER_TEXT}
 --- END OF PAPER TEXT ---
 
-You have been given the full paper text above. Use the actual content, data, and results from the paper to generate a detailed and accurate summary.
+You have been given the full paper text above. Use the actual content, data, methods, and results from the paper to generate a detailed and accurate analysis.
 
 Please generate the summary content (NOT the front matter, just the body) in this exact format:
 
@@ -183,29 +183,59 @@ Please generate the summary content (NOT the front matter, just the body) in thi
 
 ## Key Contributions
 
-- [3-5 bullet points about the paper's main contributions]
+Write 4-6 detailed bullet points about the paper's main contributions. For each contribution:
+- Start with a **bolded short label** summarizing it, then explain in 2-3 sentences
+- Describe WHAT the contribution is, WHY it matters, and HOW it differs from prior work
+- Include specific technical details: what method/framework/model is proposed, what problem it solves
+- Mention the key novelty compared to existing approaches
+- If the paper introduces a dataset or benchmark, describe its scale and characteristics
 
 ## Core Insights
 
-- [3-4 bullet points about the key insights and findings]
+Write 4-6 detailed bullet points about the key insights and findings. For each insight:
+- Explain the underlying reasoning or intuition behind why the approach works
+- Reference specific experiments, ablations, or theoretical analysis that support the insight
+- Include concrete numbers (accuracy, speedup, etc.) when available
+- Connect insights to broader implications for the field
+- Highlight any surprising or counter-intuitive findings
 
 ## Key Data & Results
 
-[Include a markdown table comparing results with baselines if applicable]
+[Include a markdown table comparing the proposed method with baselines on the main benchmarks. Use exact numbers from the paper. Include dataset names, metrics, and all compared methods.]
 
-- [2-4 bullet points about key quantitative results]
+- Write 3-5 bullet points discussing key quantitative results, including:
+  - Performance on main benchmarks vs. state-of-the-art
+  - Ablation study results showing which components matter most
+  - Computational cost, inference speed, or parameter count comparisons
+  - Any failure cases or scenarios where the method underperforms
 
 ## Strengths
 
-- [3-4 bullet points about the paper's strengths]
+Analyze from the perspective of a top-conference reviewer (NeurIPS/CVPR/ICLR). Write 4-6 bullet points:
+- Evaluate the novelty and significance of the technical contribution
+- Assess the experimental design: Are baselines comprehensive and fair? Are datasets appropriate?
+- Judge the clarity of writing, motivation, and presentation
+- Comment on theoretical grounding or mathematical rigor if applicable
+- Evaluate reproducibility: Are implementation details sufficient?
+- Note if the paper opens new research directions or provides useful tools/datasets to the community
 
 ## Weaknesses
 
-- [3-4 bullet points about the paper's weaknesses]
+Analyze from the perspective of a top-conference reviewer (NeurIPS/CVPR/ICLR). Write 4-6 bullet points:
+- Identify missing baselines or comparisons that should have been included
+- Point out experimental gaps: missing datasets, limited evaluation metrics, or insufficient ablations
+- Highlight unclear assumptions, unjustified design choices, or logical gaps
+- Note scalability concerns, computational overhead, or deployment limitations
+- Identify overclaimed results or areas where conclusions are not fully supported by evidence
+- Mention potential negative societal impact if relevant
 
-## Potential Improvements
+## Research Directions
 
-- [4-5 bullet points about possible improvements]
+Imagine you are a PhD student or postdoc wanting to build on this paper to produce a top-conference publication. Write 5-7 bullet points, each describing a concrete research direction:
+- For each direction, explain: (1) the specific idea, (2) why it would be impactful, (3) a rough approach to implement it
+- Consider: extending to new domains/modalities, addressing the identified weaknesses, combining with complementary techniques, scaling up, theoretical analysis
+- Think about what would make a strong NeurIPS/CVPR/ICLR submission building on this work
+- Prioritize directions that are both novel and feasible within 6-12 months of research
 
 </div>
 
@@ -213,37 +243,36 @@ Please generate the summary content (NOT the front matter, just the body) in thi
 
 ## 主要貢獻
 
-- [same content in Traditional Chinese]
+[Translate the Key Contributions section into Traditional Chinese with the same level of detail]
 
 ## 核心洞見
 
-- [same content in Traditional Chinese]
+[Translate the Core Insights section into Traditional Chinese with the same level of detail]
 
 ## 關鍵數據與結果
 
-[same table in Traditional Chinese]
-
-- [same bullet points in Traditional Chinese]
+[Translate the Key Data & Results section including the table into Traditional Chinese]
 
 ## 優勢
 
-- [same content in Traditional Chinese]
+[Translate the Strengths section into Traditional Chinese, maintaining the top-conference reviewer perspective]
 
 ## 劣勢
 
-- [same content in Traditional Chinese]
+[Translate the Weaknesses section into Traditional Chinese, maintaining the top-conference reviewer perspective]
 
-## 可改進方向
+## 研究方向
 
-- [same content in Traditional Chinese]
+[Translate the Research Directions section into Traditional Chinese, maintaining the PhD student/postdoc perspective]
 
 </div>
 
 Important:
-- Use **bold** for key terms
-- Keep paper titles, method names, and technical terms in English even in the Chinese version
+- Use **bold** for key terms and method names
+- Keep paper titles, method names, dataset names, and technical terms in English even in the Chinese version
 - Use Traditional Chinese (繁體中文), not Simplified Chinese
-- Be specific with numbers and data from the paper
+- Be specific with numbers, data, and citations from the paper — do NOT fabricate results
+- Each section should be thorough and substantive, not superficial
 - Also output two one-line summaries: one in English and one in Traditional Chinese, on separate lines prefixed with ONE_LINE_EN= and ONE_LINE_ZH="
 
 # ── Call Claude ────────────────────────────────────────────────────

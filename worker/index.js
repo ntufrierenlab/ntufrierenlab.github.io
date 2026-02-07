@@ -32,29 +32,35 @@ export default {
       return handleStatus(env);
     }
 
+    if (body.action === 'delete') {
+      return handleDelete(body, env);
+    }
+
     return handleTrigger(body, env);
   },
 };
 
 async function handleStatus(env) {
   const repo = env.GITHUB_REPO || 'ntufrierenlab/ntufrierenlab.github.io';
-  const apiUrl = `https://api.github.com/repos/${repo}/actions/workflows/add-paper.yml/runs?per_page=10`;
+  const ghHeaders = {
+    'Authorization': `Bearer ${env.GITHUB_PAT}`,
+    'Accept': 'application/vnd.github.v3+json',
+    'User-Agent': 'FrierenLab-Worker',
+  };
 
-  const ghResponse = await fetch(apiUrl, {
-    headers: {
-      'Authorization': `Bearer ${env.GITHUB_PAT}`,
-      'Accept': 'application/vnd.github.v3+json',
-      'User-Agent': 'FrierenLab-Worker',
-    },
-  });
+  // Query both add-paper and delete-paper workflow runs in parallel
+  const [addRes, deleteRes] = await Promise.all([
+    fetch(`https://api.github.com/repos/${repo}/actions/workflows/add-paper.yml/runs?per_page=10`, { headers: ghHeaders }),
+    fetch(`https://api.github.com/repos/${repo}/actions/workflows/delete-paper.yml/runs?per_page=10`, { headers: ghHeaders }),
+  ]);
 
-  if (!ghResponse.ok) {
-    const detail = await ghResponse.text();
-    return jsonResponse(ghResponse.status, { error: 'GitHub API error', detail });
+  if (!addRes.ok) {
+    const detail = await addRes.text();
+    return jsonResponse(addRes.status, { error: 'GitHub API error', detail });
   }
 
-  const data = await ghResponse.json();
-  const runs = (data.workflow_runs || []).map(run => ({
+  const addData = await addRes.json();
+  const runs = (addData.workflow_runs || []).map(run => ({
     id: run.id,
     status: run.status,
     conclusion: run.conclusion,
@@ -62,7 +68,63 @@ async function handleStatus(env) {
     updated_at: run.updated_at,
   }));
 
+  // Merge delete runs if available (workflow may not exist yet)
+  if (deleteRes.ok) {
+    const deleteData = await deleteRes.json();
+    (deleteData.workflow_runs || []).forEach(run => {
+      runs.push({
+        id: run.id,
+        status: run.status,
+        conclusion: run.conclusion,
+        created_at: run.created_at,
+        updated_at: run.updated_at,
+      });
+    });
+  }
+
   return jsonResponse(200, { ok: true, runs });
+}
+
+async function handleDelete(body, env) {
+  const { paper_filename } = body;
+
+  if (!paper_filename) {
+    return jsonResponse(400, { error: 'Missing paper_filename' });
+  }
+
+  // Validate filename: no path traversal
+  if (paper_filename.includes('/') || paper_filename.includes('..')) {
+    return jsonResponse(400, { error: 'Invalid filename' });
+  }
+
+  const repo = env.GITHUB_REPO || 'ntufrierenlab/ntufrierenlab.github.io';
+  const apiUrl = `https://api.github.com/repos/${repo}/actions/workflows/delete-paper.yml/dispatches`;
+
+  const ghResponse = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.GITHUB_PAT}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'FrierenLab-Worker',
+    },
+    body: JSON.stringify({
+      ref: 'main',
+      inputs: {
+        paper_filename: paper_filename,
+      },
+    }),
+  });
+
+  if (ghResponse.status === 204) {
+    return jsonResponse(200, { ok: true, message: 'Delete workflow triggered' });
+  }
+
+  const ghData = await ghResponse.text();
+  return jsonResponse(ghResponse.status, {
+    error: 'GitHub API error',
+    detail: ghData,
+  });
 }
 
 async function handleTrigger(body, env) {

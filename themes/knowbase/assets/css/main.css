@@ -1120,6 +1120,29 @@ a.tag:hover {
   color: white;
 }
 
+.btn-danger {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+  color: white;
+}
+
+.delete-confirm-title {
+  font-weight: 500;
+  margin: 0.5rem 0;
+  word-break: break-word;
+}
+
+.delete-confirm-warn {
+  color: #dc2626;
+  font-size: 0.85rem;
+  margin: 0 0 1rem 0;
+}
+
 /* arXiv Result Cards */
 .arxiv-results {
   display: flex;
