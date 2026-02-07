@@ -40,6 +40,10 @@ export default {
       return handleAddNote(body, env);
     }
 
+    if (body.action === 'delete-note') {
+      return handleDeleteNote(body, env);
+    }
+
     return handleTrigger(body, env);
   },
 };
@@ -184,6 +188,50 @@ async function handleAddNote(body, env) {
 
   if (ghResponse.status === 204) {
     return jsonResponse(200, { ok: true, message: 'Note workflow triggered' });
+  }
+
+  const ghData = await ghResponse.text();
+  return jsonResponse(ghResponse.status, {
+    error: 'GitHub API error',
+    detail: ghData,
+  });
+}
+
+async function handleDeleteNote(body, env) {
+  const { paper_filename, note_date } = body;
+
+  if (!paper_filename) {
+    return jsonResponse(400, { error: 'Missing paper_filename' });
+  }
+  if (!note_date) {
+    return jsonResponse(400, { error: 'Missing note_date' });
+  }
+  if (paper_filename.includes('/') || paper_filename.includes('..')) {
+    return jsonResponse(400, { error: 'Invalid filename' });
+  }
+
+  const repo = env.GITHUB_REPO || 'ntufrierenlab/ntufrierenlab.github.io';
+  const apiUrl = `https://api.github.com/repos/${repo}/actions/workflows/add-note.yml/dispatches`;
+
+  const ghResponse = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.GITHUB_PAT}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'FrierenLab-Worker',
+    },
+    body: JSON.stringify({
+      ref: 'main',
+      inputs: {
+        paper_filename: paper_filename,
+        note_text: '__DELETE__:' + note_date,
+      },
+    }),
+  });
+
+  if (ghResponse.status === 204) {
+    return jsonResponse(200, { ok: true, message: 'Delete note workflow triggered' });
   }
 
   const ghData = await ghResponse.text();

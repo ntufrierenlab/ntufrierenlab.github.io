@@ -75,9 +75,14 @@
     <div class="notes-list" id="notes-list">
       {{ if .Params.notes }}
       {{ range .Params.notes }}
-      <div class="note-item">
+      <div class="note-item" data-date="{{ .date }}">
         <div class="note-body">{{ .text | markdownify }}</div>
-        <div class="note-meta">{{ dateFormat "Jan 2, 2006 · 3:04 PM" .date }}</div>
+        <div class="note-meta">
+          <span>{{ dateFormat "Jan 2, 2006 · 3:04 PM" .date }}</span>
+          <button class="note-delete-btn" title="Delete note">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
       </div>
       {{ end }}
       {{ else }}

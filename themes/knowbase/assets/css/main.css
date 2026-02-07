@@ -909,7 +909,7 @@ a.tag:hover {
   font-size: 1.2rem;
   font-weight: 600;
   color: var(--text-primary);
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 0.75rem 0;
 }
 
 .notes-title svg {
@@ -954,9 +954,31 @@ a.tag:hover {
 }
 
 .note-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   font-size: 0.8rem;
   color: var(--text-tertiary);
   margin-top: 0.5rem;
+}
+
+.note-delete-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.note-delete-btn:hover {
+  color: var(--danger, #ef4444);
+}
+
+.note-item:hover .note-delete-btn.visible {
+  display: inline-flex;
 }
 
 .note-new {

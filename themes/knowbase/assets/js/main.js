@@ -794,7 +794,7 @@
   });
 })();
 
-// ── Add Note ──────────────────────────────────────────────────────
+// ── Notes (Add & Delete) ──────────────────────────────────────────
 (function () {
   var WORKER_URL = 'https://frieren-lab-proxy.ntufrierenlab.workers.dev';
 
@@ -823,6 +823,27 @@
     return months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear() + ' · ' + h + ':' + mm + ' ' + ampm;
   }
 
+  function updateNoteCount() {
+    var count = notesList.querySelectorAll('.note-item').length;
+    notesCount.textContent = count > 0 ? '(' + count + ')' : '';
+  }
+
+  function trackPending(title, type) {
+    var pending = [];
+    try { pending = JSON.parse(sessionStorage.getItem('kb-pending-papers') || '[]'); } catch (e) { pending = []; }
+    pending.push({
+      title: title,
+      type: type,
+      triggeredAt: new Date().toISOString(),
+      status: 'pending',
+      runId: null,
+      readByUser: false
+    });
+    sessionStorage.setItem('kb-pending-papers', JSON.stringify(pending));
+    window.dispatchEvent(new CustomEvent('kb-paper-added'));
+  }
+
+  // ── Add note ──
   function submitNote() {
     var text = noteInput.value.trim();
     if (!text) return;
@@ -846,38 +867,27 @@
     .then(function (r) { return r.json(); })
     .then(function (data) {
       if (data.ok) {
-        // Remove "No notes yet" placeholder
         var empty = document.getElementById('notes-empty');
         if (empty) empty.remove();
 
-        // Insert note optimistically
         var noteItem = document.createElement('div');
         noteItem.className = 'note-item note-new';
+        var now = new Date();
+        noteItem.setAttribute('data-date', now.toISOString());
         noteItem.innerHTML =
           '<div class="note-body"><p>' + escapeHtml(text) + '</p></div>' +
-          '<div class="note-meta">' + formatDate(new Date()) + '</div>';
+          '<div class="note-meta">' +
+            '<span>' + formatDate(now) + '</span>' +
+            '<button class="note-delete-btn visible" title="Delete note">' +
+              '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+            '</button>' +
+          '</div>';
         notesList.appendChild(noteItem);
+        bindDeleteBtn(noteItem.querySelector('.note-delete-btn'));
 
-        // Update count
-        var currentCount = notesList.querySelectorAll('.note-item').length;
-        notesCount.textContent = '(' + currentCount + ')';
-
-        // Clear input
+        updateNoteCount();
         noteInput.value = '';
-
-        // Track in notification bell
-        var pending = [];
-        try { pending = JSON.parse(sessionStorage.getItem('kb-pending-papers') || '[]'); } catch (e) { pending = []; }
-        pending.push({
-          title: 'Note added',
-          type: 'note',
-          triggeredAt: new Date().toISOString(),
-          status: 'pending',
-          runId: null,
-          readByUser: false
-        });
-        sessionStorage.setItem('kb-pending-papers', JSON.stringify(pending));
-        window.dispatchEvent(new CustomEvent('kb-paper-added'));
+        trackPending('Note added', 'note');
       } else {
         throw new Error(data.error || 'Failed to add note');
       }
@@ -892,11 +902,89 @@
   }
 
   noteSubmit.addEventListener('click', submitNote);
-
   noteInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       submitNote();
     }
   });
+
+  // ── Delete note ──
+  function deleteNote(btn) {
+    var noteItem = btn.closest('.note-item');
+    var noteDate = noteItem.getAttribute('data-date');
+    var password = sessionStorage.getItem('kb-session-pwd');
+    if (!password || !noteDate) return;
+
+    if (!confirm('Delete this note?')) return;
+
+    btn.disabled = true;
+
+    fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        password: password,
+        action: 'delete-note',
+        paper_filename: paperFilename,
+        note_date: noteDate
+      })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.ok) {
+        noteItem.style.opacity = '0';
+        noteItem.style.transition = 'opacity 0.3s';
+        setTimeout(function () {
+          noteItem.remove();
+          updateNoteCount();
+          if (notesList.querySelectorAll('.note-item').length === 0) {
+            var p = document.createElement('p');
+            p.className = 'notes-empty';
+            p.id = 'notes-empty';
+            p.textContent = 'No notes yet.';
+            notesList.appendChild(p);
+          }
+        }, 300);
+        trackPending('Note deleted', 'note');
+      } else {
+        throw new Error(data.error || 'Failed to delete note');
+      }
+    })
+    .catch(function (err) {
+      btn.disabled = false;
+      alert('Error: ' + err.message);
+    });
+  }
+
+  function bindDeleteBtn(btn) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      deleteNote(this);
+    });
+  }
+
+  // Bind existing delete buttons
+  notesList.querySelectorAll('.note-delete-btn').forEach(bindDeleteBtn);
+
+  // ── Toggle delete buttons on auth change ──
+  function toggleDeleteBtns(show) {
+    notesList.querySelectorAll('.note-delete-btn').forEach(function (btn) {
+      if (show) {
+        btn.classList.add('visible');
+      } else {
+        btn.classList.remove('visible');
+      }
+    });
+  }
+
+  window.addEventListener('kb-auth-changed', function (e) {
+    toggleDeleteBtns(e.detail.authenticated);
+  });
+
+  // Set initial state
+  if (sessionStorage.getItem('kb-session-pwd')) {
+    toggleDeleteBtns(true);
+  }
 })();

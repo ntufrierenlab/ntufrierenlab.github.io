@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Append a note to a paper's YAML front matter."""
+"""Add or delete a note in a paper's YAML front matter."""
 import sys, os, datetime, re
 
 filepath = sys.argv[1]
@@ -17,38 +17,88 @@ if not match:
 fm_text = match.group(1)
 body = match.group(2)
 
-now = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
-note_text_escaped = note_text.replace('\\', '\\\\').replace('"', '\\"')
-note_entry = f'  - text: "{note_text_escaped}"\n    date: "{now}"'
-
-if re.search(r'^notes:', fm_text, re.MULTILINE):
+# Check if this is a delete operation
+if note_text.startswith('__DELETE__:'):
+    target_date = note_text[len('__DELETE__:'):]
+    # Remove the note with the matching date
     lines = fm_text.split('\n')
     result = []
     in_notes = False
-    inserted = False
-    for i, line in enumerate(lines):
+    skip_entry = False
+    for line in lines:
         if line.startswith('notes:'):
             in_notes = True
             result.append(line)
             continue
         if in_notes:
-            if line.startswith('  -') or line.startswith('    '):
+            if line.startswith('  - '):
+                # Start of a note entry — check if next line has matching date
+                skip_entry = False
+                # Check if this line's date matches
+                if f'date: "{target_date}"' in line:
+                    skip_entry = True
+                    continue
+                # Check paired date on this entry
+                result.append(line)
+                continue
+            if line.startswith('    '):
+                # Continuation of a note entry (e.g. date line)
+                if skip_entry:
+                    continue
+                if f'date: "{target_date}"' in line:
+                    # Remove the previous text line too
+                    if result and result[-1].startswith('  - text:'):
+                        result.pop()
+                    skip_entry = True
+                    continue
                 result.append(line)
                 continue
             else:
-                result.append(note_entry)
                 in_notes = False
-                inserted = True
+                skip_entry = False
         result.append(line)
-    if in_notes and not inserted:
-        result.append(note_entry)
+
     fm_text = '\n'.join(result)
+
+    # If notes array is now empty, remove it
+    if re.search(r'^notes:\s*$', fm_text, re.MULTILINE):
+        fm_text = re.sub(r'^notes:\s*\n?', '', fm_text, flags=re.MULTILINE)
+
+    print(f"Note deleted from {filepath}")
 else:
-    fm_text = fm_text.rstrip('\n') + '\nnotes:\n' + note_entry + '\n'
+    # Add operation
+    now = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+    note_text_escaped = note_text.replace('\\', '\\\\').replace('"', '\\"')
+    note_entry = f'  - text: "{note_text_escaped}"\n    date: "{now}"'
+
+    if re.search(r'^notes:', fm_text, re.MULTILINE):
+        lines = fm_text.split('\n')
+        result = []
+        in_notes = False
+        inserted = False
+        for i, line in enumerate(lines):
+            if line.startswith('notes:'):
+                in_notes = True
+                result.append(line)
+                continue
+            if in_notes:
+                if line.startswith('  -') or line.startswith('    '):
+                    result.append(line)
+                    continue
+                else:
+                    result.append(note_entry)
+                    in_notes = False
+                    inserted = True
+            result.append(line)
+        if in_notes and not inserted:
+            result.append(note_entry)
+        fm_text = '\n'.join(result)
+    else:
+        fm_text = fm_text.rstrip('\n') + '\nnotes:\n' + note_entry + '\n'
+
+    print(f"Note added to {filepath}")
 
 output = SEP + '\n' + fm_text + SEP + '\n' + body
 
 with open(filepath, 'w', encoding='utf-8') as f:
     f.write(output)
-
-print(f"Note added successfully to {filepath}")
