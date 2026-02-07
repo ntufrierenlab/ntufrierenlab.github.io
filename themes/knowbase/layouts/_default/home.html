@@ -2,13 +2,14 @@
   {{ $papers := where site.RegularPages "Section" "papers" }}
   {{ $weekAgo := now.AddDate 0 0 -7 }}
   {{ $thisWeek := slice }}
-  {{ range $papers.ByDate.Reverse }}
+  {{ range $papers }}
     {{ if .Params.date_added }}
       {{ if ge (time .Params.date_added) $weekAgo }}
         {{ $thisWeek = $thisWeek | append . }}
       {{ end }}
     {{ end }}
   {{ end }}
+  {{ $thisWeek = sort $thisWeek "Params.date_added" "desc" }}
   {{ if $thisWeek }}
   <section class="weekly-digest">
     <div class="section-header">
@@ -20,14 +21,16 @@
       <a href="{{ .RelPermalink }}" class="weekly-digest-item">
         <div class="weekly-digest-item-left">
           <span class="weekly-digest-date">{{ time.Format "Jan 2" .Params.date_added }}</span>
-          {{ with .Params.topics }}
-          {{ range first 1 . }}
-          <span class="topic-badge">{{ . }}</span>
-          {{ end }}
-          {{ end }}
         </div>
         <div class="weekly-digest-item-right">
-          <span class="weekly-digest-title">{{ .Title }}</span>
+          <div class="weekly-digest-title-row">
+            <span class="weekly-digest-title">{{ .Title }}</span>
+            {{ with .Params.topics }}
+            {{ range first 1 . }}
+            <span class="topic-badge">{{ . }}</span>
+            {{ end }}
+            {{ end }}
+          </div>
           {{ with .Params.one_line_summary }}
           <span class="weekly-digest-summary">{{ . }}</span>
           {{ end }}
