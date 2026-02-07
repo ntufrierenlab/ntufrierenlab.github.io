@@ -220,6 +220,9 @@
       }
       var sourceLabel = identifySource(venueName);
 
+      // Only accept recognized top conferences — reject unknown venues
+      if (sourceLabel === 'Paper') return null;
+
       var landingUrl = (loc && loc.landing_page_url) ? loc.landing_page_url : 'https://doi.org/' + cleanDoi;
 
       return {
