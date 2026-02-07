@@ -394,7 +394,9 @@ Important:
 - Use Traditional Chinese (繁體中文), not Simplified Chinese
 - Be specific with numbers, data, and citations from the paper — do NOT fabricate results
 - Each section should be thorough and substantive, not superficial
-- Also output two one-line summaries: one in English and one in Traditional Chinese, on separate lines prefixed with ONE_LINE_EN= and ONE_LINE_ZH="
+- CRITICAL: At the very end, output two one-line summaries on their own lines with NO markdown formatting (no bold, no quotes, no backticks):
+ONE_LINE_EN=your english one-line summary here
+ONE_LINE_ZH=your chinese one-line summary here"
 
 # ── Call Claude ────────────────────────────────────────────────────
 
@@ -406,12 +408,12 @@ if [ -z "$SUMMARY" ]; then
 fi
 echo "Claude response received (${#SUMMARY} chars)" >&2
 
-# Extract one-line summaries and sanitize (remove quotes that break YAML)
-ONE_LINE_EN=$(echo "$SUMMARY" | grep '^ONE_LINE_EN=' | cut -d= -f2- | sed 's/^"//;s/"$//;s/"//g')
-ONE_LINE_ZH=$(echo "$SUMMARY" | grep '^ONE_LINE_ZH=' | cut -d= -f2- | sed 's/^"//;s/"$//;s/"//g')
+# Extract one-line summaries and sanitize (handle **bold**, quotes, whitespace)
+ONE_LINE_EN=$(echo "$SUMMARY" | grep -i 'ONE_LINE_EN' | sed 's/^[[:space:]]*//;s/\*//g;s/^ONE_LINE_EN[=:][[:space:]]*//' | sed 's/^"//;s/"$//;s/"//g' | head -1)
+ONE_LINE_ZH=$(echo "$SUMMARY" | grep -i 'ONE_LINE_ZH' | sed 's/^[[:space:]]*//;s/\*//g;s/^ONE_LINE_ZH[=:][[:space:]]*//' | sed 's/^"//;s/"$//;s/"//g' | head -1)
 
 # Remove the ONE_LINE markers and any Claude preamble before the first <div> from the body
-BODY=$(echo "$SUMMARY" | grep -v '^ONE_LINE_EN=' | grep -v '^ONE_LINE_ZH=' | sed '1,/<div class="lang-en">/{/<div class="lang-en">/!d}')
+BODY=$(echo "$SUMMARY" | grep -vi 'ONE_LINE_EN' | grep -vi 'ONE_LINE_ZH' | sed '1,/<div class="lang-en">/{/<div class="lang-en">/!d}')
 
 # ── Generate the full markdown file ────────────────────────────────
 

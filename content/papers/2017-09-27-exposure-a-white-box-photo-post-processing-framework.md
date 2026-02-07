@@ -10,8 +10,8 @@ authors:
 source: "arXiv"
 arxiv_url: "https://arxiv.org/abs/1709.09602"
 pdf_url: "https://arxiv.org/pdf/1709.09602"
-one_line_summary: ""
-one_line_summary_zh: ""
+one_line_summary: "Exposure presents a white-box photo retouching system combining reinforcement learning and unpaired GANs to generate interpretable operation sequences that scale to megapixel images, outperforming CycleGAN and Pix2pix while revealing understandable aesthetic transformations."
+one_line_summary_zh: "Exposure 提出了結合強化學習和非配對 GAN 的白盒照片修飾系統，生成可伸縮到百萬像素級的可解釋操作序列，超越 CycleGAN 和 Pix2pix 同時揭示可理解的美學變換。"
 topics: ["Aesthetic"]
 tags: []
 ---
@@ -233,9 +233,3 @@ tags: []
 - **少樣本風格適應**: 啟用用戶僅用 10-20 個參考圖像應用風格（少樣本學習）。使用元學習方法（如 MAML、原型網絡）快速適應策略到新風格。這實用因為收集 400+ 張圖像/風格仍有負擔。結合遷移學習快速初始化。在 MIT-Adobe FiveK 的留出風格類別上評估。成功這裡會啟用真正實用的部署其中用戶可用最小努力指定風格。
 
 </div>
-
----
-
-**ONE_LINE_EN=** Exposure presents a white-box photo retouching system combining reinforcement learning and unpaired GANs to generate interpretable operation sequences that scale to megapixel images, outperforming CycleGAN and Pix2pix while revealing understandable aesthetic transformations.
-
-**ONE_LINE_ZH=** Exposure 提出了結合強化學習和非配對 GAN 的白盒照片修飾系統，生成可伸縮到百萬像素級的可解釋操作序列，超越 CycleGAN 和 Pix2pix 同時揭示可理解的美學變換。
