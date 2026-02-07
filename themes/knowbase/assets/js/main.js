@@ -202,11 +202,24 @@
 
   function getTopics() {
     var stored = localStorage.getItem('kb-topics');
+    var topics;
     if (stored) {
-      try { return JSON.parse(stored); } catch (e) { /* ignore */ }
+      try { topics = JSON.parse(stored); } catch (e) { topics = DEFAULT_TOPICS.slice(); }
+    } else {
+      topics = DEFAULT_TOPICS.slice();
     }
-    localStorage.setItem('kb-topics', JSON.stringify(DEFAULT_TOPICS));
-    return DEFAULT_TOPICS.slice();
+    // Merge Hugo-rendered topics so localStorage stays in sync with actual taxonomy
+    var changed = false;
+    var hugoItems = document.querySelectorAll('#sidebar-topic-list li[data-hugo-topic]');
+    hugoItems.forEach(function (li) {
+      var name = li.getAttribute('data-hugo-topic');
+      if (name && !topics.some(function (t) { return t.toLowerCase() === name.toLowerCase(); })) {
+        topics.push(name);
+        changed = true;
+      }
+    });
+    if (changed) localStorage.setItem('kb-topics', JSON.stringify(topics));
+    return topics;
   }
 
   function saveTopics(topics) {
