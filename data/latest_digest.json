@@ -2,20 +2,123 @@
   "date": "2026-02-07",
   "papers": [
     {
-      "title": "DiffIR: Efficient Diffusion Model for Image Restoration",
-      "url": "https://arxiv.org/abs/2602.00001",
-      "category": "cs.CV",
-      "authors": ["Alice Chen", "Bob Zhang", "Carol Li"],
-      "summary": "DiffIR proposes a compact diffusion model that achieves state-of-the-art image restoration by introducing wavelet-based noise scheduling and a lightweight U-Net with channel attention. It outperforms previous methods on denoising, deblurring, and super-resolution benchmarks while being 5x faster at inference.",
-      "summary_zh": "DiffIR 提出一種緊湊的擴散模型，透過引入基於小波的噪聲調度和帶通道注意力的輕量 U-Net，實現最先進的影像修復效果。該方法在去噪、去模糊和超解析度基準測試中超越先前方法，同時推理速度快 5 倍。"
+      "title": "Shared LoRA Subspaces for almost Strict Continual Learning",
+      "url": "https://arxiv.org/abs/2602.06043v1",
+      "category": "cs.LG",
+      "authors": [
+        "Prakhar Kaushik",
+        "Ankit Vaidya",
+        "Shravan Chaudhari"
+      ],
+      "summary": "Share proposes a parameter-efficient continual learning method that maintains a single shared low-rank subspace dynamically updated across tasks, achieving 100x parameter reduction and 281x memory savings over traditional LoRA while replacing hundreds of task-specific adapters. The approach learns core knowledge from past tasks and seamlessly integrates new information by identifying essential subspace directions, maintaining performance comparable to jointly trained models across image classification, NLP, 3D pose estimation, and text-to-image generation without requiring data replay or multiple adapters.",
+      "summary_zh": "Share提出一種參數高效的持續學習方法,維護單一共享的低秩子空間,在多個任務間動態更新,相比傳統LoRA實現100倍參數削減和281倍記憶體節省,可替代數百個任務特定適配器。該方法從過往任務提取核心知識,透過識別關鍵子空間方向增量整合新資訊,在圖像分類、自然語言理解、3D姿勢估計和文本到圖像生成中保持與聯合訓練模型相當的性能,無需數據重放或多個適配器。"
     },
     {
-      "title": "FlashSplat: Real-Time Gaussian Splatting with Hardware-Aware Optimization",
-      "url": "https://arxiv.org/abs/2602.00002",
+      "title": "Pseudo-Invertible Neural Networks",
+      "url": "https://arxiv.org/abs/2602.06042v1",
+      "category": "cs.LG",
+      "authors": [
+        "Yamit Ehrlich",
+        "Nimrod Berman",
+        "Assaf Shocher"
+      ],
+      "summary": "This work introduces Surjective Pseudo-invertible Neural Networks (SPNN), which generalizes the Moore-Penrose pseudo-inverse to nonlinear settings and enables Non-Linear Back-Projection (NLBP) for enforcing consistency constraints in neural networks. By combining SPNN with diffusion models, the approach enables zero-shot inversion of complex nonlinear degradations—from optical distortions to semantic abstractions—without retraining, offering precise semantic control over generative outputs.",
+      "summary_zh": "本研究引入射影偽可逆神經網絡(SPNN),將Moore-Penrose偽逆推廣至非線性領域,並啟用非線性反投影(NLBP)以在神經網絡中強制實施一致性約束。透過結合SPNN與擴散模型,該方法實現複雜非線性退化(從光學失真到語義抽象)的零樣本反演,無需重新訓練,提供對生成輸出的精確語義控制。"
+    },
+    {
+      "title": "Predicting Camera Pose from Perspective Descriptions for Spatial Reasoning",
+      "url": "https://arxiv.org/abs/2602.06041v1",
       "category": "cs.CV",
-      "authors": ["David Wu", "Emily Park"],
-      "summary": "FlashSplat introduces hardware-aware tiling and adaptive Gaussian pruning to achieve real-time 3D Gaussian splatting at 120 FPS on consumer GPUs. The method maintains visual quality comparable to 3DGS while reducing memory usage by 60%.",
-      "summary_zh": "FlashSplat 引入硬體感知分塊和自適應高斯剪枝，在消費級 GPU 上以 120 FPS 實現即時 3D 高斯潑濺。該方法在維持與 3DGS 相當的視覺品質的同時，減少了 60% 的記憶體使用。"
+      "authors": [
+        "Xuejun Zhang",
+        "Aditi Tiwari",
+        "Zhenhailong Wang"
+      ],
+      "summary": "CAMCUE is a pose-aware framework that uses camera pose as an explicit geometric anchor for multi-view spatial reasoning in MLLMs, grounding natural-language viewpoint descriptions to target camera poses and synthesizing pose-conditioned imagined views. Evaluated on CAMCUE-DATA with 27,668 training instances, the method achieves 9.06% accuracy improvement and predicts target poses with >90% rotation accuracy within 20°, reducing inference time from 256.6s to 1.45s per example.",
+      "summary_zh": "CAMCUE是一個姿態感知框架,使用相機姿態作為顯式幾何錨點進行多視圖空間推理,將自然語言視角描述接地到目標相機姿態並合成姿態條件化的想像目標視圖。在包含27,668個訓練實例的CAMCUE-DATA上評估,該方法達到9.06%準確度改進,並以>90%的旋轉精度預測目標姿態,推理時間從256.6秒降至1.45秒。"
+    },
+    {
+      "title": "DyTopo: Dynamic Topology Routing for Multi-Agent Reasoning via Semantic Matching",
+      "url": "https://arxiv.org/abs/2602.06039v1",
+      "category": "cs.AI",
+      "authors": [
+        "Yuxing Lu",
+        "Yucheng Hu",
+        "Xukai Zhao"
+      ],
+      "summary": "DyTopo is a manager-guided multi-agent framework that dynamically reconstructs a sparse directed communication graph at each reasoning round using semantic matching of natural-language agent descriptors (needs and offers). The framework achieves average +6.2% improvement over strong baselines on code generation and mathematical reasoning tasks while providing interpretable coordination traces showing how communication pathways evolve across rounds.",
+      "summary_zh": "DyTopo是一個經理引導的多智能體框架,在每個推理輪次使用自然語言智能體描述符(需求和提供)的語義匹配動態重建稀疏有向通信圖。該框架在程式碼生成和數學推理任務上相比最強基準平均提升6.2%,同時透過進化圖提供可解釋的協調跡跡,展示通信路徑如何跨輪次重新配置。"
+    },
+    {
+      "title": "SwimBird: Eliciting Switchable Reasoning Mode in Hybrid Autoregressive MLLMs",
+      "url": "https://arxiv.org/abs/2602.06040v1",
+      "category": "cs.CV",
+      "authors": [
+        "Jintao Tong",
+        "Shilin Yan",
+        "Hongwei Xue"
+      ],
+      "summary": "SwimBird is a reasoning-switchable MLLM that dynamically adapts among text-only, vision-only (continuous hidden states as visual thoughts), and interleaved vision-text reasoning modes based on input queries using a hybrid autoregressive formulation. Using a curated supervised fine-tuning dataset of 92K diverse instances, SwimBird preserves strong textual logic while achieving state-of-the-art results on vision-dense tasks, outperforming fixed-pattern multimodal reasoning methods.",
+      "summary_zh": "SwimBird是一個推理可切換的MLLM,使用混合自迴歸公式在純文本、純視覺(連續隱藏狀態作為視覺思想)和交錯視覺-文本推理模式間動態適應。透過精心策劃的92K多樣性監督微調數據集,SwimBird保留強大的文本邏輯同時在視覺密集任務上達到最先進結果,優於固定模式多模態推理方法。"
+    },
+    {
+      "title": "CommCP: Efficient Multi-Agent Coordination via LLM-Based Communication with Conformal Prediction",
+      "url": "https://arxiv.org/abs/2602.06038v1",
+      "category": "cs.RO",
+      "authors": [
+        "Xiaopan Zhang",
+        "Zejin Wang",
+        "Zhixu Li"
+      ],
+      "summary": "CommCP proposes a decentralized LLM-based communication framework for multi-agent multi-task Embodied Question Answering that uses conformal prediction to calibrate generated messages and minimize receiver distractions. Evaluated on a new MM-EQA benchmark featuring photo-realistic household scenarios, CommCP significantly enhances task success rates and exploration efficiency by enabling effective information sharing among heterogeneous robots with different capabilities.",
+      "summary_zh": "CommCP提出一個去中心化的基於LLM的通信框架用於多智能體多任務具身問答,使用保形預測校準生成的消息並最小化接收者干擾。在包含逼真家庭場景的新MM-EQA基準上評估,CommCP透過在異構機器人之間啟用有效資訊共享顯著提高任務成功率和探索效率。"
+    },
+    {
+      "title": "Thinking with Geometry: Active Geometry Integration for Spatial Reasoning",
+      "url": "https://arxiv.org/abs/2602.06037v1",
+      "category": "cs.CV",
+      "authors": [
+        "Haoyuan Li",
+        "Qihang Cao",
+        "Tao Tang"
+      ],
+      "summary": "GeoThinker shifts from passive geometry fusion to active perception, enabling MLLMs to selectively retrieve geometric evidence conditioned on reasoning demands through Spatial-Grounded Fusion with frame-strict cross-attention and Importance Gating. The framework achieves state-of-the-art 72.6 score on VSI-Bench and demonstrates robust generalization across embodied referring and autonomous driving tasks.",
+      "summary_zh": "GeoThinker從被動幾何融合轉向主動感知,透過具有幀級嚴格交叉注意和重要性門控的空間接地融合,使MLLMs能根據推理需求選擇性地檢索幾何證據。該框架在VSI-Bench上達到最先進的72.6分,並在具身指代和自主駕駛任務中展示強健的泛化能力。"
+    },
+    {
+      "title": "InterPrior: Scaling Generative Control for Physics-Based Human-Object Interactions",
+      "url": "https://arxiv.org/abs/2602.06035v1",
+      "category": "cs.CV",
+      "authors": [
+        "Sirui Xu",
+        "Samuel Schulter",
+        "Morteza Ziyadi"
+      ],
+      "summary": "InterPrior is a scalable framework that learns a unified generative controller through large-scale imitation pretraining followed by reinforcement learning finetuning with physical perturbation data augmentation, enabling humanoids to compose and generalize loco-manipulation skills. The method consolidates reconstructed latent skills into a valid manifold that generalizes beyond training data, supporting new object interactions and real robot deployment.",
+      "summary_zh": "InterPrior是一個可擴展的框架,透過大規模模仿預訓練然後強化學習微調(使用物理擾動數據增強)學習統一生成控制器,使人形機器人能組合和泛化運動操縱技能。該方法將重建的潛在技能整合為有效流形,可超越訓練數據泛化,支持新物體互動和實機部署。"
+    },
+    {
+      "title": "V-Retrver: Evidence-Driven Agentic Reasoning for Universal Multimodal Retrieval",
+      "url": "https://arxiv.org/abs/2602.06034v1",
+      "category": "cs.CV",
+      "authors": [
+        "Dongyang Chen",
+        "Chaoyang Wang",
+        "Dezhao SU"
+      ],
+      "summary": "V-Retrver reformulates multimodal retrieval as an agentic reasoning process where MLLMs selectively acquire visual evidence via external tools through interleaved hypothesis generation and targeted visual verification. Using curriculum-based learning combining supervised activation, rejection-based refinement, and evidence-aligned RL, the framework achieves 23.0% average improvement in retrieval accuracy with enhanced reasoning reliability and generalization.",
+      "summary_zh": "V-Retrver將多模態檢索重新表述為智能體推理過程,其中MLLMs透過交錯假設生成和針對性視覺驗證選擇性透過外部工具獲取視覺證據。使用課程學習策略結合監督激活、拒絕型精化和證據對齐強化學習,該框架在檢索準確度上達到23.0%平均改進,並增強推理可靠性和泛化。"
+    },
+    {
+      "title": "Splat and Distill: Augmenting Teachers with Feed-Forward 3D Reconstruction For 3D-Aware Distillation",
+      "url": "https://arxiv.org/abs/2602.06032v1",
+      "category": "cs.CV",
+      "authors": [
+        "David Shavin",
+        "Sagie Benaim"
+      ],
+      "summary": "Splat and Distill augments 2D Vision Foundation Models with a fast feed-forward 3D Gaussian reconstruction pipeline that lifts 2D features into explicit 3D representations, which are then splatted onto novel viewpoints to create geometrically grounded supervision. By replacing per-scene optimization with feed-forward lifting, the method achieves substantial gains in 3D awareness and semantic richness across monocular depth estimation, surface normal estimation, multi-view correspondence, and semantic segmentation.",
+      "summary_zh": "Splat and Distill透過快速前饋3D高斯重建管線增強2D視覺基礎模型,該管線將2D特徵提升為顯式3D表示,然後投影到新視角創建幾何接地監督。透過用前饋提升替代每場景優化,該方法在單目深度估計、表面法線估計、多視圖對應和語義分割中實現3D感知和語義豐富性的實質性改進。"
     }
   ]
 }
