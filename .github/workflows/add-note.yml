@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       paper_filename:
-        description: 'Paper filename (e.g. 2026-01-08-rl-awb-....md)'
+        description: Paper filename
         required: true
         type: string
       note_text:
-        description: 'Note text content'
+        description: Note text content
         required: true
         type: string
 
@@ -27,77 +27,16 @@ jobs:
           NOTE_TEXT: ${{ inputs.note_text }}
         run: |
           FILENAME="${{ inputs.paper_filename }}"
-
-          # Security: reject path traversal
           if echo "$FILENAME" | grep -qE '[/\\]|\.\.'; then
             echo "Error: Invalid filename" >&2
             exit 1
           fi
-
           FILEPATH="content/papers/${FILENAME}"
           if [ ! -f "$FILEPATH" ]; then
             echo "Error: File not found: ${FILEPATH}" >&2
             exit 1
           fi
-
-          # Use Python to safely modify YAML front matter
-          python3 - "$FILEPATH" <<'PYEOF'
-import sys, os, datetime, re
-
-filepath = sys.argv[1]
-note_text = os.environ['NOTE_TEXT']
-
-with open(filepath, 'r', encoding='utf-8') as f:
-    content = f.read()
-
-# Split on --- delimiters (front matter is between first two ---)
-match = re.match(r'^---\n(.*?\n)---\n(.*)$', content, re.DOTALL)
-if not match:
-    print("Error: Could not parse front matter", file=sys.stderr)
-    sys.exit(1)
-
-fm_text = match.group(1)
-body = match.group(2)
-
-# Build the new note entry
-now = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
-# Escape text for YAML
-note_text_escaped = note_text.replace('\\', '\\\\').replace('"', '\\"')
-note_entry = f'  - text: "{note_text_escaped}"\n    date: "{now}"'
-
-# Check if notes array already exists
-if re.search(r'^notes:', fm_text, re.MULTILINE):
-    lines = fm_text.split('\n')
-    result = []
-    in_notes = False
-    inserted = False
-    for i, line in enumerate(lines):
-        if line.startswith('notes:'):
-            in_notes = True
-            result.append(line)
-            continue
-        if in_notes:
-            if line.startswith('  -') or line.startswith('    '):
-                result.append(line)
-                continue
-            else:
-                result.append(note_entry)
-                in_notes = False
-                inserted = True
-        result.append(line)
-    if in_notes and not inserted:
-        result.append(note_entry)
-    fm_text = '\n'.join(result)
-else:
-    fm_text = fm_text.rstrip('\n') + '\nnotes:\n' + note_entry + '\n'
-
-output = '---\n' + fm_text + '---\n' + body
-
-with open(filepath, 'w', encoding='utf-8') as f:
-    f.write(output)
-
-print(f"Note added successfully to {filepath}")
-PYEOF
+          python3 scripts/add-note.py "$FILEPATH"
 
       - name: Commit and push
         run: |
