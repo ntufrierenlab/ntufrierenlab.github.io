@@ -23,6 +23,23 @@
     </div>
   </div>
 
+  <!-- Password Modal -->
+  <div id="password-modal" class="modal" style="display:none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h2>Authentication</h2>
+      <p class="modal-desc">Enter the password to add or delete papers. It is kept in memory only and cleared when you close the tab.</p>
+      <div class="form-group">
+        <label for="kb-password">Password</label>
+        <input type="password" id="kb-password" placeholder="Enter password..." autocomplete="off">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="password-cancel">Cancel</button>
+        <button class="btn btn-primary" id="password-save">Save</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Notification Bell (shown by JS when papers are pending) -->
   <div id="notification-bell" class="notif-bell" style="display:none;">
     <button class="notif-bell-btn" id="notif-bell-btn" aria-label="Notifications">

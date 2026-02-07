@@ -239,8 +239,8 @@
   var pendingPaper = { url: '', title: '', btn: null };
 
   function openTopicPicker(url, title, btn) {
-    if (!sessionPassword) {
-      openSettings('Please enter the password first.');
+    if (!sessionStorage.getItem('kb-session-pwd')) {
+      alert('Please enter the password first (click the lock icon in the sidebar).');
       return;
     }
     pendingPaper = { url: url, title: title, btn: btn };
@@ -479,12 +479,11 @@
     if (header) header.scrollIntoView({ behavior: 'smooth' });
   }
 
-  // ── Credentials (memory-only, never persisted) ──────────────────
+  // ── Credentials ─────────────────────────────────────────────────
   // Clean up any old localStorage entries from previous versions
   localStorage.removeItem('kb-password');
   localStorage.removeItem('worker-url');
 
-  var sessionPassword = sessionStorage.getItem('kb-session-pwd') || '';
   var WORKER_URL = 'https://frieren-lab-proxy.ntufrierenlab.workers.dev';
 
   // ── Add paper (via Cloudflare Worker proxy) ────────────────────
@@ -494,7 +493,7 @@
       '<div class="spinner-small"></div>' +
       'Processing...';
 
-    var password = sessionPassword;
+    var password = sessionStorage.getItem('kb-session-pwd') || '';
     var workerUrl = WORKER_URL;
 
     fetch(workerUrl, {
@@ -561,38 +560,4 @@
     return s.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
-  // ── Settings modal ────────────────────────────────────────────
-  var settingsModal = document.getElementById('settings-modal');
-  var openSettingsBtn = document.getElementById('open-settings');
-  var cancelBtn = document.getElementById('settings-cancel');
-  var saveBtn = document.getElementById('settings-save');
-  var passwordInput = document.getElementById('kb-password');
-
-  function openSettings(msg) {
-    passwordInput.value = '';
-    settingsModal.style.display = 'flex';
-    if (msg) alert(msg);
-  }
-
-  if (openSettingsBtn) {
-    openSettingsBtn.addEventListener('click', function () { openSettings(); });
-  }
-  if (cancelBtn) {
-    cancelBtn.addEventListener('click', function () { settingsModal.style.display = 'none'; });
-  }
-  if (saveBtn) {
-    saveBtn.addEventListener('click', function () {
-      var pwd = passwordInput.value.trim();
-      if (pwd) {
-        sessionPassword = pwd;
-        sessionStorage.setItem('kb-session-pwd', pwd);
-      }
-      settingsModal.style.display = 'none';
-    });
-  }
-
-  var overlay = settingsModal ? settingsModal.querySelector('.modal-overlay') : null;
-  if (overlay) {
-    overlay.addEventListener('click', function () { settingsModal.style.display = 'none'; });
-  }
 })();

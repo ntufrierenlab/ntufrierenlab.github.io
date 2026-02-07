@@ -18,6 +18,66 @@
   }
 })();
 
+// Sidebar auth button + password modal
+(function () {
+  var authBtn = document.getElementById('sidebar-auth-btn');
+  var modal = document.getElementById('password-modal');
+  if (!authBtn || !modal) return;
+
+  var overlay = modal.querySelector('.modal-overlay');
+  var passwordInput = document.getElementById('kb-password');
+  var saveBtn = document.getElementById('password-save');
+  var cancelBtn = document.getElementById('password-cancel');
+
+  // Reflect current auth state
+  function updateAuthState() {
+    if (sessionStorage.getItem('kb-session-pwd')) {
+      authBtn.classList.add('authenticated');
+      authBtn.setAttribute('aria-label', 'Authenticated');
+    } else {
+      authBtn.classList.remove('authenticated');
+      authBtn.setAttribute('aria-label', 'Authentication');
+    }
+    // Show/hide delete button on paper pages
+    var deleteBtn = document.getElementById('btn-delete-paper');
+    if (deleteBtn) {
+      deleteBtn.style.display = sessionStorage.getItem('kb-session-pwd') ? '' : 'none';
+    }
+  }
+
+  function openModal() {
+    passwordInput.value = '';
+    modal.style.display = 'flex';
+    passwordInput.focus();
+  }
+
+  function closeModal() {
+    modal.style.display = 'none';
+  }
+
+  authBtn.addEventListener('click', openModal);
+  cancelBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', closeModal);
+
+  saveBtn.addEventListener('click', function () {
+    var pwd = passwordInput.value.trim();
+    if (pwd) {
+      sessionStorage.setItem('kb-session-pwd', pwd);
+    }
+    closeModal();
+    updateAuthState();
+  });
+
+  passwordInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveBtn.click();
+    }
+  });
+
+  updateAuthState();
+})();
+
 // Mobile sidebar toggle
 (function () {
   var sidebar = document.getElementById('sidebar');
@@ -496,11 +556,6 @@
   var confirmBtn = document.getElementById('delete-confirm');
   var cancelBtn = document.getElementById('delete-cancel');
   var titleEl = document.getElementById('delete-confirm-title');
-
-  // Show delete button only if password exists
-  if (sessionStorage.getItem('kb-session-pwd')) {
-    deleteBtn.style.display = '';
-  }
 
   function openModal() {
     titleEl.textContent = deleteBtn.getAttribute('data-title');
