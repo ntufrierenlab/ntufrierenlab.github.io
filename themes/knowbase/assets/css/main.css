@@ -121,6 +121,7 @@ a:hover {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 .content {
@@ -478,6 +479,8 @@ a:hover {
 .breadcrumb-current {
   color: var(--text-primary);
   font-weight: 500;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* --- Section Headers --- */
@@ -889,7 +892,7 @@ a.tag:hover {
 }
 
 .paper-content table {
-  width: 100%;
+  min-width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
 }
@@ -901,6 +904,7 @@ a.tag:hover {
   font-weight: 600;
   border-bottom: 2px solid var(--border);
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
 .paper-content td {
