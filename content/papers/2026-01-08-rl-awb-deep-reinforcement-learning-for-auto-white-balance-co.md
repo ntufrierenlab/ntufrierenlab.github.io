@@ -13,7 +13,8 @@ one_line_summary: " RL-AWB combines a novel statistical color constancy algorith
 one_line_summary_zh: " RL-AWB 結合新穎的統計色彩恆常性演算法 (SGP-LRD) 與軟執行者批評強化學習，進行自適應逐幀參數調整以實現夜間自動白平衡，以最少訓練數據 (5 張影像) 達成卓越的跨傳感器泛化能力。"
 topics: ["Auto White Balance"]
 tags: []
-- text: "Test note: Interesting approach combining RL with statistical color constancy."
+notes:
+  - text: "Test note: Interesting approach combining RL with statistical color constancy."
     date: "2026-02-07T04:53:19Z"
   - text: "test2"
     date: "2026-02-07T04:56:03Z"

@@ -60,9 +60,11 @@ if note_text.startswith('__DELETE__:'):
 
     fm_text = '\n'.join(result)
 
-    # If notes array is now empty, remove it
-    if re.search(r'^notes:\s*$', fm_text, re.MULTILINE):
-        fm_text = re.sub(r'^notes:\s*\n?', '', fm_text, flags=re.MULTILINE)
+    # If notes array is now empty, remove the notes: key
+    has_note_entries = any(line.strip().startswith('- text:') for line in result)
+    if not has_note_entries:
+        result = [line for line in result if line.rstrip() != 'notes:']
+        fm_text = '\n'.join(result)
 
     print(f"Note deleted from {filepath}")
 else:
