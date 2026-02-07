@@ -128,10 +128,10 @@ async function handleDelete(body, env) {
 }
 
 async function handleTrigger(body, env) {
-  const { arxiv_url, topic } = body;
+  const { arxiv_url, topic, doi, pdf_url } = body;
 
-  if (!arxiv_url) {
-    return jsonResponse(400, { error: 'Missing arxiv_url' });
+  if (!arxiv_url && !doi) {
+    return jsonResponse(400, { error: 'Missing arxiv_url or doi' });
   }
 
   const repo = env.GITHUB_REPO || 'ntufrierenlab/ntufrierenlab.github.io';
@@ -148,8 +148,10 @@ async function handleTrigger(body, env) {
     body: JSON.stringify({
       ref: 'main',
       inputs: {
-        arxiv_url: arxiv_url,
+        arxiv_url: arxiv_url || '',
         topic: topic || 'General',
+        doi: doi || '',
+        pdf_url: pdf_url || '',
       },
     }),
   });

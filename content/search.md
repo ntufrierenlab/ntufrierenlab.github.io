@@ -1,4 +1,4 @@
 ---
-title: "Search arXiv"
+title: "Search Papers"
 layout: "search"
 ---

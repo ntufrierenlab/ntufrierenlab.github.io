@@ -13,7 +13,7 @@
   var currentPapers = [];
   var currentPage = 1;
   var ARXIV_SOURCE = 's4306400194';
-  var SELECT_FIELDS = 'id,title,authorships,publication_date,primary_location,cited_by_count,abstract_inverted_index';
+  var SELECT_FIELDS = 'id,title,authorships,publication_date,primary_location,locations,best_oa_location,doi,cited_by_count,abstract_inverted_index';
   var DEFAULT_TOPICS = ['Auto White Balance'];
 
   // ── Topic Management ──────────────────────────────────────────
@@ -64,38 +64,25 @@
     currentPapers = [];
     currentPage = 1;
 
-    var base = API_BASE +
+    var url = API_BASE +
       '?search=' + encodeURIComponent(query) +
       '&sort=publication_date:desc' +
       '&select=' + SELECT_FIELDS +
+      '&per_page=200' +
+      '&filter=is_oa:true' +
       '&mailto=ntufrierenlab@gmail.com';
 
-    // Two parallel calls:
-    // 1) arXiv source filter — guaranteed arXiv papers
-    // 2) Unfiltered — to catch bioRxiv (some have source:null)
-    var arxivUrl = base + '&per_page=200&filter=primary_location.source.id:' + ARXIV_SOURCE;
-    var openUrl  = base + '&per_page=200';
-
-    Promise.all([
-      fetch(arxivUrl).then(function (r) { return r.ok ? r.json() : { results: [] }; }),
-      fetch(openUrl).then(function (r) { return r.ok ? r.json() : { results: [] }; })
-    ])
-    .then(function (responses) {
+    fetch(url)
+    .then(function (r) { return r.ok ? r.json() : { results: [] }; })
+    .then(function (data) {
       loadingDiv.style.display = 'none';
 
-      var arxivResults = (responses[0].results || []);
-      var openResults  = (responses[1].results || []);
+      var results = data.results || [];
 
-      // From the unfiltered call, keep only bioRxiv papers
-      var biorxivResults = openResults.filter(function (w) {
-        var info = extractPaperInfo(w);
-        return info && info.source === 'bioRxiv';
-      });
-
-      // Merge arXiv + bioRxiv, deduplicate by OpenAlex ID
+      // Keep only papers where extractPaperInfo returns non-null
       var seen = {};
       var merged = [];
-      arxivResults.concat(biorxivResults).forEach(function (w) {
+      results.forEach(function (w) {
         if (!seen[w.id] && extractPaperInfo(w)) {
           seen[w.id] = true;
           merged.push(w);
@@ -136,34 +123,113 @@
   }
 
   // ── Paper info extraction ─────────────────────────────────────
-  function extractPaperInfo(work) {
-    var loc = work.primary_location;
-    if (!loc) return null;
-    var pageUrl = (loc.landing_page_url || '');
-    var locId = (loc.id || '');
-    var pdfField = (loc.pdf_url || '');
-    var allUrls = pageUrl + ' ' + locId + ' ' + pdfField;
-
-    // arXiv
+  function extractArxivFromUrls(allUrls) {
     var m1 = allUrls.match(/arxiv\.org\/(?:abs|pdf)\/([0-9]+\.[0-9]+)/);
     if (m1) return { source: 'arXiv', id: m1[1], absUrl: 'https://arxiv.org/abs/' + m1[1], pdfUrl: 'https://arxiv.org/pdf/' + m1[1] };
     var m2 = allUrls.match(/10\.48550\/arxiv\.([0-9]+\.[0-9]+)/i);
     if (m2) return { source: 'arXiv', id: m2[1], absUrl: 'https://arxiv.org/abs/' + m2[1], pdfUrl: 'https://arxiv.org/pdf/' + m2[1] };
+    return null;
+  }
 
-    // bioRxiv
-    if (/biorxiv\.org/i.test(allUrls)) {
-      var b1 = allUrls.match(/biorxiv\.org\/content\/(?:biorxiv\/early\/[0-9/]+\/)?([0-9]+\.[0-9]+\/[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+)(v[0-9]+)?/);
-      if (b1) {
-        var doi = b1[1];
-        var ver = b1[2] || 'v1';
-        return { source: 'bioRxiv', id: doi, absUrl: 'https://www.biorxiv.org/content/' + doi + ver, pdfUrl: 'https://www.biorxiv.org/content/' + doi + ver + '.full.pdf' };
+  function identifySource(venueName) {
+    if (!venueName) return 'Paper';
+    var n = venueName.toLowerCase();
+    var maps = [
+      [/cvpr|computer vision and pattern recognition/, 'CVPR'],
+      [/\biccv\b|international conference on computer vision(?! and pattern)/, 'ICCV'],
+      [/\beccv\b|european conference on computer vision/, 'ECCV'],
+      [/\bwacv\b|winter conference on applications of computer vision/, 'WACV'],
+      [/\baccv\b|asian conference on computer vision/, 'ACCV'],
+      [/neurips|neural information processing/, 'NeurIPS'],
+      [/\bicml\b|international conference on machine learning/, 'ICML'],
+      [/\biclr\b|international conference on learning representations/, 'ICLR'],
+      [/\baaai\b/, 'AAAI'],
+      [/siggraph asia/, 'SIGGRAPH Asia'],
+      [/siggraph/, 'SIGGRAPH'],
+      [/\bijcv\b|international journal of computer vision/, 'IJCV'],
+      [/\btpami\b|transactions on pattern analysis/, 'TPAMI'],
+    ];
+    for (var i = 0; i < maps.length; i++) {
+      if (maps[i][0].test(n)) return maps[i][1];
+    }
+    return 'Paper';
+  }
+
+  function extractPaperInfo(work) {
+    var loc = work.primary_location;
+
+    // 1) Check primary_location for arXiv
+    if (loc) {
+      var pageUrl = (loc.landing_page_url || '');
+      var locId = (loc.id || '');
+      var pdfField = (loc.pdf_url || '');
+      var allUrls = pageUrl + ' ' + locId + ' ' + pdfField;
+
+      var arxiv = extractArxivFromUrls(allUrls);
+      if (arxiv) return arxiv;
+
+      // 2) Check primary_location for bioRxiv
+      if (/biorxiv\.org/i.test(allUrls)) {
+        var b1 = allUrls.match(/biorxiv\.org\/content\/(?:biorxiv\/early\/[0-9/]+\/)?([0-9]+\.[0-9]+\/[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+)(v[0-9]+)?/);
+        if (b1) {
+          var bdoi = b1[1];
+          var ver = b1[2] || 'v1';
+          return { source: 'bioRxiv', id: bdoi, absUrl: 'https://www.biorxiv.org/content/' + bdoi + ver, pdfUrl: 'https://www.biorxiv.org/content/' + bdoi + ver + '.full.pdf' };
+        }
+        if (/biorxiv\.org/.test(pdfField)) {
+          var absGuess = pdfField.replace(/\.full\.pdf$/, '');
+          var doiMatch = pdfField.match(/([0-9]+\.[0-9]+\/[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+)/);
+          var displayId = doiMatch ? doiMatch[1] : 'preprint';
+          return { source: 'bioRxiv', id: displayId, absUrl: absGuess, pdfUrl: pdfField };
+        }
       }
-      if (/biorxiv\.org/.test(pdfField)) {
-        var absGuess = pdfField.replace(/\.full\.pdf$/, '');
-        var doiMatch = pdfField.match(/([0-9]+\.[0-9]+\/[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+)/);
-        var displayId = doiMatch ? doiMatch[1] : 'preprint';
-        return { source: 'bioRxiv', id: displayId, absUrl: absGuess, pdfUrl: pdfField };
+    }
+
+    // 3) Check all locations for an arXiv version (catches conference papers on arXiv)
+    var locations = work.locations || [];
+    for (var i = 0; i < locations.length; i++) {
+      var l = locations[i];
+      var lUrls = (l.landing_page_url || '') + ' ' + (l.id || '') + ' ' + (l.pdf_url || '');
+      var arxivFromLoc = extractArxivFromUrls(lUrls);
+      if (arxivFromLoc) return arxivFromLoc;
+    }
+
+    // 4) Conference paper via DOI — find a PDF URL
+    var doi = work.doi || '';
+    if (doi) {
+      // Clean DOI: remove https://doi.org/ prefix if present
+      var cleanDoi = doi.replace(/^https?:\/\/doi\.org\//, '');
+
+      // Find PDF URL from best_oa_location or locations
+      var pdfUrl = '';
+      var boa = work.best_oa_location;
+      if (boa && boa.pdf_url) pdfUrl = boa.pdf_url;
+      if (!pdfUrl) {
+        for (var j = 0; j < locations.length; j++) {
+          if (locations[j].pdf_url) { pdfUrl = locations[j].pdf_url; break; }
+        }
       }
+
+      // Must have a PDF to be useful
+      if (!pdfUrl) return null;
+
+      // Identify venue
+      var venueName = '';
+      if (loc && loc.source && loc.source.display_name) {
+        venueName = loc.source.display_name;
+      }
+      var sourceLabel = identifySource(venueName);
+
+      var landingUrl = (loc && loc.landing_page_url) ? loc.landing_page_url : 'https://doi.org/' + cleanDoi;
+
+      return {
+        source: sourceLabel,
+        id: cleanDoi,
+        absUrl: landingUrl,
+        pdfUrl: pdfUrl,
+        doi: cleanDoi,
+        isConference: true
+      };
     }
 
     return null;
@@ -187,7 +253,15 @@
       var citations = work.cited_by_count || 0;
       var abstract = reconstructAbstract(work.abstract_inverted_index);
       var title = work.title || 'Untitled';
-      var badgeClass = info.source === 'bioRxiv' ? ' badge-biorxiv' : '';
+      var badgeClass = info.source === 'bioRxiv' ? ' badge-biorxiv' : (info.isConference ? ' badge-conf' : '');
+      var displayId = info.id;
+      // Truncate long DOIs for display
+      if (displayId.length > 30) displayId = displayId.substring(0, 30) + '...';
+
+      // Build add-button data attributes
+      var addAttrs = 'data-url="' + escapeAttr(info.absUrl) + '" data-title="' + escapeAttr(title) + '"';
+      if (info.doi) addAttrs += ' data-doi="' + escapeAttr(info.doi) + '"';
+      if (info.isConference) addAttrs += ' data-pdf="' + escapeAttr(info.pdfUrl) + '"';
 
       var card = document.createElement('div');
       card.className = 'arxiv-result-card';
@@ -196,7 +270,7 @@
           '<div class="arxiv-result-meta">' +
             (pubDate ? '<span class="arxiv-result-date">' + pubDate + '</span>' : '') +
             '<span class="arxiv-result-citations">' + citations + ' citations</span>' +
-            '<span class="arxiv-result-id' + badgeClass + '">' + info.source + ': ' + escapeHtml(info.id) + '</span>' +
+            '<span class="arxiv-result-id' + badgeClass + '">' + info.source + ': ' + escapeHtml(displayId) + '</span>' +
           '</div>' +
         '</div>' +
         '<h3 class="arxiv-result-title">' + escapeHtml(title) + '</h3>' +
@@ -206,7 +280,7 @@
           '<a href="' + info.absUrl + '" class="btn btn-outline btn-sm" target="_blank" rel="noopener">' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
             info.source + '</a>' +
-          '<button class="btn btn-primary btn-sm add-paper-btn" data-url="' + info.absUrl + '" data-title="' + escapeAttr(title) + '">' +
+          '<button class="btn btn-primary btn-sm add-paper-btn" ' + addAttrs + '>' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
             'Add to Knowledge Base</button>' +
         '</div>';
@@ -220,7 +294,9 @@
       btn.addEventListener('click', function () {
         var url = this.getAttribute('data-url');
         var title = this.getAttribute('data-title');
-        openTopicPicker(url, title, this);
+        var doi = this.getAttribute('data-doi') || '';
+        var pdf = this.getAttribute('data-pdf') || '';
+        openTopicPicker(url, title, this, doi, pdf);
       });
     });
 
@@ -236,14 +312,14 @@
   var topicConfirmBtn = document.getElementById('topic-confirm');
   var topicOverlay = topicModal ? topicModal.querySelector('.modal-overlay') : null;
 
-  var pendingPaper = { url: '', title: '', btn: null };
+  var pendingPaper = { url: '', title: '', btn: null, doi: '', pdf: '' };
 
-  function openTopicPicker(url, title, btn) {
+  function openTopicPicker(url, title, btn, doi, pdf) {
     if (!sessionStorage.getItem('kb-session-pwd')) {
       alert('Please enter the password first (click the lock icon in the sidebar).');
       return;
     }
-    pendingPaper = { url: url, title: title, btn: btn };
+    pendingPaper = { url: url, title: title, btn: btn, doi: doi || '', pdf: pdf || '' };
     renderTopicList();
     newTopicInput.value = '';
     topicModal.style.display = 'flex';
@@ -321,7 +397,7 @@
       var selected = topicListEl.querySelector('input[type="radio"]:checked');
       var topic = selected ? selected.value : 'General';
       closeTopicModal();
-      addPaper(pendingPaper.url, pendingPaper.title, pendingPaper.btn, topic);
+      addPaper(pendingPaper.url, pendingPaper.title, pendingPaper.btn, topic, pendingPaper.doi, pendingPaper.pdf);
     });
   }
 
@@ -487,7 +563,7 @@
   var WORKER_URL = 'https://frieren-lab-proxy.ntufrierenlab.workers.dev';
 
   // ── Add paper (via Cloudflare Worker proxy) ────────────────────
-  function addPaper(paperUrl, title, btn, topic) {
+  function addPaper(paperUrl, title, btn, topic, doi, pdfUrl) {
     btn.disabled = true;
     btn.innerHTML =
       '<div class="spinner-small"></div>' +
@@ -496,14 +572,18 @@
     var password = sessionStorage.getItem('kb-session-pwd') || '';
     var workerUrl = WORKER_URL;
 
+    var payload = {
+      password: password,
+      arxiv_url: paperUrl,
+      topic: topic
+    };
+    if (doi) payload.doi = doi;
+    if (pdfUrl) payload.pdf_url = pdfUrl;
+
     fetch(workerUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        password: password,
-        arxiv_url: paperUrl,
-        topic: topic
-      })
+      body: JSON.stringify(payload)
     })
     .then(function (r) { return r.json(); })
     .then(function (data) {

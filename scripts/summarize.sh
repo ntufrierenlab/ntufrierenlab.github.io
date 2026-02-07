@@ -4,16 +4,25 @@
 # Generates a bilingual (EN/ZH) Hugo markdown file.
 #
 # Usage:
-#   ./scripts/summarize.sh <paper-url> [topic-name]
+#   ./scripts/summarize.sh <paper-url> [topic-name] [doi] [pdf-url]
 #
 # Examples:
 #   ./scripts/summarize.sh https://arxiv.org/abs/2004.01354 "Auto White Balance"
 #   ./scripts/summarize.sh https://www.biorxiv.org/content/10.1101/2026.01.22.700600v1 "Topic"
+#   ./scripts/summarize.sh "" "Topic" "10.1109/CVPR.2024.12345" "https://openaccess.thecvf.com/..."
 #
 set -uo pipefail
 
-PAPER_URL="${1:?Usage: summarize.sh <paper-url> [topic-name]}"
+PAPER_URL="${1:-}"
 TOPIC_NAME="${2:-General}"
+DOI="${3:-}"
+EXT_PDF_URL="${4:-}"
+
+if [ -z "$PAPER_URL" ] && [ -z "$DOI" ]; then
+    echo "Usage: summarize.sh <paper-url> [topic-name] [doi] [pdf-url]" >&2
+    echo "Either paper-url or doi must be provided." >&2
+    exit 1
+fi
 
 # ── Detect source and extract metadata ─────────────────────────────
 
@@ -86,7 +95,7 @@ print(f'DOI={doi}')
     fi
     echo "PDF URL: ${PDF_URL}" >&2
 
-else
+elif [ -n "$PAPER_URL" ]; then
     SOURCE="arXiv"
     # Extract arXiv ID
     ARXIV_ID=$(echo "$PAPER_URL" | grep -oE '[0-9]{4}\.[0-9]+' | head -1)
@@ -125,6 +134,118 @@ else:
     print('ERROR=No entry found', file=sys.stderr)
     sys.exit(1)
 " 2>&1)
+
+elif [ -n "$DOI" ]; then
+    # ── Conference paper path: fetch metadata from OpenAlex via DOI ──
+    echo "Detected conference paper with DOI: ${DOI}" >&2
+    echo "Fetching metadata from OpenAlex API..." >&2
+
+    OA_JSON=$(curl -sL "https://api.openalex.org/works/doi:${DOI}?mailto=ntufrierenlab@gmail.com")
+    if [ -z "$OA_JSON" ] || echo "$OA_JSON" | grep -q '"error"'; then
+        echo "Error: OpenAlex API returned error or empty response" >&2
+        echo "$OA_JSON" >&2
+        exit 1
+    fi
+
+    METADATA=$(echo "$OA_JSON" | python3 -c "
+import sys, json, re
+
+data = json.load(sys.stdin)
+
+title = (data.get('title') or 'Untitled').strip()
+authors = [a['author']['display_name'] for a in data.get('authorships', []) if a.get('author', {}).get('display_name')]
+pub_date = (data.get('publication_date') or '')[:10]
+
+# Reconstruct abstract from inverted index
+inv = data.get('abstract_inverted_index') or {}
+if inv:
+    words = {}
+    for word, positions in inv.items():
+        for pos in positions:
+            words[pos] = word
+    abstract = ' '.join(words[i] for i in sorted(words.keys()))
+else:
+    abstract = ''
+
+# Identify venue/source name
+source_name = ''
+pl = data.get('primary_location') or {}
+src = pl.get('source') or {}
+source_name = src.get('display_name') or ''
+
+# Find PDF URL from best_oa_location or locations
+pdf_url = ''
+boa = data.get('best_oa_location') or {}
+pdf_url = boa.get('pdf_url') or ''
+if not pdf_url:
+    for loc in data.get('locations', []):
+        if loc.get('pdf_url'):
+            pdf_url = loc['pdf_url']
+            break
+
+# Landing page URL
+landing_url = pl.get('landing_page_url') or ''
+if not landing_url:
+    landing_url = f'https://doi.org/{data.get(\"doi\", \"\").replace(\"https://doi.org/\", \"\")}'
+
+print(f'TITLE={title}')
+print(f'AUTHORS={chr(44).join(authors)}')
+print(f'DATE={pub_date}')
+print(f'ABSTRACT={abstract}')
+print(f'SOURCE_NAME={source_name}')
+print(f'OA_PDF_URL={pdf_url}')
+print(f'LANDING_URL={landing_url}')
+" 2>&1)
+
+    # Determine source label from venue name
+    OA_SOURCE_NAME=$(echo "$METADATA" | grep '^SOURCE_NAME=' | cut -d= -f2-)
+    OA_PDF_URL=$(echo "$METADATA" | grep '^OA_PDF_URL=' | cut -d= -f2-)
+    OA_LANDING_URL=$(echo "$METADATA" | grep '^LANDING_URL=' | cut -d= -f2-)
+
+    # Map venue name to short label
+    SOURCE=$(echo "$OA_SOURCE_NAME" | python3 -c "
+import sys, re
+name = sys.stdin.read().strip().lower()
+mappings = [
+    (r'cvpr|computer vision and pattern recognition', 'CVPR'),
+    (r'\biccv\b|international conference on computer vision(?! and pattern)', 'ICCV'),
+    (r'\beccv\b|european conference on computer vision', 'ECCV'),
+    (r'\bwacv\b|winter conference on applications of computer vision', 'WACV'),
+    (r'\baccv\b|asian conference on computer vision', 'ACCV'),
+    (r'neurips|neural information processing', 'NeurIPS'),
+    (r'\bicml\b|international conference on machine learning', 'ICML'),
+    (r'\biclr\b|international conference on learning representations', 'ICLR'),
+    (r'\baaai\b', 'AAAI'),
+    (r'siggraph asia', 'SIGGRAPH Asia'),
+    (r'siggraph', 'SIGGRAPH'),
+    (r'\bijcv\b|international journal of computer vision', 'IJCV'),
+    (r'\btpami\b|transactions on pattern analysis', 'TPAMI'),
+]
+for pattern, label in mappings:
+    if re.search(pattern, name):
+        print(label)
+        sys.exit(0)
+print('Paper')
+")
+
+    echo "Source: ${SOURCE} (${OA_SOURCE_NAME})" >&2
+
+    # PDF URL priority: explicit argument > OpenAlex
+    if [ -n "$EXT_PDF_URL" ]; then
+        PDF_URL="$EXT_PDF_URL"
+    elif [ -n "$OA_PDF_URL" ]; then
+        PDF_URL="$OA_PDF_URL"
+    else
+        echo "Error: No PDF URL available for this paper" >&2
+        exit 1
+    fi
+
+    # Paper URL (landing page) for front matter
+    if [ -z "$PAPER_URL" ]; then
+        PAPER_URL="$OA_LANDING_URL"
+    fi
+
+    echo "PDF URL: ${PDF_URL}" >&2
 fi
 
 # ── Validate metadata ──────────────────────────────────────────────
@@ -300,6 +421,7 @@ title: "${TITLE}"
 date: ${DATE}
 authors:
 ${AUTHORS_YAML}
+source: "${SOURCE}"
 arxiv_url: "${PAPER_URL}"
 pdf_url: "${PDF_URL}"
 one_line_summary: "${ONE_LINE_EN}"

@@ -5,12 +5,23 @@ on:
     inputs:
       arxiv_url:
         description: 'Paper URL (arXiv or bioRxiv)'
-        required: true
+        required: false
+        default: ''
         type: string
       topic:
         description: 'Topic category'
         required: false
         default: 'General'
+        type: string
+      doi:
+        description: 'DOI for conference papers'
+        required: false
+        default: ''
+        type: string
+      pdf_url:
+        description: 'Direct PDF URL for conference papers'
+        required: false
+        default: ''
         type: string
 
 permissions:
@@ -34,7 +45,7 @@ jobs:
       - name: Generate paper summary
         run: |
           chmod +x scripts/summarize.sh
-          bash scripts/summarize.sh "${{ inputs.arxiv_url }}" "${{ inputs.topic }}" > /tmp/paper-summary.md
+          bash scripts/summarize.sh "${{ inputs.arxiv_url }}" "${{ inputs.topic }}" "${{ inputs.doi }}" "${{ inputs.pdf_url }}" > /tmp/paper-summary.md
           echo "--- Generated file preview ---"
           head -20 /tmp/paper-summary.md
         env:

@@ -1215,6 +1215,10 @@ a.tag:hover {
   color: #e67e22;
 }
 
+.arxiv-result-id.badge-conf {
+  color: #2563eb;
+}
+
 .arxiv-result-title {
   font-size: 1.1rem;
   font-weight: 600;
