@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-  {{ $css := resources.Get "css/main.css" | minify }}
+  {{ $css := resources.Get "css/main.css" | minify | fingerprint }}
   <link rel="stylesheet" href="{{ $css.RelPermalink }}">
 </head>
 <body>
@@ -57,10 +57,10 @@
     </div>
   </div>
 
-  {{ $js := resources.Get "js/main.js" | minify }}
+  {{ $js := resources.Get "js/main.js" | minify | fingerprint }}
   <script src="{{ $js.RelPermalink }}"></script>
   {{ if eq .Layout "search" }}
-  {{ $arxivJs := resources.Get "js/arxiv-search.js" | minify }}
+  {{ $arxivJs := resources.Get "js/arxiv-search.js" | minify | fingerprint }}
   <script src="{{ $arxivJs.RelPermalink }}"></script>
   {{ end }}
 </body>
