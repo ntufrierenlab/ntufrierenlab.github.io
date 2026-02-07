@@ -112,8 +112,8 @@ PYEOF
           git add content/papers/
           if git diff --cached --quiet; then
             echo "No changes to commit"
-          else
-            FILENAME="${{ inputs.paper_filename }}"
-            git commit -m "Add note to: ${FILENAME}"
-            git push
+            exit 0
           fi
+          FILENAME="${{ inputs.paper_filename }}"
+          git commit -m "Add note to: ${FILENAME}"
+          git push
