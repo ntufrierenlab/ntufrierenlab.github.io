@@ -699,6 +699,7 @@ a.tag:hover {
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
   margin-bottom: 0.75rem;
 }
 
@@ -733,6 +734,7 @@ a.tag:hover {
 .paper-detail-links {
   display: flex;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 /* --- Language Toggle Button --- */
@@ -779,6 +781,8 @@ a.tag:hover {
   padding: 1rem 1.25rem;
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   margin-bottom: 2rem;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .paper-highlight p {
@@ -792,6 +796,13 @@ a.tag:hover {
 .paper-content {
   font-size: 0.95rem;
   line-height: 1.8;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.paper-content img {
+  max-width: 100%;
+  height: auto;
 }
 
 .paper-content h2 {
