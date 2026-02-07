@@ -64,11 +64,11 @@
     currentPapers = [];
     currentPage = 1;
 
+    // Use relevance_score sort (OpenAlex default) for precise results
     var url = API_BASE +
       '?search=' + encodeURIComponent(query) +
-      '&sort=publication_date:desc' +
       '&select=' + SELECT_FIELDS +
-      '&per_page=200' +
+      '&per_page=50' +
       '&filter=is_oa:true' +
       '&mailto=ntufrierenlab@gmail.com';
 
@@ -80,6 +80,7 @@
       var results = data.results || [];
 
       // Keep only papers where extractPaperInfo returns non-null
+      // Preserve OpenAlex relevance order
       var seen = {};
       var merged = [];
       results.forEach(function (w) {
@@ -87,11 +88,6 @@
           seen[w.id] = true;
           merged.push(w);
         }
-      });
-
-      // Sort by date descending
-      merged.sort(function (a, b) {
-        return (b.publication_date || '').localeCompare(a.publication_date || '');
       });
 
       if (merged.length === 0) {
@@ -157,6 +153,7 @@
 
   function extractPaperInfo(work) {
     var loc = work.primary_location;
+    var locations = work.locations || [];
 
     // 1) Check primary_location for arXiv
     if (loc) {
@@ -183,56 +180,56 @@
           return { source: 'bioRxiv', id: displayId, absUrl: absGuess, pdfUrl: pdfField };
         }
       }
-    }
 
-    // 3) Check all locations for an arXiv version (catches conference papers on arXiv)
-    var locations = work.locations || [];
-    for (var i = 0; i < locations.length; i++) {
-      var l = locations[i];
-      var lUrls = (l.landing_page_url || '') + ' ' + (l.id || '') + ' ' + (l.pdf_url || '');
-      var arxivFromLoc = extractArxivFromUrls(lUrls);
-      if (arxivFromLoc) return arxivFromLoc;
-    }
-
-    // 4) Conference paper via DOI — find a PDF URL
-    var doi = work.doi || '';
-    if (doi) {
-      // Clean DOI: remove https://doi.org/ prefix if present
-      var cleanDoi = doi.replace(/^https?:\/\/doi\.org\//, '');
-
-      // Find PDF URL from best_oa_location or locations
-      var pdfUrl = '';
-      var boa = work.best_oa_location;
-      if (boa && boa.pdf_url) pdfUrl = boa.pdf_url;
-      if (!pdfUrl) {
-        for (var j = 0; j < locations.length; j++) {
-          if (locations[j].pdf_url) { pdfUrl = locations[j].pdf_url; break; }
-        }
-      }
-
-      // Must have a PDF to be useful
-      if (!pdfUrl) return null;
-
-      // Identify venue
-      var venueName = '';
-      if (loc && loc.source && loc.source.display_name) {
-        venueName = loc.source.display_name;
-      }
+      // 3) Check if primary_location is a recognized top conference/journal
+      var venueName = (loc.source && loc.source.display_name) ? loc.source.display_name : '';
       var sourceLabel = identifySource(venueName);
+      if (sourceLabel !== 'Paper') {
+        // It's a recognized venue — find arXiv URL from locations if available
+        var arxivInfo = null;
+        for (var i = 0; i < locations.length; i++) {
+          var l = locations[i];
+          var lUrls = (l.landing_page_url || '') + ' ' + (l.id || '') + ' ' + (l.pdf_url || '');
+          arxivInfo = extractArxivFromUrls(lUrls);
+          if (arxivInfo) break;
+        }
 
-      // Only accept recognized top conferences — reject unknown venues
-      if (sourceLabel === 'Paper') return null;
+        // Find PDF URL
+        var confPdf = '';
+        var boa = work.best_oa_location;
+        if (boa && boa.pdf_url) confPdf = boa.pdf_url;
+        if (!confPdf) {
+          for (var j = 0; j < locations.length; j++) {
+            if (locations[j].pdf_url) { confPdf = locations[j].pdf_url; break; }
+          }
+        }
+        if (!confPdf && arxivInfo) confPdf = arxivInfo.pdfUrl;
+        if (!confPdf) return null;
 
-      var landingUrl = (loc && loc.landing_page_url) ? loc.landing_page_url : 'https://doi.org/' + cleanDoi;
+        var doi = work.doi || '';
+        var cleanDoi = doi.replace(/^https?:\/\/doi\.org\//, '');
+        // Prefer arXiv URL for the link (existing pipeline), otherwise landing page
+        var absUrl = arxivInfo ? arxivInfo.absUrl : (loc.landing_page_url || 'https://doi.org/' + cleanDoi);
+        var displayId = arxivInfo ? arxivInfo.id : cleanDoi;
 
-      return {
-        source: sourceLabel,
-        id: cleanDoi,
-        absUrl: landingUrl,
-        pdfUrl: pdfUrl,
-        doi: cleanDoi,
-        isConference: true
-      };
+        return {
+          source: sourceLabel,
+          id: displayId,
+          absUrl: absUrl,
+          pdfUrl: confPdf,
+          doi: cleanDoi,
+          arxivUrl: arxivInfo ? arxivInfo.absUrl : '',
+          isConference: true
+        };
+      }
+    }
+
+    // 4) Check all locations for an arXiv version (non-conference papers with arXiv copy)
+    for (var k = 0; k < locations.length; k++) {
+      var ll = locations[k];
+      var llUrls = (ll.landing_page_url || '') + ' ' + (ll.id || '') + ' ' + (ll.pdf_url || '');
+      var arxivFromLoc = extractArxivFromUrls(llUrls);
+      if (arxivFromLoc) return arxivFromLoc;
     }
 
     return null;
@@ -265,6 +262,7 @@
       var addAttrs = 'data-url="' + escapeAttr(info.absUrl) + '" data-title="' + escapeAttr(title) + '"';
       if (info.doi) addAttrs += ' data-doi="' + escapeAttr(info.doi) + '"';
       if (info.isConference) addAttrs += ' data-pdf="' + escapeAttr(info.pdfUrl) + '"';
+      if (info.arxivUrl) addAttrs += ' data-arxiv="' + escapeAttr(info.arxivUrl) + '"';
 
       var card = document.createElement('div');
       card.className = 'arxiv-result-card';
@@ -299,7 +297,8 @@
         var title = this.getAttribute('data-title');
         var doi = this.getAttribute('data-doi') || '';
         var pdf = this.getAttribute('data-pdf') || '';
-        openTopicPicker(url, title, this, doi, pdf);
+        var arxivUrl = this.getAttribute('data-arxiv') || '';
+        openTopicPicker(url, title, this, doi, pdf, arxivUrl);
       });
     });
 
@@ -315,14 +314,14 @@
   var topicConfirmBtn = document.getElementById('topic-confirm');
   var topicOverlay = topicModal ? topicModal.querySelector('.modal-overlay') : null;
 
-  var pendingPaper = { url: '', title: '', btn: null, doi: '', pdf: '' };
+  var pendingPaper = { url: '', title: '', btn: null, doi: '', pdf: '', arxivUrl: '' };
 
-  function openTopicPicker(url, title, btn, doi, pdf) {
+  function openTopicPicker(url, title, btn, doi, pdf, arxivUrl) {
     if (!sessionStorage.getItem('kb-session-pwd')) {
       alert('Please enter the password first (click the lock icon in the sidebar).');
       return;
     }
-    pendingPaper = { url: url, title: title, btn: btn, doi: doi || '', pdf: pdf || '' };
+    pendingPaper = { url: url, title: title, btn: btn, doi: doi || '', pdf: pdf || '', arxivUrl: arxivUrl || '' };
     renderTopicList();
     newTopicInput.value = '';
     topicModal.style.display = 'flex';
@@ -400,7 +399,7 @@
       var selected = topicListEl.querySelector('input[type="radio"]:checked');
       var topic = selected ? selected.value : 'General';
       closeTopicModal();
-      addPaper(pendingPaper.url, pendingPaper.title, pendingPaper.btn, topic, pendingPaper.doi, pendingPaper.pdf);
+      addPaper(pendingPaper.url, pendingPaper.title, pendingPaper.btn, topic, pendingPaper.doi, pendingPaper.pdf, pendingPaper.arxivUrl);
     });
   }
 
@@ -566,7 +565,7 @@
   var WORKER_URL = 'https://frieren-lab-proxy.ntufrierenlab.workers.dev';
 
   // ── Add paper (via Cloudflare Worker proxy) ────────────────────
-  function addPaper(paperUrl, title, btn, topic, doi, pdfUrl) {
+  function addPaper(paperUrl, title, btn, topic, doi, pdfUrl, arxivUrl) {
     btn.disabled = true;
     btn.innerHTML =
       '<div class="spinner-small"></div>' +
@@ -575,13 +574,17 @@
     var password = sessionStorage.getItem('kb-session-pwd') || '';
     var workerUrl = WORKER_URL;
 
+    // For conference papers with arXiv version, use arXiv URL for the pipeline
     var payload = {
       password: password,
-      arxiv_url: paperUrl,
+      arxiv_url: arxivUrl || paperUrl,
       topic: topic
     };
-    if (doi) payload.doi = doi;
-    if (pdfUrl) payload.pdf_url = pdfUrl;
+    // Only send doi/pdf_url for conference papers WITHOUT arXiv
+    if (doi && !arxivUrl) {
+      payload.doi = doi;
+      if (pdfUrl) payload.pdf_url = pdfUrl;
+    }
 
     fetch(workerUrl, {
       method: 'POST',
