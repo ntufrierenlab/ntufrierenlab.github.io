@@ -2,8 +2,8 @@ name: Daily Digest
 
 on:
   schedule:
-    # Run daily at 00:00 UTC (08:00 Taiwan time)
-    - cron: '0 0 * * *'
+    # Run every hour to keep upvote counts fresh
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 permissions:
