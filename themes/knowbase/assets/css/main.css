@@ -688,6 +688,7 @@ a.tag:hover {
 /* --- Paper Detail Page --- */
 .paper-detail {
   max-width: 780px;
+  overflow-x: hidden;
 }
 
 .paper-detail-header {
@@ -870,7 +871,9 @@ a.tag:hover {
 }
 
 .paper-content table {
-  width: 100%;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-collapse: collapse;
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
