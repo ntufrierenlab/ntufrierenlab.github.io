@@ -224,18 +224,26 @@
       }
     });
 
-    // Add or remove delete buttons based on edit mode
+    // Toggle editing class and delete buttons
+    if (editMode) {
+      list.classList.add('topic-editing');
+    } else {
+      list.classList.remove('topic-editing');
+    }
+
+    // Add or remove delete buttons
     var allItems = list.querySelectorAll('li');
     allItems.forEach(function (li) {
       var existing = li.querySelector('.topic-delete-btn');
       var topicName = li.getAttribute('data-hugo-topic') || li.getAttribute('data-js-topic');
       if (editMode && topicName) {
         if (!existing) {
+          var anchor = li.querySelector('a');
           var btn = document.createElement('button');
           btn.className = 'topic-delete-btn';
           btn.setAttribute('data-topic', topicName);
           btn.title = 'Remove topic';
-          btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+          btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
           btn.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
@@ -244,7 +252,12 @@
             removeTopic(name);
             refreshSidebarTopics();
           });
-          li.appendChild(btn);
+          // Insert inside the <a> tag, after .topic-count
+          if (anchor) {
+            anchor.appendChild(btn);
+          } else {
+            li.appendChild(btn);
+          }
         }
       } else if (existing) {
         existing.remove();

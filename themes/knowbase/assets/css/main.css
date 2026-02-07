@@ -1679,30 +1679,31 @@ a.tag:hover {
   background: var(--bg-sidebar-hover);
 }
 
-.topic-list li {
-  position: relative;
+/* Edit mode: hide counts, show delete buttons */
+.topic-editing .topic-count {
+  display: none;
 }
 
 .topic-delete-btn {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
+  display: none;
+  margin-left: auto;
   background: none;
   border: none;
   color: var(--text-tertiary);
   cursor: pointer;
-  padding: 2px;
-  border-radius: 4px;
-  display: flex;
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  opacity: 0.6;
   transition: all var(--transition);
 }
 
+.topic-editing .topic-delete-btn {
+  display: flex;
+}
+
 .topic-delete-btn:hover {
-  opacity: 1;
   color: #ef4444;
   background: rgba(239, 68, 68, 0.1);
 }
