@@ -31,7 +31,8 @@
 
   // Reflect current auth state
   function updateAuthState() {
-    if (sessionStorage.getItem('kb-session-pwd')) {
+    var authed = !!sessionStorage.getItem('kb-session-pwd');
+    if (authed) {
       authBtn.classList.add('authenticated');
       authBtn.setAttribute('aria-label', 'Authenticated');
     } else {
@@ -41,8 +42,15 @@
     // Show/hide delete button on paper pages
     var deleteBtn = document.getElementById('btn-delete-paper');
     if (deleteBtn) {
-      deleteBtn.style.display = sessionStorage.getItem('kb-session-pwd') ? '' : 'none';
+      deleteBtn.style.display = authed ? '' : 'none';
     }
+    // Show/hide sidebar manage-topics button
+    var manageBtn = document.getElementById('sidebar-add-topic');
+    if (manageBtn) {
+      manageBtn.style.display = authed ? '' : 'none';
+    }
+    // Notify other modules about auth state change
+    window.dispatchEvent(new CustomEvent('kb-auth-changed', { detail: { authenticated: authed } }));
   }
 
   function openModal() {
@@ -312,6 +320,16 @@
       }
     });
   }
+
+  // Exit edit mode when auth is revoked
+  window.addEventListener('kb-auth-changed', function (e) {
+    if (!e.detail.authenticated && editMode) {
+      editMode = false;
+      if (sidebarAddBtn) sidebarAddBtn.classList.remove('active');
+      if (sidebarTopicForm) sidebarTopicForm.style.display = 'none';
+      refreshSidebarTopics();
+    }
+  });
 
   refreshSidebarTopics();
 })();

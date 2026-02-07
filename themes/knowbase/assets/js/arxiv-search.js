@@ -280,7 +280,9 @@
           '<a href="' + info.absUrl + '" class="btn btn-outline btn-sm" target="_blank" rel="noopener">' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
             info.source + '</a>' +
-          '<button class="btn btn-primary btn-sm add-paper-btn" ' + addAttrs + '>' +
+          '<button class="btn btn-primary btn-sm add-paper-btn"' +
+            (sessionStorage.getItem('kb-session-pwd') ? '' : ' style="display:none"') +
+            ' ' + addAttrs + '>' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
             'Add to Knowledge Base</button>' +
         '</div>';
@@ -644,5 +646,16 @@
   function escapeAttr(s) {
     return s.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
+
+  // Show/hide add buttons when auth state changes
+  window.addEventListener('kb-auth-changed', function (e) {
+    var btns = resultsDiv.querySelectorAll('.add-paper-btn');
+    var show = e.detail.authenticated;
+    btns.forEach(function (btn) {
+      if (!btn.classList.contains('btn-success')) {
+        btn.style.display = show ? '' : 'none';
+      }
+    });
+  });
 
 })();
