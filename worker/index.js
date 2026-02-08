@@ -61,11 +61,12 @@ async function handleStatus(env) {
   };
 
   // Query all workflow runs in parallel
-  const [addRes, deleteRes, noteRes, topicsRes] = await Promise.all([
+  const [addRes, deleteRes, noteRes, topicsRes, deployRes] = await Promise.all([
     fetch(`https://api.github.com/repos/${repo}/actions/workflows/add-paper.yml/runs?per_page=10`, { headers: ghHeaders }),
     fetch(`https://api.github.com/repos/${repo}/actions/workflows/delete-paper.yml/runs?per_page=10`, { headers: ghHeaders }),
     fetch(`https://api.github.com/repos/${repo}/actions/workflows/add-note.yml/runs?per_page=10`, { headers: ghHeaders }),
     fetch(`https://api.github.com/repos/${repo}/actions/workflows/update-topics.yml/runs?per_page=10`, { headers: ghHeaders }),
+    fetch(`https://api.github.com/repos/${repo}/actions/workflows/deploy.yml/runs?per_page=5`, { headers: ghHeaders }),
   ]);
 
   if (!addRes.ok) {
@@ -124,7 +125,22 @@ async function handleStatus(env) {
     });
   }
 
-  return jsonResponse(200, { ok: true, runs });
+  // Collect deploy runs separately
+  const deployRuns = [];
+  if (deployRes.ok) {
+    const deployData = await deployRes.json();
+    (deployData.workflow_runs || []).forEach(run => {
+      deployRuns.push({
+        id: run.id,
+        status: run.status,
+        conclusion: run.conclusion,
+        created_at: run.created_at,
+        updated_at: run.updated_at,
+      });
+    });
+  }
+
+  return jsonResponse(200, { ok: true, runs, deployRuns });
 }
 
 async function handleDelete(body, env) {

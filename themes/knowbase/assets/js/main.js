@@ -506,6 +506,9 @@
       } else if (paper.status === 'processing') {
         iconContent = '<div class="notif-spinner"></div>';
         statusText = isDelete ? 'Deleting paper...' : isTopicUpdate ? 'Updating topics...' : 'Generating summary...';
+      } else if (paper.status === 'deploying') {
+        iconContent = '<div class="notif-spinner"></div>';
+        statusText = 'Deploying site...';
       } else if (paper.status === 'completed') {
         iconContent = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
         statusText = isDelete ? 'Paper deleted!' : isTopicUpdate ? 'Topics updated!' : 'Paper is live!';
@@ -592,7 +595,7 @@
 
     var papers = getPapers();
     var hasActive = papers.some(function (p) {
-      return p.status === 'pending' || p.status === 'processing';
+      return p.status === 'pending' || p.status === 'processing' || p.status === 'deploying';
     });
     if (!hasActive) { stopPolling(); return; }
 
@@ -605,6 +608,7 @@
     .then(function (data) {
       if (!data.ok || !data.runs) return;
       var runs = data.runs;
+      var deployRuns = data.deployRuns || [];
       var papers = getPapers();
       var changed = false;
 
@@ -615,12 +619,37 @@
       papers.forEach(function (paper) {
         if (paper.status === 'completed' || paper.status === 'failed') return;
 
+        // Phase 2: waiting for deploy
+        if (paper.status === 'deploying') {
+          var afterMs = new Date(paper.deployAfter).getTime();
+          var deployRun = null;
+          deployRuns.forEach(function (dr) {
+            if (new Date(dr.created_at).getTime() >= afterMs - 5000) {
+              if (!deployRun || new Date(dr.created_at) > new Date(deployRun.created_at))
+                deployRun = dr;
+            }
+          });
+          if (deployRun && deployRun.status === 'completed') {
+            paper.status = deployRun.conclusion === 'success' ? 'completed' : 'failed';
+            changed = true;
+          }
+          return;
+        }
+
+        // Phase 1: action workflow matching
         // Already matched — update from that run
         if (paper.runId) {
           var run = runs.find(function (r) { return r.id === paper.runId; });
           if (run) {
             var s = mapStatus(run);
-            if (s !== paper.status) { paper.status = s; changed = true; }
+            if (s === 'completed') {
+              paper.status = 'deploying';
+              paper.deployAfter = run.updated_at;
+              changed = true;
+            } else if (s !== paper.status) {
+              paper.status = s;
+              changed = true;
+            }
           }
           return;
         }
@@ -641,7 +670,13 @@
         if (best) {
           paper.runId = best.id;
           claimed[best.id] = true;
-          paper.status = mapStatus(best);
+          var bestStatus = mapStatus(best);
+          if (bestStatus === 'completed') {
+            paper.status = 'deploying';
+            paper.deployAfter = best.updated_at;
+          } else {
+            paper.status = bestStatus;
+          }
           changed = true;
         }
       });
@@ -659,7 +694,7 @@
         if (hasNewlyCompleted) showRefreshBanner();
       }
 
-      if (!papers.some(function (p) { return p.status === 'pending' || p.status === 'processing'; })) {
+      if (!papers.some(function (p) { return p.status === 'pending' || p.status === 'processing' || p.status === 'deploying'; })) {
         stopPolling();
       }
     })
@@ -724,7 +759,7 @@
   // ── Init ────────────────────────────────────────────────────────
   updateBellVisibility();
   updateBadge();
-  if (getPapers().some(function (p) { return p.status === 'pending' || p.status === 'processing'; })) {
+  if (getPapers().some(function (p) { return p.status === 'pending' || p.status === 'processing' || p.status === 'deploying'; })) {
     startPolling();
   }
 })();
