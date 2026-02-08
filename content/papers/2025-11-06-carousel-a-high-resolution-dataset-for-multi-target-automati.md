@@ -27,15 +27,15 @@ tags: []
 
 - **Multi-Region Saliency Partitioning Algorithm**: A preprocessing algorithm is introduced that automatically partitions images into non-overlapping subregions based on saliency detection (using U²-Net). The algorithm determines partition orientation based on variance in bounding box positions and bisects spaces between adjacent bounding boxes, enabling fair evaluation of existing single-target models on the multi-target task while ensuring that each salient subject receives dedicated cropping attention.
 
-- **Top-k IoU Evaluation Metric (kIoU)**: A novel evaluation metric is proposed specifically for multi-target cropping scenarios that handles multiple ground truth labels per image through greedy bipartite matching across k partitions. The metric is computed at standard COCO-style thresholds (kIoU@0.5 and kIoU@0.5:0.95), enabling fair comparison of methods that produce overlapping or non-overlapping crops.
+- **Top-k IoU Evaluation Metric (kIoU)**: A novel evaluation metric is proposed specifically for multi-target cropping scenarios that handles multiple ground truth labels per image through greedy bipartite matching across k partitions. The metric is computed at standard COCO-style thresholds (kIoU\@0.5 and kIoU\@0.5:0.95), enabling fair comparison of methods that produce overlapping or non-overlapping crops.
 
-- **Comprehensive Benchmark of Existing Models**: The paper evaluates five state-of-the-art single-target cropping methods (VPN, A2-RL, VEN, GAICv2) on the new dataset, finding that GAICv2 achieves the best performance when combined with the partitioning preprocessing (kIoU@0.5: 0.574), while directly using VPN's multi-view outputs performs significantly worse (kIoU@0.5: 0.179), demonstrating the necessity of proper handling of non-overlapping constraints.
+- **Comprehensive Benchmark of Existing Models**: The paper evaluates five state-of-the-art single-target cropping methods (VPN, A2-RL, VEN, GAICv2) on the new dataset, finding that GAICv2 achieves the best performance when combined with the partitioning preprocessing (kIoU\@0.5: 0.574), while directly using VPN's multi-view outputs performs significantly worse (kIoU\@0.5: 0.179), demonstrating the necessity of proper handling of non-overlapping constraints.
 
 ## Core Insights
 
-- **Existing Single-Target Models Fail for Multi-Target Tasks Without Preprocessing**: The key insight is that models designed for single-target cropping (like GAICv2, VPN, VEN) naturally focus on the dominant salient region and produce overlapping crops when attempting to generate multiple views. As demonstrated in Figure 2 and Table II, VPN* (using multi-view outputs without partitioning) achieves only 0.179 kIoU@0.5 because the model lacks inherent mechanisms to ensure distinct, non-overlapping coverage of multiple subjects. This reveals a fundamental architectural limitation that direct application of single-target methods cannot overcome.
+- **Existing Single-Target Models Fail for Multi-Target Tasks Without Preprocessing**: The key insight is that models designed for single-target cropping (like GAICv2, VPN, VEN) naturally focus on the dominant salient region and produce overlapping crops when attempting to generate multiple views. As demonstrated in Figure 2 and Table II, VPN* (using multi-view outputs without partitioning) achieves only 0.179 kIoU\@0.5 because the model lacks inherent mechanisms to ensure distinct, non-overlapping coverage of multiple subjects. This reveals a fundamental architectural limitation that direct application of single-target methods cannot overcome.
 
-- **Saliency-Based Image Partitioning as an Effective Bridge**: The preprocessing partitioning step using U²-Net saliency maps provides a pragmatic solution that improves GAICv2's performance from effectively zero (no reasonable multi-target results) to 0.574 kIoU@0.5. By dividing the image into non-overlapping regions before single-target cropping, the algorithm effectively transforms the multi-target problem into independent single-target problems, allowing existing high-performing models to operate within their design constraints while still addressing multiple subjects.
+- **Saliency-Based Image Partitioning as an Effective Bridge**: The preprocessing partitioning step using U²-Net saliency maps provides a pragmatic solution that improves GAICv2's performance from effectively zero (no reasonable multi-target results) to 0.574 kIoU\@0.5. By dividing the image into non-overlapping regions before single-target cropping, the algorithm effectively transforms the multi-target problem into independent single-target problems, allowing existing high-performing models to operate within their design constraints while still addressing multiple subjects.
 
 - **High-Resolution Images Expose a New Problem Space**: The use of 10.58 MP average resolution (40× higher than prior datasets) is not merely a quantitative improvement but reveals qualitatively different challenges. Small subjects that would be imperceptible in low-resolution datasets become distinct cropable regions, requiring fine-grained saliency detection and partition boundaries. The 45 failure cases (16% of dataset) where partitioning breaks down highlight structural limitations when subjects have overlapping spatial extents or vastly different sizes, a problem largely invisible in prior low-resolution work.
 
@@ -45,7 +45,7 @@ tags: []
 
 ## Key Data & Results
 
-| Model | kIoU@0.5 | kIoU@0.5:0.95 | Notes |
+| Model | kIoU\@0.5 | kIoU\@0.5:0.95 | Notes |
 |-------|----------|---------------|-------|
 | VPN* [12] | 0.179 | 0.068 | Multi-view outputs on original images; highly overlapping crops |
 | VPN [12] | 0.565 | 0.223 | With partitioning preprocessing |
@@ -53,9 +53,9 @@ tags: []
 | VEN [12] | 0.538 | 0.210 | With partitioning preprocessing |
 | GAICv2 [16] | 0.574 | 0.231 | Best performance; with partitioning preprocessing |
 
-- **GAICv2 achieves the best performance at 0.574 kIoU@0.5** when combined with the multi-region saliency partitioning algorithm, significantly outperforming VPN without partitioning (0.179 kIoU@0.5, a 3.2× improvement). However, even the best model shows modest performance on the strict kIoU@0.5:0.95 metric (0.231), indicating substantial room for improvement and suggesting that current approaches generate crops that are often spatially offset from ground truth compositions.
+- **GAICv2 achieves the best performance at 0.574 kIoU\@0.5** when combined with the multi-region saliency partitioning algorithm, significantly outperforming VPN without partitioning (0.179 kIoU\@0.5, a 3.2× improvement). However, even the best model shows modest performance on the strict kIoU\@0.5:0.95 metric (0.231), indicating substantial room for improvement and suggesting that current approaches generate crops that are often spatially offset from ground truth compositions.
 
-- **Partitioning preprocessing provides consistent improvements across all models**: All tested models show dramatic improvements when combined with partitioning (3-4× improvement in kIoU@0.5 for most models compared to direct multi-view selection), yet even with this preprocessing, the best model achieves only 0.574 kIoU@0.5. This modest absolute performance suggests that the partitioning step, while necessary, is not a complete solution and highlights the paper's conclusion that "future work should focus on designing a novel model that can produce multi-target crops directly."
+- **Partitioning preprocessing provides consistent improvements across all models**: All tested models show dramatic improvements when combined with partitioning (3-4× improvement in kIoU\@0.5 for most models compared to direct multi-view selection), yet even with this preprocessing, the best model achieves only 0.574 kIoU\@0.5. This modest absolute performance suggests that the partitioning step, while necessary, is not a complete solution and highlights the paper's conclusion that "future work should focus on designing a novel model that can produce multi-target crops directly."
 
 - **Partitioning algorithm failures affect 16% of the dataset (45/277 images)**: These failures occur in two scenarios: (1) when ground truth crops have significant coordinate overlap in both x and y dimensions, causing the bisection-based partitioning to cut through crop regions, and (2) when there is extreme disparity in spatial sizes of salient regions. Figure 3 illustrates this limitation, where three llama subjects with complex spatial relationships cannot be properly separated by the axis-aligned partitioning approach.
 
@@ -81,7 +81,7 @@ tags: []
 
 - **No Ablation Studies or Design Justifications**: Critical design choices lack justification: (1) Why only 2:3 and 3:2 aspect ratios? What about square (1:1) or ultra-wide (16:9) compositions? (2) How was the "high resolution" threshold of 1 MP chosen? (3) How does the number of annotators per image affect label quality? (4) Why use U²-Net specifically for saliency? No ablation comparing saliency detectors or partition strategies is provided, making it impossible to assess whether design choices are optimal.
 
-- **Evaluation Limited to Existing Models Without Upper-Bound Analysis**: The paper evaluates only existing single-target models combined with preprocessing, but provides no upper-bound analysis or oracle experiments. For example, if an oracle perfectly knew the optimal crops, what would the partitioning algorithm achieve? What does human inter-annotator agreement on crop boundaries suggest about the task's inherent difficulty? Without such baselines, it's unclear whether the 0.574 kIoU@0.5 ceiling reflects algorithmic limitations or fundamental task difficulty.
+- **Evaluation Limited to Existing Models Without Upper-Bound Analysis**: The paper evaluates only existing single-target models combined with preprocessing, but provides no upper-bound analysis or oracle experiments. For example, if an oracle perfectly knew the optimal crops, what would the partitioning algorithm achieve? What does human inter-annotator agreement on crop boundaries suggest about the task's inherent difficulty? Without such baselines, it's unclear whether the 0.574 kIoU\@0.5 ceiling reflects algorithmic limitations or fundamental task difficulty.
 
 - **Missing Critical Comparisons and Alternative Approaches**: The paper doesn't compare against potential baselines such as: (1) simpler partitioning strategies (e.g., grid-based, k-means clustering on saliency maps), (2) multi-object detection methods that could identify regions and then crop them, or (3) whether providing ground-truth k improves results enough to justify strong supervision. The claim that VPN's multi-view outputs "neglected secondary subjects" is not quantitatively validated—what fraction of crops actually cover the correct subject?
 
@@ -115,15 +115,15 @@ tags: []
 
 - **多區域顯著性分割演算法**：引入一個預處理演算法，自動將影像分割為非重疊的子區域，基於顯著性偵測（使用 U²-Net）。該演算法根據邊界框位置的方差確定分割方向，並在相鄰邊界框之間平分空間，使現有單一目標模型能公平地在多目標任務上進行評估，同時確保每個顯著對象獲得專注的裁剪注意力。
 
-- **Top-k IoU 評估指標（kIoU）**：提出一個新穎的評估指標，特別為多目標裁剪場景設計，通過跨k個分割區域的貪心二部匹配處理每個影像的多個真值標籤。該指標在標準 COCO 風格閾值（kIoU@0.5 和 kIoU@0.5:0.95）下計算，使不同方法間的公平比較成為可能。
+- **Top-k IoU 評估指標（kIoU）**：提出一個新穎的評估指標，特別為多目標裁剪場景設計，通過跨k個分割區域的貪心二部匹配處理每個影像的多個真值標籤。該指標在標準 COCO 風格閾值（kIoU\@0.5 和 kIoU\@0.5:0.95）下計算，使不同方法間的公平比較成為可能。
 
-- **現有模型的全面基準測試**：論文評估了五種最先進的單一目標裁剪方法（VPN、A2-RL、VEN、GAICv2）在新資料集上的表現，發現當與分割預處理相結合時，GAICv2 達到最佳表現（kIoU@0.5: 0.574），而直接使用 VPN 的多視圖輸出表現明顯較差（kIoU@0.5: 0.179），說明需要正確處理非重疊約束的必要性。
+- **現有模型的全面基準測試**：論文評估了五種最先進的單一目標裁剪方法（VPN、A2-RL、VEN、GAICv2）在新資料集上的表現，發現當與分割預處理相結合時，GAICv2 達到最佳表現（kIoU\@0.5: 0.574），而直接使用 VPN 的多視圖輸出表現明顯較差（kIoU\@0.5: 0.179），說明需要正確處理非重疊約束的必要性。
 
 ## 核心洞見
 
-- **現有單一目標模型在無預處理情況下無法完成多目標任務**：關鍵洞見是為單一目標裁剪設計的模型（如 GAICv2、VPN、VEN）自然會聚焦於主導顯著區域，當嘗試生成多個視圖時會產生重疊裁剪。如圖2及表II所示，VPN*（使用無分割的多視圖輸出）只達到0.179 kIoU@0.5，因為該模型缺乏確保不同、非重疊多對象覆蓋的內在機制。這揭示了單一目標方法的直接應用無法克服的根本性架構限制。
+- **現有單一目標模型在無預處理情況下無法完成多目標任務**：關鍵洞見是為單一目標裁剪設計的模型（如 GAICv2、VPN、VEN）自然會聚焦於主導顯著區域，當嘗試生成多個視圖時會產生重疊裁剪。如圖2及表II所示，VPN*（使用無分割的多視圖輸出）只達到0.179 kIoU\@0.5，因為該模型缺乏確保不同、非重疊多對象覆蓋的內在機制。這揭示了單一目標方法的直接應用無法克服的根本性架構限制。
 
-- **基於顯著性的影像分割作為有效的橋接方案**：使用 U²-Net 顯著性圖的預處理分割步驟提供務實的解決方案，將 GAICv2 的表現從實際為零（無合理多目標結果）提升至0.574 kIoU@0.5。通過在單一目標裁剪前將影像分割為非重疊區域，該演算法有效地將多目標問題轉化為獨立的單一目標問題，允許現有高效能模型在其設計約束內運作，同時仍解決多個對象。
+- **基於顯著性的影像分割作為有效的橋接方案**：使用 U²-Net 顯著性圖的預處理分割步驟提供務實的解決方案，將 GAICv2 的表現從實際為零（無合理多目標結果）提升至0.574 kIoU\@0.5。通過在單一目標裁剪前將影像分割為非重疊區域，該演算法有效地將多目標問題轉化為獨立的單一目標問題，允許現有高效能模型在其設計約束內運作，同時仍解決多個對象。
 
 - **高解析度影像暴露新問題空間**：使用10.58 MP 平均解析度（比先前資料集高40倍）不僅是量化改進，而是暴露了質的不同挑戰。在低解析度資料集中難以察覺的小對象成為可區分的可裁剪區域，需要細粒度的顯著性偵測和分割邊界。45個失敗案例（佔資料集的16%）中，在多目標裁剪最需要的情況下分割失敗：多個對象具有重疊空間範圍或尺寸差異巨大時，這個問題在先前低解析度工作中基本上不可見。
 
@@ -133,7 +133,7 @@ tags: []
 
 ## 關鍵數據與結果
 
-| 模型 | kIoU@0.5 | kIoU@0.5:0.95 | 說明 |
+| 模型 | kIoU\@0.5 | kIoU\@0.5:0.95 | 說明 |
 |-------|----------|---------------|-------|
 | VPN* [12] | 0.179 | 0.068 | 原始影像的多視圖輸出；高度重疊的裁剪 |
 | VPN [12] | 0.565 | 0.223 | 使用分割預處理 |
@@ -141,9 +141,9 @@ tags: []
 | VEN [12] | 0.538 | 0.210 | 使用分割預處理 |
 | GAICv2 [16] | 0.574 | 0.231 | 最佳表現；使用分割預處理 |
 
-- **GAICv2 與多區域顯著性分割演算法結合時達到最佳表現，kIoU@0.5 為0.574**，明顯優於無分割的 VPN（0.179 kIoU@0.5，提升3.2倍）。然而，即使是最佳模型在嚴格的 kIoU@0.5:0.95 指標上表現有限（0.231），表示有實質改進空間，表明現有方法生成的裁剪在空間上常常偏離真值構圖。
+- **GAICv2 與多區域顯著性分割演算法結合時達到最佳表現，kIoU\@0.5 為0.574**，明顯優於無分割的 VPN（0.179 kIoU\@0.5，提升3.2倍）。然而，即使是最佳模型在嚴格的 kIoU\@0.5:0.95 指標上表現有限（0.231），表示有實質改進空間，表明現有方法生成的裁剪在空間上常常偏離真值構圖。
 
-- **分割預處理對所有模型都提供一致的改進**：所有測試模型在與分割結合時都顯示劇烈改進（與直接多視圖選擇相比，大多數模型 kIoU@0.5 改進3-4倍），但即使有此預處理，最佳模型也只達到0.574 kIoU@0.5。此適度的絕對表現表明分割步驟雖必要但非完整解決方案，強調了論文結論：「未來工作應專注於設計可直接生成多目標裁剪的新穎模型」。
+- **分割預處理對所有模型都提供一致的改進**：所有測試模型在與分割結合時都顯示劇烈改進（與直接多視圖選擇相比，大多數模型 kIoU\@0.5 改進3-4倍），但即使有此預處理，最佳模型也只達到0.574 kIoU\@0.5。此適度的絕對表現表明分割步驟雖必要但非完整解決方案，強調了論文結論：「未來工作應專注於設計可直接生成多目標裁剪的新穎模型」。
 
 - **分割演算法失敗影響資料集16%（45/277影像）**：這些失敗發生於兩種情況：(1) 真值裁剪在x和y維度都有顯著坐標重疊，造成平分裁剪區域，(2) 顯著區域的空間大小有極端差異。圖3 說明此限制，三個羊駝對象的複雜空間關係無法由軸對齊的分割方法適當分離。
 
@@ -169,7 +169,7 @@ tags: []
 
 - **缺乏消融研究或設計理由**：關鍵設計選擇缺乏理由：(1) 為何只有2:3和3:2長寬比？正方形（1:1）或超寬（16:9）構圖如何？(2)「高解析度」1 MP 閾值如何選擇？(3)每個影像的標註者數量如何影響標籤品質？(4)為何特別使用 U²-Net 進行顯著性？未提供比較顯著性偵測器或分割策略的消融，使無法評估設計選擇是否最優。
 
-- **評估限於現有模型，無上限分析**：論文僅評估結合預處理的現有單一目標模型，但未提供上限分析或神諭實驗。例如，如果神諭完美知道最優裁剪，分割演算法將達到什麼表現？人工註釋者對裁剪邊界的一致性說明什麼關於任務的內在困難？沒有此類基線，不清楚0.574 kIoU@0.5 天花板是否反映演算法限制或根本任務困難。
+- **評估限於現有模型，無上限分析**：論文僅評估結合預處理的現有單一目標模型，但未提供上限分析或神諭實驗。例如，如果神諭完美知道最優裁剪，分割演算法將達到什麼表現？人工註釋者對裁剪邊界的一致性說明什麼關於任務的內在困難？沒有此類基線，不清楚0.574 kIoU\@0.5 天花板是否反映演算法限制或根本任務困難。
 
 - **缺乏批判性比較和替代方法**：論文未與可能的基線比較，例如：(1)更簡單的分割策略（網格型、顯著性圖上的k-means叢集），(2)可識別區域然後裁剪它們的多物體偵測方法，或(3)提供真值 k 是否足夠改進結果以證明強監督。VPN 的多視圖輸出「忽視次要對象」的宣稱未得到量化驗證——有多大比例的裁剪實際覆蓋正確對象？
 
