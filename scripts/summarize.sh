@@ -401,12 +401,25 @@ ONE_LINE_ZH=your chinese one-line summary here"
 # ── Call Claude ────────────────────────────────────────────────────
 
 echo "Calling Claude API..." >&2
-SUMMARY=$(echo "$PROMPT" | claude --print --model claude-haiku-4-5-20251001 2>&2)
-if [ -z "$SUMMARY" ]; then
-    echo "Error: Claude returned empty response" >&2
+for ATTEMPT in 1 2 3; do
+    SUMMARY=$(echo "$PROMPT" | claude --print --model claude-haiku-4-5-20251001 2>&2)
+    if [ -z "$SUMMARY" ]; then
+        echo "Error: Claude returned empty response (attempt ${ATTEMPT})" >&2
+        continue
+    fi
+    echo "Claude response received (${#SUMMARY} chars, attempt ${ATTEMPT})" >&2
+    # Require at least 2000 chars and the lang-en div to consider it valid
+    if [ "${#SUMMARY}" -ge 2000 ] && echo "$SUMMARY" | grep -q '<div class="lang-en">'; then
+        break
+    fi
+    echo "Response too short or missing body content, retrying..." >&2
+    sleep 2
+done
+
+if [ -z "$SUMMARY" ] || [ "${#SUMMARY}" -lt 2000 ]; then
+    echo "Error: Claude failed to generate sufficient content after 3 attempts" >&2
     exit 1
 fi
-echo "Claude response received (${#SUMMARY} chars)" >&2
 
 # Extract one-line summaries and sanitize (handle **bold**, quotes, whitespace)
 ONE_LINE_EN=$(echo "$SUMMARY" | grep -i 'ONE_LINE_EN' | sed 's/^[[:space:]]*//;s/\*//g;s/^ONE_LINE_EN[=:][[:space:]]*//' | sed 's/^"//;s/"$//;s/"//g' | head -1)
