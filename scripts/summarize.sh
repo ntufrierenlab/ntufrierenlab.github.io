@@ -275,7 +275,7 @@ PDF_SIZE=$(wc -c < /tmp/paper.pdf)
 echo "PDF downloaded (${PDF_SIZE} bytes)" >&2
 
 echo "Extracting text from PDF..." >&2
-PAPER_TEXT=$(pdftotext /tmp/paper.pdf - 2>/dev/null | head -c 150000)
+PAPER_TEXT=$(pdftotext /tmp/paper.pdf - 2>/dev/null | head -c 50000)
 TEXT_LEN=${#PAPER_TEXT}
 echo "Extracted ${TEXT_LEN} chars of text" >&2
 
