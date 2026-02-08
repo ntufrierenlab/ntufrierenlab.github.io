@@ -17,8 +17,6 @@ tags: []
 notes:
   - text: "test"
     date: "2026-02-07T05:12:04Z"
-  - text: "test1"
-    date: "2026-02-07T14:39:28Z"
   - text: "test2"
     date: "2026-02-08T08:12:16Z"
 ---
