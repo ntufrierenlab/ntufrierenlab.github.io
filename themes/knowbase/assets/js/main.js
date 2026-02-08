@@ -498,19 +498,20 @@
       var statusText = '';
 
       var isDelete = paper.type === 'delete';
+      var isTopicUpdate = paper.type === 'update-topics';
 
       if (paper.status === 'pending') {
         iconContent = '<div class="notif-spinner"></div>';
-        statusText = isDelete ? 'Queued for deletion...' : 'Queued...';
+        statusText = isDelete ? 'Queued for deletion...' : isTopicUpdate ? 'Updating topics...' : 'Queued...';
       } else if (paper.status === 'processing') {
         iconContent = '<div class="notif-spinner"></div>';
-        statusText = isDelete ? 'Deleting paper...' : 'Generating summary...';
+        statusText = isDelete ? 'Deleting paper...' : isTopicUpdate ? 'Updating topics...' : 'Generating summary...';
       } else if (paper.status === 'completed') {
         iconContent = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
-        statusText = isDelete ? 'Paper deleted!' : 'Paper is live!';
+        statusText = isDelete ? 'Paper deleted!' : isTopicUpdate ? 'Topics updated!' : 'Paper is live!';
       } else if (paper.status === 'failed') {
         iconContent = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-        statusText = isDelete ? 'Delete failed' : 'Workflow failed';
+        statusText = isDelete ? 'Delete failed' : isTopicUpdate ? 'Topic update failed' : 'Workflow failed';
       }
 
       var timeAgo = relativeTime(paper.triggeredAt);
@@ -725,6 +726,197 @@
   updateBadge();
   if (getPapers().some(function (p) { return p.status === 'pending' || p.status === 'processing'; })) {
     startPolling();
+  }
+})();
+
+// ── Edit Topics ──────────────────────────────────────────────────
+(function () {
+  var WORKER_URL = 'https://frieren-lab-proxy.ntufrierenlab.workers.dev';
+  var DEFAULT_TOPICS = ['Auto White Balance'];
+
+  var editBtn = document.getElementById('btn-edit-topics');
+  if (!editBtn) return;
+
+  var modal = document.getElementById('edit-topics-modal');
+  var overlay = document.getElementById('edit-topics-overlay');
+  var topicListEl = document.getElementById('edit-topics-list');
+  var newInput = document.getElementById('edit-topics-new-input');
+  var newAddBtn = document.getElementById('edit-topics-new-add');
+  var cancelBtn = document.getElementById('edit-topics-cancel');
+  var saveBtn = document.getElementById('edit-topics-save');
+
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function escapeAttr(s) {
+    return s.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function getTopics() {
+    var stored = localStorage.getItem('kb-topics');
+    var topics;
+    if (stored) {
+      try { topics = JSON.parse(stored); } catch (e) { topics = DEFAULT_TOPICS.slice(); }
+    } else {
+      topics = DEFAULT_TOPICS.slice();
+    }
+    var changed = false;
+    var hugoItems = document.querySelectorAll('#sidebar-topic-list li[data-hugo-topic]');
+    hugoItems.forEach(function (li) {
+      var name = li.getAttribute('data-hugo-topic');
+      if (name && !topics.some(function (t) { return t.toLowerCase() === name.toLowerCase(); })) {
+        topics.push(name);
+        changed = true;
+      }
+    });
+    if (changed) localStorage.setItem('kb-topics', JSON.stringify(topics));
+    return topics;
+  }
+
+  function saveTopics(topics) {
+    localStorage.setItem('kb-topics', JSON.stringify(topics));
+  }
+
+  var currentTopics = editBtn.getAttribute('data-topics').split(',').map(function (t) { return t.trim(); }).filter(Boolean);
+
+  function renderTopicList() {
+    var topics = getTopics();
+    topicListEl.innerHTML = '';
+    topics.forEach(function (t) {
+      var label = document.createElement('label');
+      label.className = 'topic-picker-item';
+      var isChecked = currentTopics.some(function (ct) { return ct.toLowerCase() === t.toLowerCase(); });
+      label.innerHTML =
+        '<input type="checkbox" name="edit-topic-pick" value="' + escapeAttr(t) + '"' + (isChecked ? ' checked' : '') + '>' +
+        '<span class="topic-picker-check"></span>' +
+        '<span class="topic-picker-name">' + escapeHtml(t) + '</span>';
+      topicListEl.appendChild(label);
+    });
+  }
+
+  function openModal() {
+    currentTopics = editBtn.getAttribute('data-topics').split(',').map(function (t) { return t.trim(); }).filter(Boolean);
+    renderTopicList();
+    newInput.value = '';
+    modal.style.display = 'flex';
+  }
+
+  function closeModal() {
+    modal.style.display = 'none';
+  }
+
+  editBtn.addEventListener('click', openModal);
+  cancelBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', closeModal);
+
+  newAddBtn.addEventListener('click', function () {
+    var name = newInput.value.trim();
+    if (!name) return;
+    var topics = getTopics();
+    var exists = topics.some(function (t) { return t.toLowerCase() === name.toLowerCase(); });
+    if (!exists) {
+      topics.push(name);
+      saveTopics(topics);
+    }
+    currentTopics.push(name);
+    newInput.value = '';
+    renderTopicList();
+  });
+
+  newInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      newAddBtn.click();
+    }
+  });
+
+  saveBtn.addEventListener('click', function () {
+    var checked = topicListEl.querySelectorAll('input[type="checkbox"]:checked');
+    var topics = [];
+    checked.forEach(function (cb) { topics.push(cb.value); });
+    if (topics.length === 0) {
+      alert('Please select at least one topic.');
+      return;
+    }
+
+    var password = sessionStorage.getItem('kb-session-pwd');
+    if (!password) return;
+
+    var filename = editBtn.getAttribute('data-filename');
+    var topicStr = topics.join(',');
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+
+    fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        password: password,
+        action: 'update-topics',
+        paper_filename: filename,
+        topics: topicStr
+      })
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.ok) {
+        closeModal();
+        // Update topic badges in the DOM
+        var topicsDiv = document.querySelector('.paper-topics');
+        if (topicsDiv) {
+          // Remove old badges
+          var oldBadges = topicsDiv.querySelectorAll('.topic-badge');
+          oldBadges.forEach(function (b) { b.remove(); });
+          // Insert new badges before the edit button
+          topics.forEach(function (t) {
+            var a = document.createElement('a');
+            a.href = 'topics/' + t.toLowerCase().replace(/\s+/g, '-') + '/';
+            a.className = 'topic-badge';
+            a.textContent = t;
+            topicsDiv.insertBefore(a, editBtn);
+          });
+        }
+        // Update data attribute
+        editBtn.setAttribute('data-topics', topicStr);
+
+        // Track in notification system
+        var pending = [];
+        try { pending = JSON.parse(sessionStorage.getItem('kb-pending-papers') || '[]'); } catch (e) { pending = []; }
+        pending.push({
+          title: 'Topics updated',
+          type: 'update-topics',
+          triggeredAt: new Date().toISOString(),
+          status: 'pending',
+          runId: null,
+          readByUser: false
+        });
+        sessionStorage.setItem('kb-pending-papers', JSON.stringify(pending));
+        window.dispatchEvent(new CustomEvent('kb-paper-added'));
+      } else {
+        throw new Error(data.error || 'Failed to update topics');
+      }
+    })
+    .catch(function (err) {
+      alert('Error: ' + err.message);
+    })
+    .finally(function () {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save';
+    });
+  });
+
+  // Show/hide edit button based on auth state
+  window.addEventListener('kb-auth-changed', function (e) {
+    editBtn.style.display = e.detail.authenticated ? '' : 'none';
+  });
+
+  // Set initial state
+  if (sessionStorage.getItem('kb-session-pwd')) {
+    editBtn.style.display = '';
   }
 })();
 

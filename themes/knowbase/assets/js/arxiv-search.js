@@ -341,16 +341,27 @@
     topicModal.style.display = 'flex';
   }
 
-  function renderTopicList(selectedTopic) {
+  function renderTopicList(newlyAddedTopic) {
+    // Capture currently checked values before re-rendering
+    var currentChecked = [];
+    topicListEl.querySelectorAll('input[type="checkbox"]:checked').forEach(function (cb) {
+      currentChecked.push(cb.value);
+    });
+    if (newlyAddedTopic && currentChecked.indexOf(newlyAddedTopic) === -1) {
+      currentChecked.push(newlyAddedTopic);
+    }
+
     var topics = getTopics();
     topicListEl.innerHTML = '';
     topics.forEach(function (t) {
       var label = document.createElement('label');
       label.className = 'topic-picker-item';
-      var isSelected = selectedTopic ? (t === selectedTopic) : false;
+      var isChecked = currentChecked.length > 0
+        ? currentChecked.indexOf(t) !== -1
+        : false;
       label.innerHTML =
-        '<input type="radio" name="topic-pick" value="' + escapeAttr(t) + '"' + (isSelected ? ' checked' : '') + '>' +
-        '<span class="topic-picker-radio"></span>' +
+        '<input type="checkbox" name="topic-pick" value="' + escapeAttr(t) + '"' + (isChecked ? ' checked' : '') + '>' +
+        '<span class="topic-picker-check"></span>' +
         '<span class="topic-picker-name">' + escapeHtml(t) + '</span>' +
         '<button class="topic-picker-delete" data-topic="' + escapeAttr(t) + '" title="Remove topic">' +
           '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
@@ -358,10 +369,10 @@
       topicListEl.appendChild(label);
     });
 
-    // If no topic was pre-selected, select the first one
-    if (!selectedTopic) {
-      var firstRadio = topicListEl.querySelector('input[type="radio"]');
-      if (firstRadio) firstRadio.checked = true;
+    // If nothing was checked (fresh open), check the first one
+    if (currentChecked.length === 0) {
+      var firstCb = topicListEl.querySelector('input[type="checkbox"]');
+      if (firstCb) firstCb.checked = true;
     }
 
     // Attach delete handlers
@@ -408,10 +419,13 @@
 
   if (topicConfirmBtn) {
     topicConfirmBtn.addEventListener('click', function () {
-      var selected = topicListEl.querySelector('input[type="radio"]:checked');
-      var topic = selected ? selected.value : 'General';
+      var checked = topicListEl.querySelectorAll('input[type="checkbox"]:checked');
+      var topics = [];
+      checked.forEach(function (cb) { topics.push(cb.value); });
+      if (topics.length === 0) topics = ['General'];
+      var topicStr = topics.join(',');
       closeTopicModal();
-      addPaper(pendingPaper.url, pendingPaper.title, pendingPaper.btn, topic, pendingPaper.doi, pendingPaper.pdf, pendingPaper.arxivUrl);
+      addPaper(pendingPaper.url, pendingPaper.title, pendingPaper.btn, topicStr, pendingPaper.doi, pendingPaper.pdf, pendingPaper.arxivUrl);
     });
   }
 

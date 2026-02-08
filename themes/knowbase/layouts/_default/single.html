@@ -8,6 +8,13 @@
         {{ range . }}
         <a href="{{ printf "topics/%s/" (urlize .) | relURL }}" class="topic-badge">{{ . }}</a>
         {{ end }}
+        <button class="btn-edit-topics" id="btn-edit-topics"
+                data-filename="{{ $.File.LogicalName }}"
+                data-topics="{{ delimit . "," }}"
+                style="display:none;"
+                title="Edit topics">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
       </div>
       {{ end }}
     </div>
@@ -103,6 +110,23 @@
   </footer>
   {{ end }}
 </article>
+
+<div id="edit-topics-modal" class="modal" style="display:none;">
+  <div class="modal-overlay" id="edit-topics-overlay"></div>
+  <div class="modal-content">
+    <h2>Edit Topics</h2>
+    <p class="modal-desc">Select topics for this paper.</p>
+    <div id="edit-topics-list" class="topic-picker-list"></div>
+    <div class="topic-picker-new">
+      <input type="text" id="edit-topics-new-input" placeholder="New topic name...">
+      <button class="btn btn-outline btn-sm" id="edit-topics-new-add">Add</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="edit-topics-cancel">Cancel</button>
+      <button class="btn btn-primary" id="edit-topics-save">Save</button>
+    </div>
+  </div>
+</div>
 
 <div id="delete-confirm-modal" class="modal" style="display:none;">
   <div class="modal-overlay" id="delete-modal-overlay"></div>
