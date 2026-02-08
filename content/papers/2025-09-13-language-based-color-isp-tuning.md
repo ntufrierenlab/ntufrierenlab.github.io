@@ -12,7 +12,7 @@ pdf_url: "https://arxiv.org/pdf/2509.10765"
 one_line_summary: "Language-based Color ISP Tuning proposes the first method to tune image signal processor color parameters via natural language prompts using CLIP-based gradient descent optimization, demonstrating language-guided visual style control without training or per-image neural networks."
 one_line_summary_zh: "基於語言的色彩ISP調整論文首次提出通過自然語言提示利用CLIP基梯度下降優化來調整圖像信號處理器參數的方法，實現無需訓練或逐圖神經網絡的語言引導視覺風格控制。"
 date_added: 2026-02-08
-topics: ["ISP"]
+topics: ["Agentic Pipeline","ISP"]
 tags: []
 ---
 
