@@ -1,0 +1,65 @@
+{
+  "date": "2026-02-13",
+  "papers": [
+    {
+      "title": "The Devil Behind Moltbook: Anthropic Safety is Always Vanishing in Self-Evolving AI Societies",
+      "url": "https://huggingface.co/papers/2602.09877",
+      "arxiv_url": "https://arxiv.org/abs/2602.09877",
+      "summary": "Multi-agent LLM systems face fundamental limitations in achieving continuous self-improvement while maintaining safety alignment due to inherent statistical blind spots in isolated evolution.",
+      "upvotes": 169,
+      "authors": [
+        "Chenxu Wang",
+        "Chaozhuo Li",
+        "Songyang Liu"
+      ]
+    },
+    {
+      "title": "Composition-RL: Compose Your Verifiable Prompts for Reinforcement Learning of Large Language Models",
+      "url": "https://huggingface.co/papers/2602.12036",
+      "arxiv_url": "https://arxiv.org/abs/2602.12036",
+      "summary": "Composition-RL improves reasoning capabilities by automatically composing multiple problems into new verifiable questions for reinforcement learning training.",
+      "upvotes": 81,
+      "authors": [
+        "Xin Xu",
+        "Clive Bai",
+        "Kai Yang"
+      ]
+    },
+    {
+      "title": "DeepGen 1.0: A Lightweight Unified Multimodal Model for Advancing Image Generation and Editing",
+      "url": "https://huggingface.co/papers/2602.12205",
+      "arxiv_url": "https://arxiv.org/abs/2602.12205",
+      "summary": "A lightweight 5B unified multimodal model achieves competitive performance through hierarchical feature extraction, learnable think tokens, and progressive training strategies including alignment pre-training, joint supervised fine-tuning, and reinforcement learning with MR-GRPO.",
+      "upvotes": 59,
+      "authors": [
+        "Dianyi Wang",
+        "Ruihang Li",
+        "Feng Han"
+      ]
+    },
+    {
+      "title": "Learning beyond Teacher: Generalized On-Policy Distillation with Reward Extrapolation",
+      "url": "https://huggingface.co/papers/2602.12125",
+      "arxiv_url": "https://arxiv.org/abs/2602.12125",
+      "summary": "On-policy distillation is extended through a generalized framework that introduces flexible reference models and reward scaling factors, demonstrating improved performance through reward extrapolation and reward correction techniques.",
+      "upvotes": 53,
+      "authors": [
+        "Wenkai Yang",
+        "Weijie Liu",
+        "Ruobing Xie"
+      ]
+    },
+    {
+      "title": "MOSS-Audio-Tokenizer: Scaling Audio Tokenizers for Future Audio Foundation Models",
+      "url": "https://huggingface.co/papers/2602.10934",
+      "arxiv_url": "https://arxiv.org/abs/2602.10934",
+      "summary": "A fully end-to-end Transformer-based audio tokenizer architecture achieves high-fidelity reconstruction across diverse audio domains and enables superior text-to-speech and automatic speech recognition performance.",
+      "upvotes": 43,
+      "authors": [
+        "Yitian Gong",
+        "Kuangwei Chen",
+        "Zhaoye Fei"
+      ]
+    }
+  ]
+}
