@@ -739,11 +739,15 @@ window.KB = (function () {
         updateBellVisibility();
         if (isOpen) renderDropdown();
 
-        // Show refresh banner if any paper just completed
+        // Show refresh banner + dismiss processing toast if any paper just completed
         var hasNewlyCompleted = papers.some(function (p) {
           return p.status === 'completed' && !p.readByUser;
         });
-        if (hasNewlyCompleted) showRefreshBanner();
+        if (hasNewlyCompleted) {
+          showRefreshBanner();
+          var processToast = document.getElementById('process-toast');
+          if (processToast) processToast.style.display = 'none';
+        }
       }
 
       if (!papers.some(function (p) { return p.status === 'pending' || p.status === 'processing' || p.status === 'deploying'; })) {
