@@ -24,10 +24,11 @@
     {{ end }}
     <div class="paper-detail-actions">
       <div class="paper-detail-links">
-        {{ with .Params.arxiv_url }}
+        {{ $pdfLink := .Params.pdf_url | default .Params.arxiv_url }}
+        {{ with $pdfLink }}
         <a href="{{ . }}" class="btn btn-outline" target="_blank" rel="noopener">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          PDF
+          {{ with $.Params.source }}{{ . }}{{ else }}PDF{{ end }}
         </a>
         {{ end }}
         {{ if .Params.one_line_summary_zh }}
@@ -124,6 +125,18 @@
     <div class="modal-actions">
       <button class="btn btn-outline" id="edit-topics-cancel">Cancel</button>
       <button class="btn btn-primary" id="edit-topics-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="note-delete-modal" class="modal" style="display:none;">
+  <div class="modal-overlay" id="note-delete-overlay"></div>
+  <div class="modal-content">
+    <h2>Delete this note?</h2>
+    <p class="delete-confirm-warn">This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="note-delete-cancel">Cancel</button>
+      <button class="btn btn-danger" id="note-delete-confirm">Delete</button>
     </div>
   </div>
 </div>

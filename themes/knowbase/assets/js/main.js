@@ -1,3 +1,97 @@
+// ── Shared Utilities (KB namespace) ──────────────────────────────
+window.KB = (function () {
+  var DEFAULT_TOPICS = ['Auto White Balance'];
+
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function escapeAttr(s) {
+    return s.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function getTopics() {
+    var stored = localStorage.getItem('kb-topics');
+    var topics;
+    if (stored) {
+      try { topics = JSON.parse(stored); } catch (e) { topics = DEFAULT_TOPICS.slice(); }
+    } else {
+      topics = DEFAULT_TOPICS.slice();
+    }
+    var changed = false;
+    var hugoItems = document.querySelectorAll('#sidebar-topic-list li[data-hugo-topic]');
+    hugoItems.forEach(function (li) {
+      var name = li.getAttribute('data-hugo-topic');
+      if (name && !topics.some(function (t) { return t.toLowerCase() === name.toLowerCase(); })) {
+        topics.push(name);
+        changed = true;
+      }
+    });
+    if (changed) localStorage.setItem('kb-topics', JSON.stringify(topics));
+    return topics;
+  }
+
+  function saveTopics(topics) {
+    localStorage.setItem('kb-topics', JSON.stringify(topics));
+  }
+
+  // Toast notification system
+  var toastContainer = null;
+
+  function getToastContainer() {
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.className = 'kb-toast-container';
+      document.body.appendChild(toastContainer);
+    }
+    return toastContainer;
+  }
+
+  function showToast(message, type) {
+    type = type || 'info';
+    var container = getToastContainer();
+    var toast = document.createElement('div');
+    toast.className = 'kb-toast kb-toast-' + type;
+
+    var icons = {
+      error: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+      success: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="16 9 10.5 14.5 8 12"/></svg>',
+      info: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+    };
+
+    toast.innerHTML =
+      '<span class="kb-toast-icon">' + (icons[type] || icons.info) + '</span>' +
+      '<span class="kb-toast-msg">' + escapeHtml(message) + '</span>' +
+      '<button class="kb-toast-close" aria-label="Dismiss">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+      '</button>';
+
+    container.appendChild(toast);
+
+    var closeBtn = toast.querySelector('.kb-toast-close');
+    function dismiss() {
+      toast.classList.add('kb-toast-exit');
+      setTimeout(function () { toast.remove(); }, 300);
+    }
+    closeBtn.addEventListener('click', dismiss);
+
+    // Auto-dismiss after 5s
+    setTimeout(dismiss, 5000);
+
+    return toast;
+  }
+
+  return {
+    escapeHtml: escapeHtml,
+    escapeAttr: escapeAttr,
+    getTopics: getTopics,
+    saveTopics: saveTopics,
+    showToast: showToast
+  };
+})();
+
 // Wrap tables in scrollable containers
 (function () {
   var tables = document.querySelectorAll('.paper-content table');
@@ -154,14 +248,6 @@
   }
 })();
 
-// Mobile top bar: move notification bell into top bar on mobile
-(function () {
-  var topbarActions = document.getElementById('mobile-topbar-actions');
-  var notifBell = document.getElementById('notification-bell');
-  if (topbarActions && notifBell && window.innerWidth <= 768) {
-    topbarActions.appendChild(notifBell);
-  }
-})();
 
 // Language toggle (EN/ZH)
 (function () {
@@ -198,56 +284,22 @@
 
 // Sidebar topic management (shared across all pages)
 (function () {
-  var DEFAULT_TOPICS = ['Auto White Balance'];
-
-  function getTopics() {
-    var stored = localStorage.getItem('kb-topics');
-    var topics;
-    if (stored) {
-      try { topics = JSON.parse(stored); } catch (e) { topics = DEFAULT_TOPICS.slice(); }
-    } else {
-      topics = DEFAULT_TOPICS.slice();
-    }
-    // Merge Hugo-rendered topics so localStorage stays in sync with actual taxonomy
-    var changed = false;
-    var hugoItems = document.querySelectorAll('#sidebar-topic-list li[data-hugo-topic]');
-    hugoItems.forEach(function (li) {
-      var name = li.getAttribute('data-hugo-topic');
-      if (name && !topics.some(function (t) { return t.toLowerCase() === name.toLowerCase(); })) {
-        topics.push(name);
-        changed = true;
-      }
-    });
-    if (changed) localStorage.setItem('kb-topics', JSON.stringify(topics));
-    return topics;
-  }
-
-  function saveTopics(topics) {
-    localStorage.setItem('kb-topics', JSON.stringify(topics));
-  }
-
   function addTopicItem(name) {
     var trimmed = name.trim();
     if (!trimmed) return false;
-    var topics = getTopics();
+    var topics = KB.getTopics();
     var exists = topics.some(function (t) { return t.toLowerCase() === trimmed.toLowerCase(); });
     if (exists) return false;
     topics.push(trimmed);
-    saveTopics(topics);
+    KB.saveTopics(topics);
     return true;
-  }
-
-  function escapeHtml(s) {
-    var d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
   }
 
   var editMode = false;
 
   function removeTopic(name) {
-    var topics = getTopics().filter(function (t) { return t !== name; });
-    saveTopics(topics);
+    var topics = KB.getTopics().filter(function (t) { return t !== name; });
+    KB.saveTopics(topics);
   }
 
   function refreshSidebarTopics() {
@@ -261,7 +313,7 @@
 
     list.querySelectorAll('li[data-js-topic]').forEach(function (li) { li.remove(); });
 
-    var topics = getTopics();
+    var topics = KB.getTopics();
     topics.forEach(function (t) {
       if (!hugoTopics[t]) {
         var li = document.createElement('li');
@@ -269,7 +321,7 @@
         li.innerHTML =
           '<a href="javascript:void(0)">' +
             '<span class="topic-dot"></span>' +
-            escapeHtml(t) +
+            KB.escapeHtml(t) +
             '<span class="topic-count">0</span>' +
           '</a>';
         list.appendChild(li);
@@ -305,7 +357,7 @@
             var li = this.closest('li');
             var cEl = li ? li.querySelector('.topic-count') : null;
             var c = cEl ? parseInt(cEl.textContent, 10) || 0 : 0;
-            if (c > 0 || getTopics().length <= 1) return;
+            if (c > 0 || KB.getTopics().length <= 1) return;
             removeTopic(name);
             refreshSidebarTopics();
           });
@@ -518,7 +570,7 @@
       }
 
       var timeAgo = relativeTime(paper.triggeredAt);
-      var safeTitle = escapeHtml(paper.title.length > 60 ? paper.title.substring(0, 60) + '...' : paper.title);
+      var safeTitle = KB.escapeHtml(paper.title.length > 60 ? paper.title.substring(0, 60) + '...' : paper.title);
 
       item.innerHTML =
         '<div class="notif-item-icon ' + iconClass + '">' + iconContent + '</div>' +
@@ -708,12 +760,6 @@
   }
 
   // ── Helpers ─────────────────────────────────────────────────────
-  function escapeHtml(s) {
-    var d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
-  }
-
   function relativeTime(iso) {
     var sec = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
     if (sec < 60) return 'Just now';
@@ -767,7 +813,6 @@
 // ── Edit Topics ──────────────────────────────────────────────────
 (function () {
   var WORKER_URL = 'https://frieren-lab-proxy.ntufrierenlab.workers.dev';
-  var DEFAULT_TOPICS = ['Auto White Balance'];
 
   var editBtn = document.getElementById('btn-edit-topics');
   if (!editBtn) return;
@@ -780,54 +825,19 @@
   var cancelBtn = document.getElementById('edit-topics-cancel');
   var saveBtn = document.getElementById('edit-topics-save');
 
-  function escapeHtml(s) {
-    var d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
-  }
-
-  function escapeAttr(s) {
-    return s.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-  }
-
-  function getTopics() {
-    var stored = localStorage.getItem('kb-topics');
-    var topics;
-    if (stored) {
-      try { topics = JSON.parse(stored); } catch (e) { topics = DEFAULT_TOPICS.slice(); }
-    } else {
-      topics = DEFAULT_TOPICS.slice();
-    }
-    var changed = false;
-    var hugoItems = document.querySelectorAll('#sidebar-topic-list li[data-hugo-topic]');
-    hugoItems.forEach(function (li) {
-      var name = li.getAttribute('data-hugo-topic');
-      if (name && !topics.some(function (t) { return t.toLowerCase() === name.toLowerCase(); })) {
-        topics.push(name);
-        changed = true;
-      }
-    });
-    if (changed) localStorage.setItem('kb-topics', JSON.stringify(topics));
-    return topics;
-  }
-
-  function saveTopics(topics) {
-    localStorage.setItem('kb-topics', JSON.stringify(topics));
-  }
-
   var currentTopics = editBtn.getAttribute('data-topics').split(',').map(function (t) { return t.trim(); }).filter(Boolean);
 
   function renderTopicList() {
-    var topics = getTopics();
+    var topics = KB.getTopics();
     topicListEl.innerHTML = '';
     topics.forEach(function (t) {
       var label = document.createElement('label');
       label.className = 'topic-picker-item';
       var isChecked = currentTopics.some(function (ct) { return ct.toLowerCase() === t.toLowerCase(); });
       label.innerHTML =
-        '<input type="checkbox" name="edit-topic-pick" value="' + escapeAttr(t) + '"' + (isChecked ? ' checked' : '') + '>' +
+        '<input type="checkbox" name="edit-topic-pick" value="' + KB.escapeAttr(t) + '"' + (isChecked ? ' checked' : '') + '>' +
         '<span class="topic-picker-check"></span>' +
-        '<span class="topic-picker-name">' + escapeHtml(t) + '</span>';
+        '<span class="topic-picker-name">' + KB.escapeHtml(t) + '</span>';
       topicListEl.appendChild(label);
     });
   }
@@ -850,11 +860,11 @@
   newAddBtn.addEventListener('click', function () {
     var name = newInput.value.trim();
     if (!name) return;
-    var topics = getTopics();
+    var topics = KB.getTopics();
     var exists = topics.some(function (t) { return t.toLowerCase() === name.toLowerCase(); });
     if (!exists) {
       topics.push(name);
-      saveTopics(topics);
+      KB.saveTopics(topics);
     }
     currentTopics.push(name);
     newInput.value = '';
@@ -873,7 +883,7 @@
     var topics = [];
     checked.forEach(function (cb) { topics.push(cb.value); });
     if (topics.length === 0) {
-      alert('Please select at least one topic.');
+      KB.showToast('Please select at least one topic.', 'error');
       return;
     }
 
@@ -936,7 +946,7 @@
       }
     })
     .catch(function (err) {
-      alert('Error: ' + err.message);
+      KB.showToast('Error: ' + err.message, 'error');
     })
     .finally(function () {
       saveBtn.disabled = false;
@@ -958,12 +968,6 @@
 // ── Delete Paper ─────────────────────────────────────────────────
 (function () {
   var WORKER_URL = 'https://frieren-lab-proxy.ntufrierenlab.workers.dev';
-
-  function escapeHtml(s) {
-    var d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
-  }
 
   var deleteBtn = document.getElementById('btn-delete-paper');
   if (!deleteBtn) return;
@@ -1045,7 +1049,7 @@
                 '<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>' +
               '</svg>' +
               '<h2>Paper Deleted</h2>' +
-              '<p class="deleted-title">' + escapeHtml(title) + '</p>' +
+              '<p class="deleted-title">' + KB.escapeHtml(title) + '</p>' +
               '<p class="deleted-desc">The deletion is being processed. The site will update shortly.</p>' +
               '<a href="/" class="btn btn-primary">Back to Home</a>' +
             '</div>';
@@ -1053,14 +1057,14 @@
         var delModal = document.getElementById('delete-confirm-modal');
         if (delModal) delModal.style.display = 'none';
       } else {
-        alert('Failed to trigger delete: ' + (data.error || 'Unknown error'));
+        KB.showToast('Failed to trigger delete: ' + (data.error || 'Unknown error'), 'error');
       }
     })
     .catch(function (err) {
       closeModal();
       confirmBtn.disabled = false;
       confirmBtn.textContent = 'Delete';
-      alert('Network error: ' + err.message);
+      KB.showToast('Network error: ' + err.message, 'error');
     });
   });
 })();
@@ -1077,12 +1081,6 @@
   if (!notesSection || !noteInput || !noteSubmit) return;
 
   var paperFilename = notesSection.getAttribute('data-filename');
-
-  function escapeHtml(s) {
-    var d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
-  }
 
   function formatDate(date) {
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -1146,7 +1144,7 @@
         var now = new Date();
         noteItem.setAttribute('data-date', now.toISOString());
         noteItem.innerHTML =
-          '<div class="note-body"><p>' + escapeHtml(text) + '</p></div>' +
+          '<div class="note-body"><p>' + KB.escapeHtml(text) + '</p></div>' +
           '<div class="note-meta">' +
             '<span>' + formatDate(now) + '</span>' +
             '<button class="note-delete-btn visible" title="Delete note">' +
@@ -1164,7 +1162,7 @@
       }
     })
     .catch(function (err) {
-      alert('Error: ' + err.message);
+      KB.showToast('Error: ' + err.message, 'error');
     })
     .finally(function () {
       noteSubmit.disabled = false;
@@ -1187,8 +1185,31 @@
     var password = sessionStorage.getItem('kb-session-pwd');
     if (!password || !noteDate) return;
 
-    if (!confirm('Delete this note?')) return;
+    var noteDeleteModal = document.getElementById('note-delete-modal');
+    var noteDeleteConfirm = document.getElementById('note-delete-confirm');
+    var noteDeleteCancel = document.getElementById('note-delete-cancel');
+    var noteDeleteOverlay = document.getElementById('note-delete-overlay');
+    if (!noteDeleteModal) return;
 
+    noteDeleteModal.style.display = 'flex';
+
+    function cleanup() {
+      noteDeleteModal.style.display = 'none';
+      noteDeleteConfirm.removeEventListener('click', onConfirm);
+      noteDeleteCancel.removeEventListener('click', onCancel);
+      noteDeleteOverlay.removeEventListener('click', onCancel);
+    }
+    function onCancel() { cleanup(); }
+    function onConfirm() {
+      cleanup();
+      doDeleteNote(btn, noteItem, noteDate, password);
+    }
+    noteDeleteConfirm.addEventListener('click', onConfirm);
+    noteDeleteCancel.addEventListener('click', onCancel);
+    noteDeleteOverlay.addEventListener('click', onCancel);
+  }
+
+  function doDeleteNote(btn, noteItem, noteDate, password) {
     btn.disabled = true;
 
     fetch(WORKER_URL, {
@@ -1224,7 +1245,7 @@
     })
     .catch(function (err) {
       btn.disabled = false;
-      alert('Error: ' + err.message);
+      KB.showToast('Error: ' + err.message, 'error');
     });
   }
 
@@ -1258,4 +1279,56 @@
   if (sessionStorage.getItem('kb-session-pwd')) {
     toggleDeleteBtns(true);
   }
+})();
+
+// ── Escape Key Closes Modals ──────────────────────────────────────
+(function () {
+  var modalIds = ['note-delete-modal', 'delete-confirm-modal', 'edit-topics-modal', 'topic-modal', 'password-modal'];
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    for (var i = 0; i < modalIds.length; i++) {
+      var modal = document.getElementById(modalIds[i]);
+      if (modal && modal.style.display !== 'none' && modal.style.display !== '') {
+        modal.style.display = 'none';
+        e.preventDefault();
+        return;
+      }
+    }
+  });
+})();
+
+// ── Mobile Sidebar Auto-close on Nav Click ─────────────────────────
+(function () {
+  var sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+  sidebar.addEventListener('click', function (e) {
+    var link = e.target.closest('a');
+    if (link && window.innerWidth <= 768) {
+      sidebar.classList.remove('open');
+    }
+  });
+})();
+
+// ── Notification Bell Resize Handler ────────────────────────────────
+(function () {
+  var notifBell = document.getElementById('notification-bell');
+  var topbarActions = document.getElementById('mobile-topbar-actions');
+  if (!notifBell || !topbarActions) return;
+
+  var originalParent = notifBell.parentNode;
+  var originalNext = notifBell.nextSibling;
+  var mql = window.matchMedia('(max-width: 768px)');
+
+  function moveBell(mobile) {
+    if (mobile) {
+      topbarActions.appendChild(notifBell);
+    } else if (notifBell.parentNode !== originalParent) {
+      originalParent.insertBefore(notifBell, originalNext);
+    }
+  }
+
+  moveBell(mql.matches);
+  mql.addEventListener('change', function (e) {
+    moveBell(e.matches);
+  });
 })();
