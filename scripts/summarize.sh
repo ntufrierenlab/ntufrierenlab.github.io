@@ -464,7 +464,8 @@ ${PAPER_TEXT}
 
 You have been given the full paper text above. Use the actual content, data, methods, and results from the paper to generate a detailed and accurate analysis.
 
-Please generate the summary content (NOT the front matter, just the body) in this exact format:
+Please generate the summary content (NOT the front matter, just the body) in this exact format.
+CRITICAL: Use EXACTLY ONE <div class=\"lang-en\"> and ONE <div class=\"lang-zh\"> wrapper. Do NOT create separate divs for each section — all English sections go inside a single lang-en div, all Chinese sections inside a single lang-zh div.
 
 <div class=\"lang-en\">
 

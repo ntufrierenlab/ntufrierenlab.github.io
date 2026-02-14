@@ -35,10 +35,6 @@ tags: []
 
 - **Generalization to Historical Photographs**: The method successfully processes motion-blurred historical images captured over 80 years ago (e.g., 1944 WWII photos, 1971 boxing match), revealing scene dynamics using subtle motion blur cues. This demonstrates the method's robustness and practical utility for cultural heritage applications and historical image analysis.
 
-</div>
-
-<div class="lang-en">
-
 ## Core Insights
 
 - **Large-Scale Pre-training Captures Motion Blur Priors**: The paper's fundamental insight is that large video diffusion models trained on billions of images and millions of video clips inherently learn strong priors about the relationship between motion blur and scene dynamics, even without explicit supervision on this task. Figure 2 demonstrates this: when given a motion-blurred soccer ball image, an off-the-shelf video model naturally predicts motion consistent with the blur direction, confirming that motion blur information is already encoded in these models.
@@ -52,10 +48,6 @@ tags: []
 - **3D Consistency Emerges from Video Coherence**: The paper shows (Section 6.3) that generated videos maintain sufficient 3D geometric consistency to enable structure-from-motion reconstruction and 4D scene recovery. This is non-trivial: generating temporally coherent video sequences with consistent disparity cues across frames requires the model to implicitly learn 3D scene geometry, even though it's trained on 2D video data. Figure 9 validates this through epipolar geometry analysis and homography consistency tests.
 
 - **Scale Matters More Than Architecture**: The paper attributes success primarily to the use of large-scale pre-training (2B parameter model on billions of images) rather than novel architectural innovations. The training uses standard VAE encoding, sinusoidal positional encoding, and diffusion denoising—all established techniques. The key difference from baselines is access to larger and more diverse training data, suggesting that scaling rather than architectural novelty is the primary driver of performance improvements.
-
-</div>
-
-<div class="lang-en">
 
 ## Key Data & Results
 
@@ -76,10 +68,6 @@ tags: []
 
 - **Computational efficiency**: Inference requires ~2 minutes on an NVIDIA L40 GPU with 50 diffusion steps. Training uses 16 L40 GPUs for 10 days with batch size 64 (20,000 iterations). While this is computationally expensive, it's a one-time cost; inference, though slow compared to deterministic methods, is reasonable for offline applications like historical photo restoration.
 
-</div>
-
-<div class="lang-en">
-
 ## Strengths
 
 - **Novel Problem Formulation with Strong Motivation**: Reformulating motion blur analysis as conditional video generation (rather than image restoration) is conceptually elegant and well-motivated. Motion blur is fundamentally a temporal phenomenon encoding appearance changes over an exposure interval. Using videos to explain this is physically appropriate and enables past/present/future prediction—a genuinely novel capability absent in prior work. The motivation is clear and the approach is philosophically well-grounded.
@@ -93,10 +81,6 @@ tags: []
 - **Practical Impact and Generalization**: Success on diverse in-the-wild scenes (dancers, sports, animals, deforming cloth, cityscapes) and historical photographs demonstrates genuine robustness. The ability to process 80-year-old WWII photographs and recover subtle motion cues shows the method works on real-world, unconstrained images—not just synthetic or controlled datasets. Downstream applications (4D reconstruction, pose estimation) prove utility beyond novelty.
 
 - **Honest Assessment of Limitations**: The paper acknowledges that generated videos represent samples from a multi-modal distribution, not ground truth recovery. Figure 4 shows PSNR degrades outside the exposure window (20-30 dB in past/future vs. 30+ dB in present), honestly reporting reduced accuracy for extrapolation. The paper doesn't overclaim that it "solves" motion blur analysis, but rather shows what can be learned from it.
-
-</div>
-
-<div class="lang-en">
 
 ## Weaknesses
 
@@ -113,10 +97,6 @@ tags: []
 - **Computational Cost and Practical Deployment**: Inference requires ~2 minutes per image on expensive GPU hardware (NVIDIA L40). This is prohibitive for real-time applications. Training requires 16 GPUs for 10 days—resource constraints that limit accessibility and reproducibility. The paper doesn't discuss optimization strategies (distillation, quantization, pruning) or potential for inference speedup. For a method claiming broad practical utility (historical photo restoration, etc.), computational efficiency is a significant practical limitation.
 
 - **Limited Discussion of Generalization Boundaries**: The paper successfully handles diverse scenes but doesn't characterize the scope of applicability. When does the method fail? What properties of motion blur are necessary (e.g., is pure camera shake handled differently than scene motion)? How does camera response function $g$ (Equation 1) affect results if non-linear? Are there saturation effects or clipping that break the model?
-
-</div>
-
-<div class="lang-en">
 
 ## Research Directions
 
@@ -136,8 +116,6 @@ tags: []
 
 </div>
 
-</div>
-
 <div class="lang-zh" style="display:none;">
 
 ## 主要貢獻
@@ -154,10 +132,6 @@ tags: []
 
 - **對歷史照片的泛化**：該方法成功處理了超過80年前拍攝的動作模糊歷史圖像（例如1944年二戰照片、1971年拳擊比賽），使用細微的動作模糊線索揭示場景動態。這展示了該方法的魯棒性和文化遺產應用與歷史圖像分析的實用性。
 
-</div>
-
-<div class="lang-zh" style="display:none;">
-
 ## 核心洞見
 
 - **大規模預訓練捕捉動作模糊先驗**：本文的基本洞見是，在十億圖像和數百萬視頻片段上訓練的大規模視頻擴散模型本質上學習了關於動作模糊與場景動態之間關係的強先驗，即使沒有明確的此任務監督。圖2展示了這一點：給定運動模糊的足球圖像時，現成的視頻模型自然預測與模糊方向一致的運動，確認動作模糊信息已經編碼在這些模型中。
@@ -171,10 +145,6 @@ tags: []
 - **3D一致性從視頻連貫性中呈現**：論文顯示（第6.3節），生成的視頻保持足夠的3D幾何一致性以啟用結構從運動重建和4D場景恢復。這非平凡：生成具有跨幀一致視差線索的時間連貫視頻序列要求模型隱含地學習3D場景幾何，儘管它在2D視頻數據上訓練。圖9通過極線幾何分析和單應一致性測試驗證了這一點。
 
 - **規模比體系結構更重要**：論文將成功主要歸因於使用大規模預訓練（20億參數模型在十億圖像上），而不是新穎的架構創新。訓練使用標準VAE編碼、正弦位置編碼和擴散去噪—所有既定技術。與基準線的主要區別是訪問更大和更多樣化的訓練數據，表明縮放而不是架構新穎性是性能改進的主要驅動因素。
-
-</div>
-
-<div class="lang-zh" style="display:none;">
 
 ## 關鍵數據與結果
 
@@ -195,10 +165,6 @@ tags: []
 
 - **計算效率**：推理在NVIDIA L40 GPU上需要約2分鐘，使用50個擴散步驟。訓練使用16個L40 GPU，進行10天，批大小為64（20,000次迭代）。雖然這在計算上昂貴，但這是一次性成本；推理儘管與確定性方法相比緩慢，但對於離線應用（如歷史照片修復等）是合理的。
 
-</div>
-
-<div class="lang-zh" style="display:none;">
-
 ## 優勢
 
 - **新穎的問題表述與強動機**：將動作模糊分析重新表述為條件視頻生成（而不是圖像恢復）在概念上是優雅且有充分動機的。動作模糊本質上是編碼曝光間隔內外觀變化的時間現象。使用視頻來解釋這一點在物理上是合適的，並實現了過去/現在/未來預測—一種先前工作中缺失的真正新穎功能。動機清晰，方法在哲學上是基礎良好的。
@@ -212,10 +178,6 @@ tags: []
 - **實際影響與泛化**：在多樣化真實場景（舞蹈演員、運動、動物、變形布料、城市景觀）和歷史照片上的成功展示了真正的魯棒性。能夠處理80年前的二戰照片並恢復細微運動線索展示該方法對真實、不受約束的圖像有效—不僅僅是合成或受控數據集。下游應用（4D重建、姿態估計）證明了超越新穎性的實用性。
 
 - **對局限性的誠實評估**：論文承認生成的視頻表示從多模態分佈中的樣本，而不是地面實況恢復。圖4顯示PSNR在曝光窗口外降低（過去/未來中的20-30 dB對比現在中的30+ dB），誠實地報告外推的降低精度。論文沒有過度聲稱它"解決"動作模糊分析，而是展示可以從中學到什麼。
-
-</div>
-
-<div class="lang-zh" style="display:none;">
 
 ## 劣勢
 
@@ -232,10 +194,6 @@ tags: []
 - **計算成本與實際部署**：推理在昂貴GPU硬件（NVIDIA L40）上需要約2分鐘。這對實時應用來說是禁止性的。訓練需要16個GPU進行10天—限制可訪問性和可重現性的資源約束。論文不討論優化策略（蒸餾、量化、修剪）或推理加速的潛力。對於聲稱具有廣泛實際效用的方法（歷史照片修復等），計算效率是一個重要的實際限制。
 
 - **泛化邊界的討論有限**：論文成功處理多樣化場景，但沒有表徵適用範圍。該方法何時失敗？動作模糊的哪些性質是必要的（例如，純攝像頭晃動是否以不同方式處理而不是場景運動）？如果非線性，攝像頭響應函數 $g$（方程式1）如何影響結果？是否存在飽和效應或裁剪會破壞模型？
-
-</div>
-
-<div class="lang-zh" style="display:none;">
 
 ## 研究方向
 

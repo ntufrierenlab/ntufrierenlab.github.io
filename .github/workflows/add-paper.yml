@@ -100,6 +100,23 @@ jobs:
             echo "::error::Missing expected summary sections"
             exit 1
           fi
+          EN_COUNT=$(grep -c '<div class="lang-en">' "$FILE" || true)
+          ZH_COUNT=$(grep -c '<div class="lang-zh"' "$FILE" || true)
+          if [ "$EN_COUNT" -gt 1 ] || [ "$ZH_COUNT" -gt 1 ]; then
+            echo "::warning::Multiple lang divs detected (en=$EN_COUNT, zh=$ZH_COUNT). Fixing..."
+            python3 -c "
+import re, sys
+text = open('$FILE').read()
+# Collapse multiple lang-en divs into one
+parts = re.split(r'</div>\s*<div class=\"lang-en\">\s*', text)
+text = parts[0] + ''.join(parts[1:])
+# Collapse multiple lang-zh divs into one
+parts = re.split(r'</div>\s*<div class=\"lang-zh\"[^>]*>\s*', text)
+text = parts[0] + ''.join(parts[1:])
+open('$FILE', 'w').write(text)
+print('Fixed: merged duplicate lang divs')
+"
+          fi
           echo "Validation passed"
 
       - name: Commit and push
