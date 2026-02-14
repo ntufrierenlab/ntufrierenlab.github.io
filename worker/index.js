@@ -15,6 +15,12 @@ export default {
       return jsonResponse(405, { error: 'Method not allowed' });
     }
 
+    // Route multipart/form-data uploads before JSON parsing
+    const contentType = request.headers.get('content-type') || '';
+    if (contentType.includes('multipart/form-data')) {
+      return handleUpload(request, env);
+    }
+
     let body;
     try {
       body = await request.json();
@@ -51,6 +57,79 @@ export default {
     return handleTrigger(body, env);
   },
 };
+
+async function handleUpload(request, env) {
+  let formData;
+  try {
+    formData = await request.formData();
+  } catch {
+    return jsonResponse(400, { error: 'Invalid form data' });
+  }
+
+  const password = formData.get('password');
+  if (!password || password !== env.AUTH_PASSWORD) {
+    return jsonResponse(401, { error: 'Invalid password' });
+  }
+
+  const file = formData.get('file');
+  const title = (formData.get('title') || '').trim();
+  const topic = formData.get('topic') || 'General';
+
+  if (!file || typeof file === 'string') {
+    return jsonResponse(400, { error: 'Missing PDF file' });
+  }
+  if (!title) {
+    return jsonResponse(400, { error: 'Missing paper title' });
+  }
+  if (file.type !== 'application/pdf') {
+    return jsonResponse(400, { error: 'Only PDF files are accepted' });
+  }
+  const MAX_SIZE = 50 * 1024 * 1024; // 50MB
+  if (file.size > MAX_SIZE) {
+    return jsonResponse(400, { error: 'File too large (max 50MB)' });
+  }
+
+  // Store in R2
+  const key = crypto.randomUUID() + '.pdf';
+  await env.PDF_BUCKET.put(key, file.stream(), {
+    httpMetadata: { contentType: 'application/pdf' },
+    customMetadata: { title: title, uploadedAt: new Date().toISOString() },
+  });
+
+  const publicUrl = (env.R2_PUBLIC_URL || '').replace(/\/$/, '') + '/' + key;
+
+  // Trigger add-paper.yml with upload inputs
+  const repo = env.GITHUB_REPO || 'ntufrierenlab/ntufrierenlab.github.io';
+  const apiUrl = `https://api.github.com/repos/${repo}/actions/workflows/add-paper.yml/dispatches`;
+
+  const ghResponse = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${env.GITHUB_PAT}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'FrierenLab-Worker',
+    },
+    body: JSON.stringify({
+      ref: 'main',
+      inputs: {
+        arxiv_url: '',
+        topic: topic,
+        doi: '',
+        pdf_url: publicUrl,
+        source_type: 'upload',
+        paper_title: title,
+      },
+    }),
+  });
+
+  if (ghResponse.status === 204) {
+    return jsonResponse(200, { ok: true, message: 'Upload received, workflow triggered' });
+  }
+
+  const ghData = await ghResponse.text();
+  return jsonResponse(ghResponse.status, { error: 'GitHub API error', detail: ghData });
+}
 
 async function handleStatus(env) {
   const repo = env.GITHUB_REPO || 'ntufrierenlab/ntufrierenlab.github.io';
@@ -345,6 +424,8 @@ async function handleTrigger(body, env) {
         topic: topic || 'General',
         doi: doi || '',
         pdf_url: pdf_url || '',
+        source_type: 'search',
+        paper_title: '',
       },
     }),
   });

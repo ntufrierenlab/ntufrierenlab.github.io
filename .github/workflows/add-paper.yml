@@ -23,6 +23,16 @@ on:
         required: false
         default: ''
         type: string
+      source_type:
+        description: 'Source type: search or upload'
+        required: false
+        default: 'search'
+        type: string
+      paper_title:
+        description: 'Paper title (for uploads)'
+        required: false
+        default: ''
+        type: string
 
 permissions:
   contents: write
@@ -45,11 +55,17 @@ jobs:
       - name: Generate paper summary
         run: |
           chmod +x scripts/summarize.sh
-          bash scripts/summarize.sh "${{ inputs.arxiv_url }}" "${{ inputs.topic }}" "${{ inputs.doi }}" "${{ inputs.pdf_url }}" > /tmp/paper-summary.md
+          bash scripts/summarize.sh "$ARXIV_URL" "$TOPIC" "$DOI" "$PDF_URL" "$SOURCE_TYPE" "$PAPER_TITLE" > /tmp/paper-summary.md
           echo "--- Generated file preview ---"
           head -20 /tmp/paper-summary.md
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ARXIV_URL: ${{ inputs.arxiv_url }}
+          TOPIC: ${{ inputs.topic }}
+          DOI: ${{ inputs.doi }}
+          PDF_URL: ${{ inputs.pdf_url }}
+          SOURCE_TYPE: ${{ inputs.source_type }}
+          PAPER_TITLE: ${{ inputs.paper_title }}
 
       - name: Save paper summary
         run: |

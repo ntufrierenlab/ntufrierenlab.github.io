@@ -17,16 +17,75 @@ PAPER_URL="${1:-}"
 TOPIC_NAME="${2:-General}"
 DOI="${3:-}"
 EXT_PDF_URL="${4:-}"
+SOURCE_TYPE="${5:-search}"
+PAPER_TITLE="${6:-}"
 
-if [ -z "$PAPER_URL" ] && [ -z "$DOI" ]; then
-    echo "Usage: summarize.sh <paper-url> [topic-name] [doi] [pdf-url]" >&2
-    echo "Either paper-url or doi must be provided." >&2
+if [ "$SOURCE_TYPE" != "upload" ] && [ -z "$PAPER_URL" ] && [ -z "$DOI" ]; then
+    echo "Usage: summarize.sh <paper-url> [topic-name] [doi] [pdf-url] [source_type] [paper_title]" >&2
+    echo "Either paper-url or doi must be provided (or source_type=upload)." >&2
     exit 1
 fi
 
 # ── Detect source and extract metadata ─────────────────────────────
 
-if echo "$PAPER_URL" | grep -qi 'biorxiv\.org'; then
+if [ "$SOURCE_TYPE" = "upload" ]; then
+    SOURCE="Upload"
+    PDF_URL="$EXT_PDF_URL"
+    echo "Processing uploaded PDF: ${PAPER_TITLE}" >&2
+    echo "PDF URL: ${PDF_URL}" >&2
+
+    # Download PDF and extract text
+    echo "Downloading PDF from ${PDF_URL}..." >&2
+    curl -sL -o /tmp/paper.pdf "$PDF_URL"
+    PDF_SIZE=$(wc -c < /tmp/paper.pdf)
+    echo "PDF downloaded (${PDF_SIZE} bytes)" >&2
+
+    echo "Extracting text from PDF..." >&2
+    PAPER_TEXT=$(pdftotext /tmp/paper.pdf - 2>/dev/null | head -c 50000)
+    TEXT_LEN=${#PAPER_TEXT}
+    echo "Extracted ${TEXT_LEN} chars of text" >&2
+
+    if [ "$TEXT_LEN" -lt 200 ]; then
+        echo "Error: Could not extract sufficient text from PDF" >&2
+        exit 1
+    fi
+
+    # Use Claude (haiku) to extract metadata from the PDF text
+    FIRST_5000=$(echo "$PAPER_TEXT" | head -c 5000)
+    META_PROMPT="Extract the following metadata from this academic paper text. Output EXACTLY in this format with no extra text:
+AUTHORS=Author One, Author Two, Author Three
+DATE=YYYY-MM-DD
+ABSTRACT=one paragraph abstract
+
+If the date is not found, use today's date. If authors are not found, output AUTHORS=Unknown.
+
+Paper text:
+${FIRST_5000}"
+
+    echo "Extracting metadata with Claude..." >&2
+    META_RESPONSE=$(printf '%s' "$META_PROMPT" | claude --print --model claude-haiku-4-5-20251001 2>/dev/null)
+
+    AUTHORS=$(echo "$META_RESPONSE" | grep '^AUTHORS=' | head -1 | cut -d= -f2-)
+    DATE=$(echo "$META_RESPONSE" | grep '^DATE=' | head -1 | cut -d= -f2-)
+    PAPER_ABSTRACT=$(echo "$META_RESPONSE" | grep '^ABSTRACT=' | head -1 | cut -d= -f2-)
+
+    # Fallbacks
+    if [ -z "$AUTHORS" ]; then AUTHORS="Unknown"; fi
+    if [ -z "$DATE" ]; then DATE=$(date +%Y-%m-%d); fi
+    if [ -z "$PAPER_ABSTRACT" ]; then PAPER_ABSTRACT="No abstract available."; fi
+
+    TITLE="$PAPER_TITLE"
+    METADATA="TITLE=${TITLE}
+AUTHORS=${AUTHORS}
+DATE=${DATE}
+ABSTRACT=${PAPER_ABSTRACT}"
+
+    echo "Metadata extracted for upload:" >&2
+    echo "  Title: ${TITLE}" >&2
+    echo "  Authors: ${AUTHORS}" >&2
+    echo "  Date: ${DATE}" >&2
+
+elif echo "$PAPER_URL" | grep -qi 'biorxiv\.org'; then
     SOURCE="bioRxiv"
     echo "Detected bioRxiv paper" >&2
 
@@ -269,19 +328,21 @@ AUTHORS_YAML=$(echo "$AUTHORS" | tr ',' '\n' | sed 's/^ *//' | sed 's/^/  - "/' 
 
 # ── Download PDF and extract text ──────────────────────────────────
 
-echo "Downloading PDF from ${PDF_URL}..." >&2
-curl -sL -o /tmp/paper.pdf "$PDF_URL"
-PDF_SIZE=$(wc -c < /tmp/paper.pdf)
-echo "PDF downloaded (${PDF_SIZE} bytes)" >&2
+if [ "$SOURCE_TYPE" != "upload" ]; then
+    echo "Downloading PDF from ${PDF_URL}..." >&2
+    curl -sL -o /tmp/paper.pdf "$PDF_URL"
+    PDF_SIZE=$(wc -c < /tmp/paper.pdf)
+    echo "PDF downloaded (${PDF_SIZE} bytes)" >&2
 
-echo "Extracting text from PDF..." >&2
-PAPER_TEXT=$(pdftotext /tmp/paper.pdf - 2>/dev/null | head -c 50000)
-TEXT_LEN=${#PAPER_TEXT}
-echo "Extracted ${TEXT_LEN} chars of text" >&2
+    echo "Extracting text from PDF..." >&2
+    PAPER_TEXT=$(pdftotext /tmp/paper.pdf - 2>/dev/null | head -c 50000)
+    TEXT_LEN=${#PAPER_TEXT}
+    echo "Extracted ${TEXT_LEN} chars of text" >&2
 
-if [ "$TEXT_LEN" -lt 500 ]; then
-    echo "Warning: Very little text extracted from PDF, using abstract only" >&2
-    PAPER_TEXT="$PAPER_ABSTRACT"
+    if [ "$TEXT_LEN" -lt 500 ]; then
+        echo "Warning: Very little text extracted from PDF, using abstract only" >&2
+        PAPER_TEXT="$PAPER_ABSTRACT"
+    fi
 fi
 
 # ── Build the Claude prompt ────────────────────────────────────────

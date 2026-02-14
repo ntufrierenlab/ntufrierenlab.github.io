@@ -14,50 +14,21 @@
   var currentPage = 1;
   var ARXIV_SOURCE = 's4306400194';
   var SELECT_FIELDS = 'id,title,authorships,publication_date,primary_location,locations,best_oa_location,doi,cited_by_count,abstract_inverted_index';
-  var DEFAULT_TOPICS = ['Auto White Balance'];
-
-  // ── Topic Management ──────────────────────────────────────────
-  function getTopics() {
-    var stored = localStorage.getItem('kb-topics');
-    var topics;
-    if (stored) {
-      try { topics = JSON.parse(stored); } catch (e) { topics = DEFAULT_TOPICS.slice(); }
-    } else {
-      topics = DEFAULT_TOPICS.slice();
-    }
-    // Merge Hugo-rendered topics so localStorage stays in sync with actual taxonomy
-    var changed = false;
-    var hugoItems = document.querySelectorAll('#sidebar-topic-list li[data-hugo-topic]');
-    hugoItems.forEach(function (li) {
-      var name = li.getAttribute('data-hugo-topic');
-      if (name && !topics.some(function (t) { return t.toLowerCase() === name.toLowerCase(); })) {
-        topics.push(name);
-        changed = true;
-      }
-    });
-    if (changed) localStorage.setItem('kb-topics', JSON.stringify(topics));
-    return topics;
-  }
-
-  function saveTopics(topics) {
-    localStorage.setItem('kb-topics', JSON.stringify(topics));
-  }
-
+  // ── Topic Management (delegates to KB namespace) ──────────────
   function addTopic(name) {
     var trimmed = name.trim();
     if (!trimmed) return false;
-    var topics = getTopics();
-    // Check duplicate (case-insensitive)
+    var topics = KB.getTopics();
     var exists = topics.some(function (t) { return t.toLowerCase() === trimmed.toLowerCase(); });
     if (exists) return false;
     topics.push(trimmed);
-    saveTopics(topics);
+    KB.saveTopics(topics);
     return true;
   }
 
   function removeTopic(name) {
-    var topics = getTopics().filter(function (t) { return t !== name; });
-    saveTopics(topics);
+    var topics = KB.getTopics().filter(function (t) { return t !== name; });
+    KB.saveTopics(topics);
   }
 
   // ── Search ────────────────────────────────────────────────────
@@ -271,10 +242,10 @@
       if (displayId.length > 30) displayId = displayId.substring(0, 30) + '...';
 
       // Build add-button data attributes
-      var addAttrs = 'data-url="' + escapeAttr(info.absUrl) + '" data-title="' + escapeAttr(title) + '"';
-      if (info.doi) addAttrs += ' data-doi="' + escapeAttr(info.doi) + '"';
-      if (info.isConference) addAttrs += ' data-pdf="' + escapeAttr(info.pdfUrl) + '"';
-      if (info.arxivUrl) addAttrs += ' data-arxiv="' + escapeAttr(info.arxivUrl) + '"';
+      var addAttrs = 'data-url="' + KB.escapeAttr(info.absUrl) + '" data-title="' + KB.escapeAttr(title) + '"';
+      if (info.doi) addAttrs += ' data-doi="' + KB.escapeAttr(info.doi) + '"';
+      if (info.isConference) addAttrs += ' data-pdf="' + KB.escapeAttr(info.pdfUrl) + '"';
+      if (info.arxivUrl) addAttrs += ' data-arxiv="' + KB.escapeAttr(info.arxivUrl) + '"';
 
       var card = document.createElement('div');
       card.className = 'arxiv-result-card';
@@ -283,12 +254,12 @@
           '<div class="arxiv-result-meta">' +
             (pubDate ? '<span class="arxiv-result-date">' + pubDate + '</span>' : '') +
             '<span class="arxiv-result-citations">' + citations + ' citations</span>' +
-            '<span class="arxiv-result-id' + badgeClass + '">' + info.source + ': ' + escapeHtml(displayId) + '</span>' +
+            '<span class="arxiv-result-id' + badgeClass + '">' + info.source + ': ' + KB.escapeHtml(displayId) + '</span>' +
           '</div>' +
         '</div>' +
-        '<h3 class="arxiv-result-title">' + escapeHtml(title) + '</h3>' +
-        '<p class="arxiv-result-authors">' + escapeHtml(authors) + '</p>' +
-        (abstract ? '<p class="arxiv-result-abstract">' + escapeHtml(abstract) + '</p>' : '') +
+        '<h3 class="arxiv-result-title">' + KB.escapeHtml(title) + '</h3>' +
+        '<p class="arxiv-result-authors">' + KB.escapeHtml(authors) + '</p>' +
+        (abstract ? '<p class="arxiv-result-abstract">' + KB.escapeHtml(abstract) + '</p>' : '') +
         '<div class="arxiv-result-actions">' +
           '<a href="' + info.absUrl + '" class="btn btn-outline btn-sm" target="_blank" rel="noopener">' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>' +
@@ -328,14 +299,14 @@
   var topicConfirmBtn = document.getElementById('topic-confirm');
   var topicOverlay = topicModal ? topicModal.querySelector('.modal-overlay') : null;
 
-  var pendingPaper = { url: '', title: '', btn: null, doi: '', pdf: '', arxivUrl: '' };
+  var pendingPaper = { url: '', title: '', btn: null, doi: '', pdf: '', arxivUrl: '', isUpload: false, file: null };
 
   function openTopicPicker(url, title, btn, doi, pdf, arxivUrl) {
     if (!sessionStorage.getItem('kb-session-pwd')) {
-      alert('Please enter the password first (click the lock icon in the sidebar).');
+      KB.showToast('Please enter the password first (click the lock icon in the sidebar).', 'info');
       return;
     }
-    pendingPaper = { url: url, title: title, btn: btn, doi: doi || '', pdf: pdf || '', arxivUrl: arxivUrl || '' };
+    pendingPaper = { url: url, title: title, btn: btn, doi: doi || '', pdf: pdf || '', arxivUrl: arxivUrl || '', isUpload: false, file: null };
     renderTopicList();
     newTopicInput.value = '';
     topicModal.style.display = 'flex';
@@ -351,7 +322,7 @@
       currentChecked.push(newlyAddedTopic);
     }
 
-    var topics = getTopics();
+    var topics = KB.getTopics();
     topicListEl.innerHTML = '';
     topics.forEach(function (t) {
       var label = document.createElement('label');
@@ -360,10 +331,10 @@
         ? currentChecked.indexOf(t) !== -1
         : false;
       label.innerHTML =
-        '<input type="checkbox" name="topic-pick" value="' + escapeAttr(t) + '"' + (isChecked ? ' checked' : '') + '>' +
+        '<input type="checkbox" name="topic-pick" value="' + KB.escapeAttr(t) + '"' + (isChecked ? ' checked' : '') + '>' +
         '<span class="topic-picker-check"></span>' +
-        '<span class="topic-picker-name">' + escapeHtml(t) + '</span>' +
-        '<button class="topic-picker-delete" data-topic="' + escapeAttr(t) + '" title="Remove topic">' +
+        '<span class="topic-picker-name">' + KB.escapeHtml(t) + '</span>' +
+        '<button class="topic-picker-delete" data-topic="' + KB.escapeAttr(t) + '" title="Remove topic">' +
           '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
         '</button>';
       topicListEl.appendChild(label);
@@ -382,7 +353,7 @@
         e.preventDefault();
         e.stopPropagation();
         var topicName = this.getAttribute('data-topic');
-        if (getTopics().length <= 1) return; // keep at least one
+        if (KB.getTopics().length <= 1) return; // keep at least one
         removeTopic(topicName);
         renderTopicList();
         refreshSidebarTopics();
@@ -425,7 +396,11 @@
       if (topics.length === 0) topics = ['General'];
       var topicStr = topics.join(',');
       closeTopicModal();
-      addPaper(pendingPaper.url, pendingPaper.title, pendingPaper.btn, topicStr, pendingPaper.doi, pendingPaper.pdf, pendingPaper.arxivUrl);
+      if (pendingPaper.isUpload) {
+        uploadPdf(pendingPaper.file, pendingPaper.title, pendingPaper.btn, topicStr);
+      } else {
+        addPaper(pendingPaper.url, pendingPaper.title, pendingPaper.btn, topicStr, pendingPaper.doi, pendingPaper.pdf, pendingPaper.arxivUrl);
+      }
     });
   }
 
@@ -446,7 +421,7 @@
     });
 
     // Add user topics that aren't already shown by Hugo
-    var topics = getTopics();
+    var topics = KB.getTopics();
     topics.forEach(function (t) {
       if (!hugoTopics[t]) {
         var li = document.createElement('li');
@@ -454,7 +429,7 @@
         li.innerHTML =
           '<a href="javascript:void(0)">' +
             '<span class="topic-dot"></span>' +
-            escapeHtml(t) +
+            KB.escapeHtml(t) +
             '<span class="topic-count">0</span>' +
           '</a>';
         list.appendChild(li);
@@ -649,30 +624,182 @@
       btn.innerHTML =
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
         'Add';
-      alert('Error: ' + err.message + '\n\nPlease check your password and settings.');
+      KB.showToast('Error: ' + err.message, 'error');
     });
   }
 
   function showToast() {
     var toast = document.getElementById('process-toast');
     toast.style.display = 'flex';
-    setTimeout(function () {
-      toast.style.display = 'none';
-    }, 8000);
+    var closeBtn = toast.querySelector('.toast-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function () {
+        toast.style.display = 'none';
+      });
+    }
   }
 
-  // ── Helpers ───────────────────────────────────────────────────
-  function escapeHtml(s) {
-    var d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
+  // ── PDF Upload Section ──────────────────────────────────────────
+  var uploadSection = document.getElementById('pdf-upload-section');
+  var uploadToggle = document.getElementById('pdf-upload-toggle');
+  var uploadBody = document.getElementById('pdf-upload-body');
+  var dropZone = document.getElementById('pdf-drop-zone');
+  var fileInput = document.getElementById('pdf-file-input');
+  var browseLink = document.getElementById('pdf-browse-link');
+  var fileInfo = document.getElementById('pdf-file-info');
+  var fileName = document.getElementById('pdf-file-name');
+  var fileSize = document.getElementById('pdf-file-size');
+  var fileRemove = document.getElementById('pdf-file-remove');
+  var titleInput = document.getElementById('pdf-title-input');
+  var uploadBtn = document.getElementById('pdf-upload-btn');
+  var selectedFile = null;
+
+  if (uploadToggle) {
+    uploadToggle.addEventListener('click', function () {
+      var open = uploadBody.style.display !== 'none';
+      uploadBody.style.display = open ? 'none' : 'block';
+      uploadToggle.classList.toggle('open', !open);
+    });
   }
 
-  function escapeAttr(s) {
-    return s.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 
-  // Show/hide add buttons when auth state changes
+  function setFile(file) {
+    if (!file) return;
+    if (file.type !== 'application/pdf') {
+      KB.showToast('Only PDF files are accepted.', 'error');
+      return;
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      KB.showToast('File too large (max 50 MB).', 'error');
+      return;
+    }
+    selectedFile = file;
+    fileName.textContent = file.name;
+    fileSize.textContent = formatSize(file.size);
+    dropZone.style.display = 'none';
+    fileInfo.style.display = 'flex';
+    updateUploadBtn();
+  }
+
+  function clearFile() {
+    selectedFile = null;
+    fileInput.value = '';
+    dropZone.style.display = '';
+    fileInfo.style.display = 'none';
+    updateUploadBtn();
+  }
+
+  function updateUploadBtn() {
+    if (uploadBtn) {
+      uploadBtn.disabled = !selectedFile || !titleInput.value.trim();
+    }
+  }
+
+  if (browseLink) browseLink.addEventListener('click', function (e) { e.stopPropagation(); fileInput.click(); });
+  if (dropZone) dropZone.addEventListener('click', function () { fileInput.click(); });
+  if (fileInput) fileInput.addEventListener('change', function () { if (this.files[0]) setFile(this.files[0]); });
+  if (fileRemove) fileRemove.addEventListener('click', clearFile);
+  if (titleInput) titleInput.addEventListener('input', updateUploadBtn);
+
+  // Drag and drop
+  if (dropZone) {
+    ['dragover', 'dragenter'].forEach(function (evt) {
+      dropZone.addEventListener(evt, function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add('dragover');
+      });
+    });
+    ['dragleave', 'drop'].forEach(function (evt) {
+      dropZone.addEventListener(evt, function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove('dragover');
+      });
+    });
+    dropZone.addEventListener('drop', function (e) {
+      var files = e.dataTransfer.files;
+      if (files.length > 0) setFile(files[0]);
+    });
+  }
+
+  // Upload button click → open topic picker
+  if (uploadBtn) {
+    uploadBtn.addEventListener('click', function () {
+      if (!selectedFile || !titleInput.value.trim()) return;
+      pendingPaper = {
+        url: '', title: titleInput.value.trim(), btn: uploadBtn,
+        doi: '', pdf: '', arxivUrl: '', isUpload: true, file: selectedFile
+      };
+      renderTopicList();
+      newTopicInput.value = '';
+      topicModal.style.display = 'flex';
+    });
+  }
+
+  function uploadPdf(file, title, btn, topic) {
+    btn.disabled = true;
+    var origHTML = btn.innerHTML;
+    btn.innerHTML = '<div class="spinner-small"></div> Uploading...';
+
+    var password = sessionStorage.getItem('kb-session-pwd') || '';
+    var formData = new FormData();
+    formData.append('password', password);
+    formData.append('file', file);
+    formData.append('title', title);
+    formData.append('topic', topic);
+
+    fetch(WORKER_URL, { method: 'POST', body: formData })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.ok) {
+        btn.innerHTML =
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>' +
+          'Queued!';
+        btn.classList.add('btn-success');
+        showToast();
+
+        // Track in notification system
+        var pending = [];
+        try { pending = JSON.parse(sessionStorage.getItem('kb-pending-papers') || '[]'); } catch (e) { pending = []; }
+        pending.push({
+          title: title,
+          arxivUrl: '(uploaded PDF)',
+          topic: topic,
+          triggeredAt: new Date().toISOString(),
+          status: 'pending',
+          runId: null,
+          readByUser: false
+        });
+        sessionStorage.setItem('kb-pending-papers', JSON.stringify(pending));
+        window.dispatchEvent(new CustomEvent('kb-paper-added'));
+
+        // Reset form after short delay
+        setTimeout(function () {
+          clearFile();
+          titleInput.value = '';
+          btn.innerHTML = origHTML;
+          btn.classList.remove('btn-success');
+          btn.disabled = true;
+        }, 3000);
+      } else {
+        throw new Error(data.error || 'Upload failed');
+      }
+    })
+    .catch(function (err) {
+      btn.disabled = false;
+      btn.innerHTML = origHTML;
+      updateUploadBtn();
+      KB.showToast('Error: ' + err.message, 'error');
+    });
+  }
+
+  // Show/hide add buttons + upload section when auth state changes
   window.addEventListener('kb-auth-changed', function (e) {
     var btns = resultsDiv.querySelectorAll('.add-paper-btn');
     var show = e.detail.authenticated;
@@ -681,6 +808,14 @@
         btn.style.display = show ? '' : 'none';
       }
     });
+    if (uploadSection) {
+      uploadSection.style.display = show ? '' : 'none';
+    }
   });
+
+  // Show upload section on load if already authenticated
+  if (uploadSection && sessionStorage.getItem('kb-session-pwd')) {
+    uploadSection.style.display = '';
+  }
 
 })();
