@@ -50,9 +50,114 @@ if [ "$SOURCE_TYPE" = "upload" ]; then
         exit 1
     fi
 
-    # Use Claude (haiku) to extract metadata from the PDF text
-    FIRST_5000=$(echo "$PAPER_TEXT" | head -c 5000)
-    META_PROMPT="Extract the following metadata from this academic paper text. Output EXACTLY in this format with no extra text:
+    TITLE="$PAPER_TITLE"
+    OA_FOUND=false
+
+    # Try OpenAlex first (free, no tokens) to get date, authors, abstract, venue
+    echo "Searching OpenAlex for: ${PAPER_TITLE}" >&2
+    OA_SEARCH_URL="https://api.openalex.org/works?filter=title.search:$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$PAPER_TITLE")&per_page=1&select=id,title,authorships,publication_date,primary_location,abstract_inverted_index,doi&mailto=ntufrierenlab@gmail.com"
+    OA_JSON=$(curl -sL "$OA_SEARCH_URL")
+
+    if [ -n "$OA_JSON" ] && ! echo "$OA_JSON" | grep -q '"error"'; then
+        OA_META=$(echo "$OA_JSON" | python3 -c "
+import sys, json, re
+
+data = json.load(sys.stdin)
+results = data.get('results', [])
+if not results:
+    sys.exit(1)
+
+work = results[0]
+oa_title = (work.get('title') or '').strip()
+
+# Verify title is a reasonable match (case-insensitive)
+import difflib
+ratio = difflib.SequenceMatcher(None, oa_title.lower(), sys.argv[1].lower()).ratio()
+if ratio < 0.6:
+    print(f'SKIP=Title mismatch (ratio={ratio:.2f}): {oa_title}', file=sys.stderr)
+    sys.exit(1)
+
+authors = [a['author']['display_name'] for a in work.get('authorships', []) if a.get('author', {}).get('display_name')]
+pub_date = (work.get('publication_date') or '')[:10]
+
+inv = work.get('abstract_inverted_index') or {}
+if inv:
+    words = {}
+    for word, positions in inv.items():
+        for pos in positions:
+            words[pos] = word
+    abstract = ' '.join(words[i] for i in sorted(words.keys()))
+else:
+    abstract = ''
+
+# Venue/source
+pl = work.get('primary_location') or {}
+src = pl.get('source') or {}
+source_name = src.get('display_name') or ''
+
+print(f'AUTHORS={chr(44).join(authors)}')
+print(f'DATE={pub_date}')
+print(f'ABSTRACT={abstract}')
+print(f'SOURCE_NAME={source_name}')
+" "$PAPER_TITLE" 2>&1)
+
+        OA_AUTHORS=$(echo "$OA_META" | grep '^AUTHORS=' | cut -d= -f2-)
+        OA_DATE=$(echo "$OA_META" | grep '^DATE=' | cut -d= -f2-)
+        OA_ABSTRACT=$(echo "$OA_META" | grep '^ABSTRACT=' | cut -d= -f2-)
+        OA_SOURCE_NAME=$(echo "$OA_META" | grep '^SOURCE_NAME=' | cut -d= -f2-)
+
+        if [ -n "$OA_DATE" ] && [ -n "$OA_AUTHORS" ]; then
+            OA_FOUND=true
+            AUTHORS="$OA_AUTHORS"
+            DATE="$OA_DATE"
+            PAPER_ABSTRACT="${OA_ABSTRACT:-No abstract available.}"
+            echo "OpenAlex match found!" >&2
+            echo "  Authors: ${AUTHORS}" >&2
+            echo "  Date: ${DATE}" >&2
+
+            # Update SOURCE if venue is a recognized conference
+            if [ -n "$OA_SOURCE_NAME" ]; then
+                VENUE_LABEL=$(echo "$OA_SOURCE_NAME" | python3 -c "
+import sys, re
+name = sys.stdin.read().strip().lower()
+mappings = [
+    (r'cvpr|computer vision and pattern recognition', 'CVPR'),
+    (r'\biccv\b|international conference on computer vision(?! and pattern)', 'ICCV'),
+    (r'\beccv\b|european conference on computer vision', 'ECCV'),
+    (r'\bwacv\b|winter conference on applications of computer vision', 'WACV'),
+    (r'\baccv\b|asian conference on computer vision', 'ACCV'),
+    (r'neurips|neural information processing', 'NeurIPS'),
+    (r'\bicml\b|international conference on machine learning', 'ICML'),
+    (r'\biclr\b|international conference on learning representations', 'ICLR'),
+    (r'\baaai\b', 'AAAI'),
+    (r'siggraph asia', 'SIGGRAPH Asia'),
+    (r'siggraph', 'SIGGRAPH'),
+    (r'\bijcv\b|international journal of computer vision', 'IJCV'),
+    (r'\btpami\b|transactions on pattern analysis', 'TPAMI'),
+]
+for pattern, label in mappings:
+    if re.search(pattern, name):
+        print(label)
+        sys.exit(0)
+print('')
+")
+                if [ -n "$VENUE_LABEL" ]; then
+                    SOURCE="$VENUE_LABEL"
+                    echo "  Venue: ${SOURCE} (${OA_SOURCE_NAME})" >&2
+                fi
+            fi
+        else
+            echo "OpenAlex result incomplete, falling back to Claude..." >&2
+        fi
+    else
+        echo "OpenAlex returned no results, falling back to Claude..." >&2
+    fi
+
+    # Fallback: use Claude to extract metadata from PDF text
+    if [ "$OA_FOUND" = "false" ]; then
+        echo "Extracting metadata with Claude..." >&2
+        FIRST_5000=$(echo "$PAPER_TEXT" | head -c 5000)
+        META_PROMPT="Extract the following metadata from this academic paper text. Output EXACTLY in this format with no extra text:
 AUTHORS=Author One, Author Two, Author Three
 DATE=YYYY-MM-DD
 ABSTRACT=one paragraph abstract
@@ -62,19 +167,17 @@ If the date is not found, use today's date. If authors are not found, output AUT
 Paper text:
 ${FIRST_5000}"
 
-    echo "Extracting metadata with Claude..." >&2
-    META_RESPONSE=$(printf '%s' "$META_PROMPT" | claude --print --model claude-haiku-4-5-20251001 2>/dev/null)
+        META_RESPONSE=$(printf '%s' "$META_PROMPT" | claude --print --model claude-haiku-4-5-20251001 2>/dev/null)
 
-    AUTHORS=$(echo "$META_RESPONSE" | grep '^AUTHORS=' | head -1 | cut -d= -f2-)
-    DATE=$(echo "$META_RESPONSE" | grep '^DATE=' | head -1 | cut -d= -f2-)
-    PAPER_ABSTRACT=$(echo "$META_RESPONSE" | grep '^ABSTRACT=' | head -1 | cut -d= -f2-)
+        AUTHORS=$(echo "$META_RESPONSE" | grep '^AUTHORS=' | head -1 | cut -d= -f2-)
+        DATE=$(echo "$META_RESPONSE" | grep '^DATE=' | head -1 | cut -d= -f2-)
+        PAPER_ABSTRACT=$(echo "$META_RESPONSE" | grep '^ABSTRACT=' | head -1 | cut -d= -f2-)
 
-    # Fallbacks
-    if [ -z "$AUTHORS" ]; then AUTHORS="Unknown"; fi
-    if [ -z "$DATE" ]; then DATE=$(date +%Y-%m-%d); fi
-    if [ -z "$PAPER_ABSTRACT" ]; then PAPER_ABSTRACT="No abstract available."; fi
+        if [ -z "$AUTHORS" ]; then AUTHORS="Unknown"; fi
+        if [ -z "$DATE" ]; then DATE=$(date +%Y-%m-%d); fi
+        if [ -z "$PAPER_ABSTRACT" ]; then PAPER_ABSTRACT="No abstract available."; fi
+    fi
 
-    TITLE="$PAPER_TITLE"
     METADATA="TITLE=${TITLE}
 AUTHORS=${AUTHORS}
 DATE=${DATE}
@@ -84,6 +187,7 @@ ABSTRACT=${PAPER_ABSTRACT}"
     echo "  Title: ${TITLE}" >&2
     echo "  Authors: ${AUTHORS}" >&2
     echo "  Date: ${DATE}" >&2
+    echo "  Source: ${SOURCE}" >&2
 
 elif echo "$PAPER_URL" | grep -qi 'biorxiv\.org'; then
     SOURCE="bioRxiv"
