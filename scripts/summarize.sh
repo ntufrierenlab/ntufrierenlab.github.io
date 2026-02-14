@@ -51,6 +51,7 @@ if [ "$SOURCE_TYPE" = "upload" ]; then
     fi
 
     TITLE="$PAPER_TITLE"
+    PAPER_URL=""
     OA_FOUND=false
 
     # Try OpenAlex first (free, no tokens) to get date, authors, abstract, venue
@@ -654,6 +655,11 @@ fi
 # ── Generate the full markdown file ────────────────────────────────
 
 TOPICS_YAML=$(echo "$TOPIC_NAME" | tr ',' '\n' | sed 's/^ *//;s/ *$//' | sed 's/.*/"&"/' | paste -sd',' - | sed 's/^/[/;s/$/]/')
+
+# Uploaded papers: clear pdf_url (R2 link is temporary)
+if [ "$SOURCE_TYPE" = "upload" ]; then
+    PDF_URL=""
+fi
 
 # Write front matter (heredoc is fine here — no untrusted content)
 cat <<FRONTMATTER
