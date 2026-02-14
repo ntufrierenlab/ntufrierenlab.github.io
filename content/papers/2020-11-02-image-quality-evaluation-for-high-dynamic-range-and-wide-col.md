@@ -8,7 +8,7 @@ authors:
   - "Scott Daly"
 source: "Upload"
 arxiv_url: ""
-pdf_url: "https://pub-04223273911642f3a6f8e95af7fe8eb8.r2.dev/3dff5c10-9f9a-48ac-8638-ff1f66619fcf.pdf"
+pdf_url: ""
 one_line_summary: "The paper proposes ΔE^SC_ITP, a novel spatial extension of the ΔEITP color difference metric optimized with chromatic contrast sensitivity functions, achieving state-of-the-art performance in predicting HDR and SDR image quality across comprehensive databases while addressing fundamental limitations of pixel-by-pixel color metrics through human visual system principles."
 one_line_summary_zh: "本文提出ΔE^SC_ITP，一種通過優化色度對比敏感函數的ΔEITP色差指標的新型空間擴展，在全面數據庫上實現HDR和SDR影像質量預測的最先進性能，同時透過人類視覺系統原理解決逐像素色差指標的根本限制。"
 date_added: 2026-02-14
