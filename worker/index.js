@@ -58,7 +58,34 @@ export default {
   },
 };
 
+// Simple in-memory rate limiter for uploads: max 5 per hour per IP
+const uploadRateMap = new Map();
+const UPLOAD_RATE_LIMIT = 5;
+const UPLOAD_RATE_WINDOW = 60 * 60 * 1000; // 1 hour
+
+function checkUploadRate(ip) {
+  const now = Date.now();
+  const entry = uploadRateMap.get(ip);
+  if (!entry) {
+    uploadRateMap.set(ip, { count: 1, resetAt: now + UPLOAD_RATE_WINDOW });
+    return true;
+  }
+  if (now > entry.resetAt) {
+    uploadRateMap.set(ip, { count: 1, resetAt: now + UPLOAD_RATE_WINDOW });
+    return true;
+  }
+  if (entry.count >= UPLOAD_RATE_LIMIT) return false;
+  entry.count++;
+  return true;
+}
+
 async function handleUpload(request, env) {
+  // Rate limit uploads
+  const clientIP = request.headers.get('cf-connecting-ip') || 'unknown';
+  if (!checkUploadRate(clientIP)) {
+    return jsonResponse(429, { error: 'Too many uploads. Please try again later.' });
+  }
+
   let formData;
   try {
     formData = await request.formData();
