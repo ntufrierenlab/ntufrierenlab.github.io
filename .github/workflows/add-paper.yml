@@ -1,0 +1,138 @@
+name: Add Paper to Knowledge Base
+
+on:
+  workflow_dispatch:
+    inputs:
+      arxiv_url:
+        description: 'Paper URL (arXiv or bioRxiv)'
+        required: false
+        default: ''
+        type: string
+      topic:
+        description: 'Topic category'
+        required: false
+        default: 'General'
+        type: string
+      doi:
+        description: 'DOI for conference papers'
+        required: false
+        default: ''
+        type: string
+      pdf_url:
+        description: 'Direct PDF URL for conference papers'
+        required: false
+        default: ''
+        type: string
+      source_type:
+        description: 'Source type: search or upload'
+        required: false
+        default: 'search'
+        type: string
+      paper_title:
+        description: 'Paper title (for uploads)'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  add-paper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq poppler-utils
+          npm install -g @anthropic-ai/claude-code
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Generate paper summary
+        run: |
+          chmod +x scripts/summarize.sh
+          bash scripts/summarize.sh "$ARXIV_URL" "$TOPIC" "$DOI" "$PDF_URL" "$SOURCE_TYPE" "$PAPER_TITLE" > /tmp/paper-summary.md
+          echo "--- Generated file preview ---"
+          head -20 /tmp/paper-summary.md
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ARXIV_URL: ${{ inputs.arxiv_url }}
+          TOPIC: ${{ inputs.topic }}
+          DOI: ${{ inputs.doi }}
+          PDF_URL: ${{ inputs.pdf_url }}
+          SOURCE_TYPE: ${{ inputs.source_type }}
+          PAPER_TITLE: ${{ inputs.paper_title }}
+
+      - name: Save paper summary
+        run: |
+          # Extract date and title from the generated file
+          DATE=$(grep '^date:' /tmp/paper-summary.md | head -1 | awk '{print $2}')
+          TITLE=$(grep '^title:' /tmp/paper-summary.md | head -1 | sed 's/^title: "//;s/"$//')
+          SAFE_TITLE=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | head -c 60)
+          FILENAME="${DATE}-${SAFE_TITLE}.md"
+
+          mkdir -p content/papers
+          cp /tmp/paper-summary.md "content/papers/${FILENAME}"
+          echo "Saved to content/papers/${FILENAME}"
+
+      - name: Validate generated summary
+        run: |
+          FILE=/tmp/paper-summary.md
+          SIZE=$(wc -c < "$FILE" | tr -d ' ')
+          echo "File size: ${SIZE} bytes"
+          if [ "$SIZE" -lt 5000 ]; then
+            echo "::error::Generated summary too small (${SIZE} bytes, expected >5000). Body content may be missing."
+            exit 1
+          fi
+          if ! grep -q '<div class="lang-en">' "$FILE"; then
+            echo "::error::Missing English content div (<div class=\"lang-en\">)"
+            exit 1
+          fi
+          if ! grep -q '<div class="lang-zh"' "$FILE"; then
+            echo "::error::Missing Chinese content div (<div class=\"lang-zh\">)"
+            exit 1
+          fi
+          if ! grep -q '## Key Contributions\|## 主要貢獻' "$FILE"; then
+            echo "::error::Missing expected summary sections"
+            exit 1
+          fi
+          EN_COUNT=$(grep -c '<div class="lang-en">' "$FILE" || true)
+          ZH_COUNT=$(grep -c '<div class="lang-zh"' "$FILE" || true)
+          if [ "$EN_COUNT" -gt 1 ] || [ "$ZH_COUNT" -gt 1 ]; then
+            echo "::warning::Multiple lang divs detected (en=$EN_COUNT, zh=$ZH_COUNT). Fixing..."
+            python3 -c "
+import re, sys
+text = open('$FILE').read()
+# Collapse multiple lang-en divs into one
+parts = re.split(r'</div>\s*<div class=\"lang-en\">\s*', text)
+text = parts[0] + ''.join(parts[1:])
+# Collapse multiple lang-zh divs into one
+parts = re.split(r'</div>\s*<div class=\"lang-zh\"[^>]*>\s*', text)
+text = parts[0] + ''.join(parts[1:])
+open('$FILE', 'w').write(text)
+print('Fixed: merged duplicate lang divs')
+"
+          fi
+          echo "Validation passed"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add content/papers/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            TITLE=$(grep '^title:' /tmp/paper-summary.md | head -1 | sed 's/^title: "//;s/"$//' | head -c 80)
+            git commit -m "Add paper: ${TITLE}"
+            for i in 1 2 3 4 5; do
+              git push && break
+              echo "Push failed (attempt $i), pulling and retrying..."
+              git pull --rebase
+              sleep 2
+            done
+          fi

@@ -1,0 +1,65 @@
+{
+  "date": "2026-02-20",
+  "papers": [
+    {
+      "title": "SpargeAttention2: Trainable Sparse Attention via Hybrid Top-k+Top-p Masking and Distillation Fine-Tuning",
+      "url": "https://huggingface.co/papers/2602.13515",
+      "arxiv_url": "https://arxiv.org/abs/2602.13515",
+      "summary": "A trainable sparse attention method called SpargeAttention2 is proposed that achieves high sparsity in diffusion models while maintaining generation quality through hybrid masking rules and distillation-inspired fine-tuning.",
+      "upvotes": 24,
+      "authors": [
+        "Jintao Zhang",
+        "Kai Jiang",
+        "Chendong Xiang"
+      ]
+    },
+    {
+      "title": "Unified Latents (UL): How to train your latents",
+      "url": "https://huggingface.co/papers/2602.17270",
+      "arxiv_url": "https://arxiv.org/abs/2602.17270",
+      "summary": "Unified Latents framework learns joint latent representations using diffusion prior regularization and diffusion model decoding, achieving competitive FID scores with reduced training compute.",
+      "upvotes": 21,
+      "authors": [
+        "Jonathan Heek",
+        "Emiel Hoogeboom",
+        "Thomas Mensink"
+      ]
+    },
+    {
+      "title": "Mobile-Agent-v3.5: Multi-platform Fundamental GUI Agents",
+      "url": "https://huggingface.co/papers/2602.16855",
+      "arxiv_url": "https://arxiv.org/abs/2602.16855",
+      "summary": "GUI-Owl-1.5 is a multi-platform GUI agent model with varying sizes that achieves superior performance across GUI automation, grounding, tool-calling, and memory tasks through innovative data pipelines, unified capability enhancement, and multi-platform reinforcement learning.",
+      "upvotes": 19,
+      "authors": [
+        "Haiyang Xu",
+        "Xi Zhang",
+        "Haowei Liu"
+      ]
+    },
+    {
+      "title": "\"What Are You Doing?\": Effects of Intermediate Feedback from Agentic LLM In-Car Assistants During Multi-Step Processing",
+      "url": "https://huggingface.co/papers/2602.15569",
+      "arxiv_url": "https://arxiv.org/abs/2602.15569",
+      "summary": "Users prefer adaptive feedback mechanisms in in-car AI assistants, starting with high transparency to build trust and then reducing verbosity as reliability increases, particularly in attention-critical driving scenarios.",
+      "upvotes": 12,
+      "authors": [
+        "Johannes Kirmayr",
+        "Raphael Wennmacher",
+        "Khanh Huynh"
+      ]
+    },
+    {
+      "title": "Calibrate-Then-Act: Cost-Aware Exploration in LLM Agents",
+      "url": "https://huggingface.co/papers/2602.16699",
+      "arxiv_url": "https://arxiv.org/abs/2602.16699",
+      "summary": "Large language models can be improved for complex tasks by explicitly reasoning about cost-uncertainty tradeoffs through a Calibrate-Then-Act framework that enhances decision-making in sequential environments.",
+      "upvotes": 11,
+      "authors": [
+        "Wenxuan Ding",
+        "Nicholas Tomlin",
+        "Greg Durrett"
+      ]
+    }
+  ]
+}
