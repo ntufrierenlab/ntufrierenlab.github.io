@@ -80,13 +80,17 @@
       }
 
       // Fallback: search Semantic Scholar for very recent papers
-      return searchFallback(query).then(function (arxivPapers) {
+      return searchFallback(query).then(function (result) {
         loadingDiv.style.display = 'none';
-        if (arxivPapers.length === 0) {
-          emptyDiv.style.display = 'block';
+        if (result.papers.length === 0) {
+          if (result._rateLimited) {
+            resultsDiv.innerHTML = '<p class="arxiv-error">Search service is temporarily busy. Please try again in a moment.</p>';
+          } else {
+            emptyDiv.style.display = 'block';
+          }
           return;
         }
-        currentPapers = arxivPapers;
+        currentPapers = result.papers;
         currentPage = 1;
         renderPage();
       });
@@ -121,8 +125,12 @@
       '&limit=20&fields=' + S2_FIELDS;
 
     return fetch(s2Url)
-      .then(function (r) { return r.ok ? r.json() : { data: [] }; })
+      .then(function (r) {
+        if (r.status === 429) return { _rateLimited: true, data: [] };
+        return r.ok ? r.json() : { data: [] };
+      })
       .then(function (json) {
+        if (json._rateLimited) return { _rateLimited: true, papers: [] };
         var results = json.data || [];
         var papers = [];
 
@@ -156,9 +164,9 @@
           });
         });
 
-        return papers;
+        return { _rateLimited: false, papers: papers };
       })
-      .catch(function () { return []; });
+      .catch(function () { return { _rateLimited: false, papers: [] }; });
   }
 
   // ── Paper info extraction ─────────────────────────────────────
