@@ -15,7 +15,7 @@ pdf_url: "https://arxiv.org/pdf/2602.17558"
 one_line_summary: "RetouchIQ introduces a generalist reward model for instruction-based image editing that dynamically generates case-specific evaluation metrics and uses policy-guided reward training to align reward supervision with policy-generated outputs, achieving superior semantic consistency and perceptual quality compared to MLLM agents and diffusion models."
 one_line_summary_zh: "RetouchIQ提出通用獎勵模型用於基於指令的圖像編輯，動態生成案例特定的評估指標，並使用策略引導的獎勵訓練將獎勵監督與策略生成的輸出對齐，在語義一致性和感知質量上超越MLLM代理和擴散模型。"
 date_added: 2026-02-21
-topics: ["General"]
+topics: ["Image Quality"]
 tags: []
 ---
 
