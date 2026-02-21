@@ -13,7 +13,7 @@ source: "arXiv"
 arxiv_url: "https://arxiv.org/abs/2602.17558"
 pdf_url: "https://arxiv.org/pdf/2602.17558"
 one_line_summary: "RetouchIQ introduces a generalist reward model for instruction-based image editing that dynamically generates case-specific evaluation metrics and uses policy-guided reward training to align reward supervision with policy-generated outputs, achieving superior semantic consistency and perceptual quality compared to MLLM agents and diffusion models."
-one_line_summary_zh: "RetouchIQ提出通用獎勵模型用於基於指令的圖像編輯，動態生成案例特定的評估指標，並使用策略引導的獎勵訓練將獎勵監督與策略生成的輸出對齐，在語義一致性和感知質量上超越MLLM代理和擴散模型。"
+one_line_summary_zh: "RetouchIQ提出通用獎勵模型用於基於指令的圖像編輯，動態生成案例特定的評估指標，並使用策略引導的獎勵訓練將獎勵監督與策略生成的輸出對齊，在語義一致性和感知質量上超越MLLM代理和擴散模型。"
 date_added: 2026-02-21
 topics: ["Image Quality"]
 tags: []
@@ -25,7 +25,7 @@ tags: []
 
 - **Generalist Reward Model for Subjective Image Editing**: The paper introduces a novel **generalist reward model (GRM)** that moves beyond conventional pixel-level, rule-based rewards to evaluate image retouching quality. Rather than comparing against a fixed reference image using handcrafted metrics like L1/L2 distance, the GRM is an RL-fine-tuned MLLM that dynamically generates case-specific evaluation metrics and assigns scalar rewards through multimodal reasoning. This directly addresses the fundamental challenge that multiple aesthetically valid edits can satisfy the same user instruction, making single reference-based metrics unreliable for subjective creative tasks.
 
-- **Policy-Guided Reward Training (PGRT) Paradigm**: The paper identifies and solves a critical distribution shift problem in reward model training. Initial perturbation-based weak edits (used to construct strong/weak pairs for reward training) differ systematically from actual weak edits produced by the policy model—they tend to involve simple single-parameter adjustments rather than complex combined edits. The proposed **PGRT** replaces perturbed synthetic weak edits with actual policy-generated ones during RL, using an alternating training scheme to align the reward model with the policy distribution. Figure 5 demonstrates that this achieves the highest accuracy on actual policy-generated data (reaching ~0.75 on the red line) compared to training only on perturbed data.
+- **Policy-Guided Reward Training (PGRT) Paradigm**: The paper identifies and solves a critical distribution shift problem in reward model training. Initial perturbation-based weak edits (used to construct strong/weak pairs for reward training) differ systematically from actual weak edits produced by the policy model—they tend to involve simple single-parameter adjustments rather than complex combined edits. The proposed **PGRT** replaces perturbed synthetic weak edits with actual policy-generated ones during RL, using an alternating training scheme to align the reward model with the policy distribution. Figure 5 demonstrates that this achieves the highest accuracy on actual policy-generated data (reaching ≈0.75 on the red line) compared to training only on perturbed data.
 
 - **RetouchIQ Framework with Professional Tool Integration**: The paper presents a complete **instruction-based executable image editing agent** that interprets natural language user instructions and generates both interpretable reasoning traces and precise parameter adjustments for professional editing software (Adobe Lightroom). The two-stage training approach (SFT + RL) enables the model to first learn gold reasoning processes and parameter configurations from demonstrations, then refine them through reinforcement learning guided by the generalist reward model. This bridges high-level aesthetic goals with precise, executable parameter control.
 
@@ -37,7 +37,7 @@ tags: []
 
 - **Subjectivity Requires Adaptive Evaluation**: The paper provides compelling intuition that subjective image editing cannot be effectively evaluated by fixed, rule-based metrics tied to a single ground truth reference. Figure 3 elegantly illustrates how a single instruction like "make it feel like a fall scene with autumn vibes" can be satisfied by multiple distinct edits emphasizing different aesthetic dimensions (tone, warmth, color balance). The generalist reward model's ability to generate instruction-specific metrics (e.g., "autumn color vibe" vs "white balance") on a case-by-case basis fundamentally aligns reward design with the inherent subjectivity of creative tasks—an insight that extends beyond image editing to other subjective domains.
 
-- **Distribution Alignment Matters More Than Perturbation Strategy**: A key finding is that the strategy for constructing weak edits for reward training substantially impacts downstream performance. Figure 5 shows that a reward model trained only on perturbed weak edits achieves ~0.65-0.68 accuracy when evaluating actual policy-generated edits, but when trained with PGRT (using policy-generated weak edits), accuracy jumps to ~0.75. Correspondingly, the policy model's overall score improves from 6.89 to 7.51 on RetouchEval. This reveals that distribution alignment between the reward model's training data and actual deployment distribution is critical—a lesson applicable to broader RL-for-agents systems where naive synthetic negative examples may not reflect real failure modes.
+- **Distribution Alignment Matters More Than Perturbation Strategy**: A key finding is that the strategy for constructing weak edits for reward training substantially impacts downstream performance. Figure 5 shows that a reward model trained only on perturbed weak edits achieves ≈0.65-0.68 accuracy when evaluating actual policy-generated edits, but when trained with PGRT (using policy-generated weak edits), accuracy jumps to ≈0.75. Correspondingly, the policy model's overall score improves from 6.89 to 7.51 on RetouchEval. This reveals that distribution alignment between the reward model's training data and actual deployment distribution is critical—a lesson applicable to broader RL-for-agents systems where naive synthetic negative examples may not reflect real failure modes.
 
 - **Reasoning Transparency Improves Both Performance and Explainability**: The two-output design of both the policy model (reasoning + parameters) and reward model (metrics + scores) enables the framework to be inherently interpretable. During SFT, the model learns to explicitly reason about aesthetic goals before selecting parameters, which likely improves parameter coherence and instruction alignment. During RL, the reward model's generated metrics provide interpretable feedback, allowing the policy to learn not just "this edit is better" but "this edit better achieves [specific aesthetic criterion]." This design choice provides both a performance benefit (reflected in superior SC and PQ scores) and transparency that diffusion-based black-box methods cannot offer.
 
@@ -64,11 +64,11 @@ tags: []
 
 - **Comprehensive Superiority Across Metrics and Task Categories**: RetouchIQ-GRM achieves the best performance on the majority of metrics across all three RetouchEval task categories. Most notably, on the quality improving task, it achieves L1=31.41 (8.7% better than JarvisArt's 32.17), SC=7.57 (4.8% improvement), and PQ=7.48 (13.5% improvement over Flux-Pro's 6.59). On MIT-Adobe5K, the LPIPS score of 0.16 is substantially better than all MLLM baselines, indicating superior perceptual quality.
 
-- **Ablation Validates RL and Generalist Reward Importance**: The progression from RetouchIQ-SFT (L1=35.03, SC=6.71 on quality improvement) to RetouchIQ-GRM (L1=31.41, SC=7.57) demonstrates a consistent 10-12% improvement, confirming that RL with the generalist reward model substantially enhances both pixel-level and semantic quality. Figure 5's ablation comparing off-the-shelf MLLM, perturbed-data-trained reward model, and PGRT-trained reward model shows that PGRT achieves the highest accuracy on actual policy-generated data (~0.75 vs ~0.65 for perturbed-only) and correspondingly the highest policy model score (7.51 vs 6.89).
+- **Ablation Validates RL and Generalist Reward Importance**: The progression from RetouchIQ-SFT (L1=35.03, SC=6.71 on quality improvement) to RetouchIQ-GRM (L1=31.41, SC=7.57) demonstrates a consistent 10-12% improvement, confirming that RL with the generalist reward model substantially enhances both pixel-level and semantic quality. Figure 5's ablation comparing off-the-shelf MLLM, perturbed-data-trained reward model, and PGRT-trained reward model shows that PGRT achieves the highest accuracy on actual policy-generated data (≈0.75 vs ≈0.65 for perturbed-only) and correspondingly the highest policy model score (7.51 vs 6.89).
 
 - **Diffusion and General MLLMs Struggle with Specificity**: Flux-Pro exhibits poor performance across multiple metrics (L1=64.97 on quality improvement, LPIPS=0.72 on MIT-Adobe5K), reflecting qualitative failures where image structure and identity are distorted. General-purpose MLLMs (GPT-5, Gemini-2.5) show better results than Flux-Pro but significantly underperform RetouchIQ, suggesting they lack the specialized reasoning and tool integration necessary for precise, instruction-aligned editing. JarvisArt, the strongest MLLM agent baseline, still trails RetouchIQ notably on several metrics.
 
-- **Distribution Shift Solution (PGRT) Yields Measurable Gains**: Figure 5 quantifies that PGRT improves reward model accuracy on policy-generated data from ~0.65-0.68 (perturbed-only baseline) to ~0.75, a substantial improvement. This translates to policy model improvements: with an off-the-shelf reward model, the policy achieves 6.89; with perturbed-data-trained reward, 7.36; with PGRT, 7.51. The analysis reveals that distribution alignment directly improves downstream policy performance, validating the core technical contribution.
+- **Distribution Shift Solution (PGRT) Yields Measurable Gains**: Figure 5 quantifies that PGRT improves reward model accuracy on policy-generated data from ≈0.65-0.68 (perturbed-only baseline) to ≈0.75, a substantial improvement. This translates to policy model improvements: with an off-the-shelf reward model, the policy achieves 6.89; with perturbed-data-trained reward, 7.36; with PGRT, 7.51. The analysis reveals that distribution alignment directly improves downstream policy performance, validating the core technical contribution.
 
 - **Generalization to Standard Benchmarks**: Performance on MIT-Adobe5K (a public benchmark without explicit instructions) demonstrates that RetouchIQ generalizes beyond its curated instruction-based dataset, achieving competitive PSNR (23.14, vs JarvisArt's best results) and particularly strong LPIPS (0.16, substantially better than comparable methods). This suggests the learned aesthetic reasoning and parameter control transfer to general image enhancement tasks.
 
@@ -126,25 +126,25 @@ tags: []
 
 - **通用獎勵模型應對主觀圖像編輯任務**：本文介紹了一個新穎的**通用獎勵模型（GRM）**，超越了傳統的像素級、基於規則的獎勵設計。與計算與固定參考圖像相似度的手工特徵化指標（如L1/L2距離）不同，該GRM是通過強化學習微調的MLLM，能夠動態生成針對具體情況的評估指標，並通過多模態推理提供標量獎勵。這直接解決了一個根本的挑戰：多個美學上有效的編輯可以滿足相同的用戶指令，使得單一參考圖像的像素級指標在主觀創意任務中不可靠。
 
-- **策略引導的獎勵訓練（PGRT）範式**：本文識別並解決了獎勵模型訓練中的關鍵分佈偏移問題。初始的基於擾動的弱編輯（用於構造強/弱編輯對以進行獎勵訓練）與策略模型實際產生的弱編輯在分佈上存在系統性差異——它們傾向於涉及簡單的單參數調整，而非複雜的聯合編輯。提出的**PGRT**在強化學習階段用實際策略生成的弱編輯取代擾動生成的合成弱編輯，使用交替訓練方案使獎勵模型與策略分佈對齐。圖5表明這在實際策略生成的數據上達到最高精度（紅線達到約0.75），相比僅在擾動數據上訓練有顯著提升。
+- **策略引導的獎勵訓練（PGRT）範式**：本文識別並解決了獎勵模型訓練中的關鍵分佈偏移問題。初始的基於擾動的弱編輯（用於構造強/弱編輯對以進行獎勵訓練）與策略模型實際產生的弱編輯在分佈上存在系統性差異——它們傾向於涉及簡單的單參數調整，而非複雜的聯合編輯。提出的**PGRT**在強化學習階段用實際策略生成的弱編輯取代擾動生成的合成弱編輯，使用交替訓練方案使獎勵模型與策略分佈對齊。圖5表明這在實際策略生成的數據上達到最高精度（紅線達到約0.75），相比僅在擾動數據上訓練有顯著提升。
 
 - **RetouchIQ框架與專業工具整合**：本文提出了一個完整的**基於指令的可執行圖像編輯智能體**，能夠解釋自然語言用戶指令並生成可解釋的推理軌跡和精確的參數調整以控制專業編輯軟體（Adobe Lightroom）。兩階段訓練方法（SFT + RL）使模型首先從演示中學習金標準推理過程和參數配置，然後通過由通用獎勵模型引導的強化學習進行精煉。這橋接了高層次的美學目標與精確、可執行的參數控制。
 
 - **具有質量篩選的大規模策劃數據集**：本工作貢獻了一個包含**190K條指令-推理對的實質性數據集**，這些數據來自真實的用戶編輯軌跡，並輔以使用MLLM註釋者自動標註的用戶意圖和推理過程。數據準備管道應用系統的篩選以確保質量和一致性。此外，本文引入了**RetouchEval**，這是第一個針對基於指令的圖像編輯的專用基準，包含300個策劃的對，涵蓋三個類別：質量增強、風格轉換和局部修飾，建立了這一任務的新評估標準。
 
-- **全面評估展示優越性能**：實驗全面展示了RetouchIQ在多個評估協議上的優越性。在RetouchEval上，RetouchIQ-GRM在所有三個任務類別上的語義一致性（SC）和感知質量（PQ）指標上達到最佳或接近最佳結果（質量改進：SC=7.57，PQ=7.48；風格轉換：SC=7.29，PQ=7.34；局部修飾：SC=6.39，PQ=6.92）。在MIT-Adobe5K基準上，它達到PSNR=23.14、LPIPS=0.16和SSIM=0.80，超過了包括JarvisArt和GPT-5、Gemini-2.5等通用MLLM的強基線。圖6中的質量結果顯示一致的語義對齐和專業級輸出。
+- **全面評估展示優越性能**：實驗全面展示了RetouchIQ在多個評估協議上的優越性。在RetouchEval上，RetouchIQ-GRM在所有三個任務類別上的語義一致性（SC）和感知質量（PQ）指標上達到最佳或接近最佳結果（質量改進：SC=7.57，PQ=7.48；風格轉換：SC=7.29，PQ=7.34；局部修飾：SC=6.39，PQ=6.92）。在MIT-Adobe5K基準上，它達到PSNR=23.14、LPIPS=0.16和SSIM=0.80，超過了包括JarvisArt和GPT-5、Gemini-2.5等通用MLLM的強基線。圖6中的質量結果顯示一致的語義對齊和專業級輸出。
 
 ## 核心洞見
 
-- **主觀性需要自適應評估**：本文提供了令人信服的直覺，即主觀圖像編輯不能通過固定的、與單一地面真實參考相關的基於規則的指標有效地評估。圖3優雅地說明了單個指令（如「讓它感覺像秋天場景，具有秋日氛圍」）如何可以通過多個不同的編輯滿足，每個都強調不同的美學維度（色調、溫暖度、色彩平衡）。通用獎勵模型在逐個案例基礎上生成指令特定指標（如「秋色氛圍」vs「白平衡」）的能力從根本上使獎勵設計與創意任務的固有主觀性對齐——這一洞見超越圖像編輯，擴展到其他主觀領域。
+- **主觀性需要自適應評估**：本文提供了令人信服的直覺，即主觀圖像編輯不能通過固定的、與單一地面真實參考相關的基於規則的指標有效地評估。圖3優雅地說明了單個指令（如「讓它感覺像秋天場景，具有秋日氛圍」）如何可以通過多個不同的編輯滿足，每個都強調不同的美學維度（色調、溫暖度、色彩平衡）。通用獎勵模型在逐個案例基礎上生成指令特定指標（如「秋色氛圍」vs「白平衡」）的能力從根本上使獎勵設計與創意任務的固有主觀性對齊——這一洞見超越圖像編輯，擴展到其他主觀領域。
 
-- **分佈對齐比擾動策略更重要**：一個關鍵發現是用於獎勵訓練的弱編輯構造策略對下游性能有實質影響。圖5表明，僅在擾動弱編輯上訓練的獎勵模型在評估實際策略生成的編輯時達到約0.65-0.68的精度，但使用PGRT訓練時（使用策略生成的弱編輯），精度跳升到約0.75。相應地，策略模型在RetouchEval上的總體得分從6.89提高到7.51。這揭示了獎勵模型訓練數據與實際部署分佈之間的分佈對齐對於關鍵重要性——這一教訓適用於更廣泛的代理強化學習系統，其中天真的合成反例可能無法反映真實故障模式。
+- **分佈對齊比擾動策略更重要**：一個關鍵發現是用於獎勵訓練的弱編輯構造策略對下游性能有實質影響。圖5表明，僅在擾動弱編輯上訓練的獎勵模型在評估實際策略生成的編輯時達到約0.65-0.68的精度，但使用PGRT訓練時（使用策略生成的弱編輯），精度跳升到約0.75。相應地，策略模型在RetouchEval上的總體得分從6.89提高到7.51。這揭示了獎勵模型訓練數據與實際部署分佈之間的分佈對齊對於關鍵重要性——這一教訓適用於更廣泛的代理強化學習系統，其中天真的合成反例可能無法反映真實故障模式。
 
-- **推理透明性同時改善性能和可解釋性**：策略模型（推理+參數）和獎勵模型（指標+得分）的雙輸出設計使框架本質上可解釋。在SFT期間，模型學習在選擇參數前明確推理美學目標，這可能改善參數的連貫性和指令對齐。在RL期間，獎勵模型生成的指標提供可解釋的反饋，允許策略不僅學習「這個編輯更好」，而是「這個編輯更好地實現了[具體美學標準]」。這一設計選擇既提供了性能優勢（反映在優越的SC和PQ分數中），也提供了擴散型黑箱方法無法提供的透明性。
+- **推理透明性同時改善性能和可解釋性**：策略模型（推理+參數）和獎勵模型（指標+得分）的雙輸出設計使框架本質上可解釋。在SFT期間，模型學習在選擇參數前明確推理美學目標，這可能改善參數的連貫性和指令對齊。在RL期間，獎勵模型生成的指標提供可解釋的反饋，允許策略不僅學習「這個編輯更好」，而是「這個編輯更好地實現了[具體美學標準]」。這一設計選擇既提供了性能優勢（反映在優越的SC和PQ分數中），也提供了擴散型黑箱方法無法提供的透明性。
 
 - **專業工具整合實現精確控制**：與擴散模型（如表1中的Flux-Pro）相比，後者經常無意中改變圖像內容和結構，RetouchIQ對專業編輯工具參數的依賴確保了像素完美的語義保持，同時允許美學控制。質量結果一貫地顯示RetouchIQ保持對象身份和環境結構，同時實現預期的風格轉換，而Flux-Pro表現出明顯的扭曲。這表明儘管代理型工具使用比生成模型更受限制，但它提供了優越的語義一致性（RetouchIQ SC：7.57 vs Flux-Pro SC：6.12在質量改進任務上）。
 
-- **RL監督的擴展收益**：從RetouchIQ-SFT（僅在演示上微調的MLLM，L1=35.03，SC=6.71）到RetouchIQ-GRM（具有RL和通用獎勵，L1=31.41，SC=7.57）在質量改進任務上的改進表明，具有高質量獎勵信號的RL系統改善了像素級保真度（L1距離下降10.4%）和語義對齐（SC增加12.8%）。這驗證了即使擁有大型演示數據集（190K對），具有精心設計獎勵模型的RL精煉也提供實質性收益，表明框架在數據和計算進一步擴展中將受益。
+- **RL監督的擴展收益**：從RetouchIQ-SFT（僅在演示上微調的MLLM，L1=35.03，SC=6.71）到RetouchIQ-GRM（具有RL和通用獎勵，L1=31.41，SC=7.57）在質量改進任務上的改進表明，具有高質量獎勵信號的RL系統改善了像素級保真度（L1距離下降10.4%）和語義對齊（SC增加12.8%）。這驗證了即使擁有大型演示數據集（190K對），具有精心設計獎勵模型的RL精煉也提供實質性收益，表明框架在數據和計算進一步擴展中將受益。
 
 ## 關鍵數據與結果
 
@@ -165,11 +165,11 @@ tags: []
 
 - **跨指標和任務類別的全面優越性**：RetouchIQ-GRM在所有三個RetouchEval任務類別的大多數指標上達到最佳性能。最值得注意的是，在質量改進任務上，它達到L1=31.41（比JarvisArt的32.17好8.7%），SC=7.57（改進4.8%），PQ=7.48（比Flux-Pro的6.59改進13.5%）。在MIT-Adobe5K上，LPIPS分數0.16實質性好於所有MLLM基線，表明優越的感知質量。
 
-- **消融驗證RL和通用獎勵的重要性**：從RetouchIQ-SFT（質量改進上L1=35.03，SC=6.71）到RetouchIQ-GRM（L1=31.41，SC=7.57）的進展表明持續10-12%的改進，確認了具有通用獎勵模型的RL實質性增強了像素級和語義質量。圖5的消融比較了現成的MLLM、擾動數據訓練的獎勵模型和PGRT訓練的獎勵模型，顯示PGRT在實際策略生成數據上達到最高精度（~0.75 vs ~0.65用於擾動）和相應最高策略模型得分（7.51 vs 6.89）。
+- **消融驗證RL和通用獎勵的重要性**：從RetouchIQ-SFT（質量改進上L1=35.03，SC=6.71）到RetouchIQ-GRM（L1=31.41，SC=7.57）的進展表明持續10-12%的改進，確認了具有通用獎勵模型的RL實質性增強了像素級和語義質量。圖5的消融比較了現成的MLLM、擾動數據訓練的獎勵模型和PGRT訓練的獎勵模型，顯示PGRT在實際策略生成數據上達到最高精度（≈0.75 vs ≈0.65用於擾動）和相應最高策略模型得分（7.51 vs 6.89）。
 
-- **擴散和通用MLLM在特異性方面困難**：Flux-Pro在多個指標上表現不佳（質量改進L1=64.97，MIT-Adobe5K上LPIPS=0.72），反映了圖像結構和身份扭曲的質量失敗。通用MLLM（GPT-5、Gemini-2.5）顯示比Flux-Pro更好的結果但明顯不如RetouchIQ，表明它們缺乏精確、指令對齐編輯所需的專門推理和工具整合。最強MLLM代理基線JarvisArt在幾個指標上仍明顯落後於RetouchIQ。
+- **擴散和通用MLLM在特異性方面困難**：Flux-Pro在多個指標上表現不佳（質量改進L1=64.97，MIT-Adobe5K上LPIPS=0.72），反映了圖像結構和身份扭曲的質量失敗。通用MLLM（GPT-5、Gemini-2.5）顯示比Flux-Pro更好的結果但明顯不如RetouchIQ，表明它們缺乏精確、指令對齊編輯所需的專門推理和工具整合。最強MLLM代理基線JarvisArt在幾個指標上仍明顯落後於RetouchIQ。
 
-- **分佈偏移解決方案（PGRT）產生可測量收益**：圖5量化了PGRT將獎勵模型在策略生成數據上的精度從~0.65-0.68（擾動只有基線）改進到~0.75，實質性改進。這轉化為策略模型改進：使用現成獎勵模型，策略達到6.89；用擾動數據訓練的獎勵，7.36；用PGRT，7.51。分析表明分佈對齐直接改善下游策略性能，驗證了核心技術貢獻。
+- **分佈偏移解決方案（PGRT）產生可測量收益**：圖5量化了PGRT將獎勵模型在策略生成數據上的精度從≈0.65-0.68（擾動只有基線）改進到≈0.75，實質性改進。這轉化為策略模型改進：使用現成獎勵模型，策略達到6.89；用擾動數據訓練的獎勵，7.36；用PGRT，7.51。分析表明分佈對齊直接改善下游策略性能，驗證了核心技術貢獻。
 
 - **推廣到標準基準**：MIT-Adobe5K上的性能（沒有明確指令的公共基準）表明RetouchIQ推廣超過其策劃指令數據集，達到有競爭力的PSNR（23.14，vs JarvisArt最佳結果）和特別強LPIPS（0.16，實質性好於可比方法）。這表明學習的美學推理和參數控制轉移到一般圖像增強任務。
 
@@ -183,7 +183,7 @@ tags: []
 
 - **高質量數據集和可重複性**：190K指令-推理對的策劃來自真實用戶編輯軌跡（非合成預設）以及10K+獎勵模型樣本代表實質性工作。本文描述了訓練管道、模型架構（Qwen2.5-VL-7B、GLM-4.5V）和超參數。評估指標和實現細節明確指定，支持可重複性。RetouchEval基準的發布將顯著利益社區。
 
-- **清晰的呈現和可解釋性**：論文寫作良好，視覺化有效。圖2清楚地說明了包含數據準備、SFT和RL階段的整體管道。圖3令人信服地展示了主觀任務中可驗證獎勵的問題。圖4簡潔地顯示了通用獎勵模型和PGRT機制。選擇生成可解釋的指標和推理軌跡（而非黑箱獎勵）與關於AI系統可解釋性的新興社區價值對齐。
+- **清晰的呈現和可解釋性**：論文寫作良好，視覺化有效。圖2清楚地說明了包含數據準備、SFT和RL階段的整體管道。圖3令人信服地展示了主觀任務中可驗證獎勵的問題。圖4簡潔地顯示了通用獎勵模型和PGRT機制。選擇生成可解釋的指標和推理軌跡（而非黑箱獎勵）與關於AI系統可解釋性的新興社區價值對齊。
 
 - **專業工具整合實現實際部署**：與從頭生成圖像的擴散模型不同，RetouchIQ與專業編輯軟體（Adobe Lightroom）的整合確保與現有專業工作流的兼容性，使其實際可部署。生成可執行參數（如{exposure=+0.9; contrast=-30}）比生成方法更透明和可控，對專業攝影師有價值。
 
@@ -201,7 +201,7 @@ tags: []
 
 - **數據篩選過程缺乏透明度**：本文提到「系統篩選程序」以移除意圖不清晰或不一致的圖像對，但提供最少詳細。多少對被篩選出？篩選標準是什麼？在註釋任務上達到什麼內部標註者協議？未獲詳細的數據質量控制，數據集策劃的可重複性受損。此外，篩選程序本身可能引入偏見——如果它優先移除困難案例，結果數據集可能不完全代表。
 
-- **對PGRT解決方案替代品的探索有限**：儘管PGRT有效解決分佈偏移問題，本文未比較替代解決方案如：（1）使用課程學習在獎勵訓練期間逐漸增加編輯複雜性；（2）重要性加權調整分佈不匹配；（3）元學習方法適應獎勵模型到策略分佈。更全面的分佈對齐策略比較將加強貢獻在RL一般原理中的定位。
+- **對PGRT解決方案替代品的探索有限**：儘管PGRT有效解決分佈偏移問題，本文未比較替代解決方案如：（1）使用課程學習在獎勵訓練期間逐漸增加編輯複雜性；（2）重要性加權調整分佈不匹配；（3）元學習方法適應獎勵模型到策略分佈。更全面的分佈對齊策略比較將加強貢獻在RL一般原理中的定位。
 
 ## 研究方向
 

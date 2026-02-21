@@ -558,7 +558,8 @@ Imagine you are a PhD student or postdoc wanting to build on this paper to produ
 Important:
 - Use **bold** for key terms and method names
 - Keep paper titles, method names, dataset names, and technical terms in English even in the Chinese version
-- Use Traditional Chinese (繁體中文), not Simplified Chinese
+- Use Traditional Chinese (繁體中文), not Simplified Chinese. Common mistakes to avoid: 齐→齊, 与→與, 关→關, 进→進, 来→來, 学→學, 为→為, 过→過, 时→時, 实→實, 发→發, 动→動, 长→長, 问→問, 头→頭, 达→達, 区→區
+- Do NOT use the tilde character (~) for approximation — use ≈ instead (e.g. ≈0.75, not ~0.75)
 - Be specific with numbers, data, and citations from the paper — do NOT fabricate results
 - Each section should be thorough and substantive, not superficial
 - CRITICAL: At the very end, output two one-line summaries on their own lines with NO markdown formatting (no bold, no quotes, no backticks):
