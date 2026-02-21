@@ -1,6 +1,6 @@
 name: Add Paper to Knowledge Base
-# Triggers: manual dispatch only
-on:
+
+"on":
   workflow_dispatch:
     inputs:
       arxiv_url:
@@ -69,12 +69,10 @@ jobs:
 
       - name: Save paper summary
         run: |
-          # Extract date and title from the generated file
           DATE=$(grep '^date:' /tmp/paper-summary.md | head -1 | awk '{print $2}')
           TITLE=$(grep '^title:' /tmp/paper-summary.md | head -1 | sed 's/^title: "//;s/"$//')
           SAFE_TITLE=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | head -c 60)
           FILENAME="${DATE}-${SAFE_TITLE}.md"
-
           mkdir -p content/papers
           cp /tmp/paper-summary.md "content/papers/${FILENAME}"
           echo "Saved to content/papers/${FILENAME}"
@@ -89,14 +87,14 @@ jobs:
             exit 1
           fi
           if ! grep -q '<div class="lang-en">' "$FILE"; then
-            echo "::error::Missing English content div (<div class=\"lang-en\">)"
+            echo "::error::Missing English content div"
             exit 1
           fi
           if ! grep -q '<div class="lang-zh"' "$FILE"; then
-            echo "::error::Missing Chinese content div (<div class=\"lang-zh\">)"
+            echo "::error::Missing Chinese content div"
             exit 1
           fi
-          if ! grep -q '## Key Contributions\|## 主要貢獻' "$FILE"; then
+          if ! grep -q '## Key Contributions' "$FILE" && ! grep -q '## 主要貢獻' "$FILE"; then
             echo "::error::Missing expected summary sections"
             exit 1
           fi
@@ -104,18 +102,7 @@ jobs:
           ZH_COUNT=$(grep -c '<div class="lang-zh"' "$FILE" || true)
           if [ "$EN_COUNT" -gt 1 ] || [ "$ZH_COUNT" -gt 1 ]; then
             echo "::warning::Multiple lang divs detected (en=$EN_COUNT, zh=$ZH_COUNT). Fixing..."
-            python3 -c "
-import re, sys
-text = open('$FILE').read()
-# Collapse multiple lang-en divs into one
-parts = re.split(r'</div>\s*<div class=\"lang-en\">\s*', text)
-text = parts[0] + ''.join(parts[1:])
-# Collapse multiple lang-zh divs into one
-parts = re.split(r'</div>\s*<div class=\"lang-zh\"[^>]*>\s*', text)
-text = parts[0] + ''.join(parts[1:])
-open('$FILE', 'w').write(text)
-print('Fixed: merged duplicate lang divs')
-"
+            python3 scripts/fix-lang-divs.py "$FILE"
           fi
           echo "Validation passed"
 
