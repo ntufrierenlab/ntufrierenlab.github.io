@@ -55,45 +55,51 @@
       '&per_page=100' +
       '&mailto=ntufrierenlab@gmail.com';
 
-    fetch(url)
-    .then(function (r) { return r.ok ? r.json() : { results: [] }; })
-    .then(function (data) {
-      var results = data.results || [];
+    // Search both APIs in parallel and merge results
+    var oaPromise = fetch(url)
+      .then(function (r) { return r.ok ? r.json() : { results: [] }; })
+      .catch(function () { return { results: [] }; });
 
-      // Keep only papers where extractPaperInfo returns non-null
-      // Preserve OpenAlex relevance order
+    var s2Promise = searchFallback(query);
+
+    Promise.all([oaPromise, s2Promise])
+    .then(function (responses) {
+      loadingDiv.style.display = 'none';
+      var oaData = responses[0];
+      var s2Result = responses[1];
+
+      // Process OpenAlex results
       var seen = {};
       var merged = [];
-      results.forEach(function (w) {
+      (oaData.results || []).forEach(function (w) {
         if (!seen[w.id] && extractPaperInfo(w)) {
           seen[w.id] = true;
           merged.push(w);
+          // Track arXiv IDs to deduplicate against S2
+          var info = extractPaperInfo(w);
+          if (info && info.id) seen['arxiv:' + info.id] = true;
         }
       });
 
-      if (merged.length > 0) {
-        loadingDiv.style.display = 'none';
-        currentPapers = merged;
-        currentPage = 1;
-        renderPage();
+      // Append Semantic Scholar results not already in OpenAlex
+      s2Result.papers.forEach(function (p) {
+        if (!seen[p.id]) {
+          seen[p.id] = true;
+          merged.push(p);
+        }
+      });
+
+      if (merged.length === 0) {
+        if (s2Result._rateLimited) {
+          resultsDiv.innerHTML = '<p class="arxiv-error">Search service is temporarily busy. Please try again in a moment.</p>';
+        } else {
+          emptyDiv.style.display = 'block';
+        }
         return;
       }
-
-      // Fallback: search Semantic Scholar for very recent papers
-      return searchFallback(query).then(function (result) {
-        loadingDiv.style.display = 'none';
-        if (result.papers.length === 0) {
-          if (result._rateLimited) {
-            resultsDiv.innerHTML = '<p class="arxiv-error">Search service is temporarily busy. Please try again in a moment.</p>';
-          } else {
-            emptyDiv.style.display = 'block';
-          }
-          return;
-        }
-        currentPapers = result.papers;
-        currentPage = 1;
-        renderPage();
-      });
+      currentPapers = merged;
+      currentPage = 1;
+      renderPage();
     })
     .catch(function (err) {
       loadingDiv.style.display = 'none';
