@@ -28,11 +28,6 @@ export default {
       return jsonResponse(400, { error: 'Invalid JSON' });
     }
 
-    // Public actions (no password required)
-    if (body.action === 'search-arxiv') {
-      return handleSearchArxiv(body);
-    }
-
     // Validate password
     if (!body.password || body.password !== env.AUTH_PASSWORD) {
       return jsonResponse(401, { error: 'Invalid password' });
@@ -428,42 +423,6 @@ async function handleUpdateTopics(body, env) {
   return jsonResponse(ghResponse.status, {
     error: 'GitHub API error',
     detail: ghData,
-  });
-}
-
-async function handleSearchArxiv(body) {
-  const { query } = body;
-  if (!query || query.length < 2) {
-    return jsonResponse(400, { error: 'Missing or too short query' });
-  }
-
-  const arxivUrl = 'https://export.arxiv.org/api/query' +
-    '?search_query=ti:' + encodeURIComponent(query) +
-    '&max_results=20&sortBy=submittedDate&sortOrder=descending';
-
-  // Retry once on 429 (arXiv rate limit is 3s between requests)
-  let res = await fetch(arxivUrl, {
-    headers: { 'User-Agent': 'FrierenLab-Worker' },
-  });
-
-  if (res.status === 429) {
-    await new Promise(r => setTimeout(r, 4000));
-    res = await fetch(arxivUrl, {
-      headers: { 'User-Agent': 'FrierenLab-Worker' },
-    });
-  }
-
-  if (!res.ok) {
-    return jsonResponse(res.status, { error: 'arXiv API error' });
-  }
-
-  const xml = await res.text();
-  return new Response(xml, {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/xml',
-      ...corsHeaders(),
-    },
   });
 }
 

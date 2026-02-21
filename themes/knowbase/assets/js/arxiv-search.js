@@ -79,8 +79,8 @@
         return;
       }
 
-      // Fallback: search arXiv API for very recent papers
-      return searchArxiv(query).then(function (arxivPapers) {
+      // Fallback: search Semantic Scholar for very recent papers
+      return searchFallback(query).then(function (arxivPapers) {
         loadingDiv.style.display = 'none';
         if (arxivPapers.length === 0) {
           emptyDiv.style.display = 'block';
@@ -111,54 +111,41 @@
     return text;
   }
 
-  // ── arXiv API fallback (for very recent papers not yet in OpenAlex) ──
-  // Proxied through Cloudflare Worker to avoid CORS issues with arXiv API
-  function searchArxiv(query) {
-    var password = sessionStorage.getItem('kb-session-pwd') || '';
-    return fetch(WORKER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: password, action: 'search-arxiv', query: query })
-    })
-      .then(function (r) { return r.ok ? r.text() : ''; })
-      .then(function (xml) {
-        if (!xml) return [];
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(xml, 'application/xml');
-        var entries = doc.querySelectorAll('entry');
+  // ── Semantic Scholar fallback (for very recent papers not yet in OpenAlex) ──
+  var S2_API = 'https://api.semanticscholar.org/graph/v1/paper/search';
+  var S2_FIELDS = 'title,authors,abstract,externalIds,publicationDate,url,citationCount';
+
+  function searchFallback(query) {
+    var s2Url = S2_API +
+      '?query=' + encodeURIComponent(query) +
+      '&limit=20&fields=' + S2_FIELDS;
+
+    return fetch(s2Url)
+      .then(function (r) { return r.ok ? r.json() : { data: [] }; })
+      .then(function (json) {
+        var results = json.data || [];
         var papers = [];
 
-        entries.forEach(function (entry) {
-          var title = (entry.querySelector('title') || {}).textContent || '';
-          title = title.replace(/\s+/g, ' ').trim();
+        results.forEach(function (paper) {
+          var ids = paper.externalIds || {};
+          var arxivId = ids.ArXiv || '';
+          if (!arxivId) return; // only show papers with arXiv versions
 
-          var idUrl = (entry.querySelector('id') || {}).textContent || '';
-          var idMatch = idUrl.match(/abs\/([0-9]+\.[0-9]+)/);
-          if (!idMatch) return;
-          var arxivId = idMatch[1];
+          var abstract = (paper.abstract || '');
+          if (abstract.length > 280) abstract = abstract.substring(0, 280) + '...';
 
-          var published = (entry.querySelector('published') || {}).textContent || '';
-          var pubDate = published.substring(0, 10); // YYYY-MM-DD
+          var authors = (paper.authors || []).map(function (a) {
+            return { author: { display_name: a.name } };
+          });
 
-          var summary = (entry.querySelector('summary') || {}).textContent || '';
-          summary = summary.replace(/\s+/g, ' ').trim();
-          if (summary.length > 280) summary = summary.substring(0, 280) + '...';
-
-          var authorEls = entry.querySelectorAll('author > name');
-          var authors = [];
-          authorEls.forEach(function (a) { authors.push(a.textContent); });
-
-          // Build a synthetic OpenAlex-like work object for renderPage
           papers.push({
             id: 'arxiv:' + arxivId,
-            title: title,
-            publication_date: pubDate,
-            cited_by_count: 0,
+            title: paper.title || 'Untitled',
+            publication_date: paper.publicationDate || '',
+            cited_by_count: paper.citationCount || 0,
             abstract_inverted_index: null,
-            _arxiv_abstract: summary,
-            authorships: authors.map(function (name) {
-              return { author: { display_name: name } };
-            }),
+            _arxiv_abstract: abstract,
+            authorships: authors,
             primary_location: {
               landing_page_url: 'https://arxiv.org/abs/' + arxivId,
               pdf_url: 'https://arxiv.org/pdf/' + arxivId,
