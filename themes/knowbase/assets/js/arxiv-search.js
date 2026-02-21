@@ -112,14 +112,14 @@
   }
 
   // ── arXiv API fallback (for very recent papers not yet in OpenAlex) ──
-  var ARXIV_API = 'https://export.arxiv.org/api/query';
-
+  // Proxied through Cloudflare Worker to avoid CORS issues with arXiv API
   function searchArxiv(query) {
-    var arxivUrl = ARXIV_API +
-      '?search_query=ti:' + encodeURIComponent(query) +
-      '&max_results=20&sortBy=submittedDate&sortOrder=descending';
-
-    return fetch(arxivUrl)
+    var password = sessionStorage.getItem('kb-session-pwd') || '';
+    return fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: password, action: 'search-arxiv', query: query })
+    })
       .then(function (r) { return r.ok ? r.text() : ''; })
       .then(function (xml) {
         if (!xml) return [];
