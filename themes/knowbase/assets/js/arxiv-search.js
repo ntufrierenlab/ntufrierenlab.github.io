@@ -58,8 +58,6 @@
     fetch(url)
     .then(function (r) { return r.ok ? r.json() : { results: [] }; })
     .then(function (data) {
-      loadingDiv.style.display = 'none';
-
       var results = data.results || [];
 
       // Keep only papers where extractPaperInfo returns non-null
@@ -73,13 +71,25 @@
         }
       });
 
-      if (merged.length === 0) {
-        emptyDiv.style.display = 'block';
+      if (merged.length > 0) {
+        loadingDiv.style.display = 'none';
+        currentPapers = merged;
+        currentPage = 1;
+        renderPage();
         return;
       }
-      currentPapers = merged;
-      currentPage = 1;
-      renderPage();
+
+      // Fallback: search arXiv API for very recent papers
+      return searchArxiv(query).then(function (arxivPapers) {
+        loadingDiv.style.display = 'none';
+        if (arxivPapers.length === 0) {
+          emptyDiv.style.display = 'block';
+          return;
+        }
+        currentPapers = arxivPapers;
+        currentPage = 1;
+        renderPage();
+      });
     })
     .catch(function (err) {
       loadingDiv.style.display = 'none';
@@ -99,6 +109,69 @@
     var text = words.join(' ');
     if (text.length > 280) text = text.substring(0, 280) + '...';
     return text;
+  }
+
+  // ── arXiv API fallback (for very recent papers not yet in OpenAlex) ──
+  var ARXIV_API = 'https://export.arxiv.org/api/query';
+
+  function searchArxiv(query) {
+    var arxivUrl = ARXIV_API +
+      '?search_query=ti:' + encodeURIComponent(query) +
+      '&max_results=20&sortBy=submittedDate&sortOrder=descending';
+
+    return fetch(arxivUrl)
+      .then(function (r) { return r.ok ? r.text() : ''; })
+      .then(function (xml) {
+        if (!xml) return [];
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(xml, 'application/xml');
+        var entries = doc.querySelectorAll('entry');
+        var papers = [];
+
+        entries.forEach(function (entry) {
+          var title = (entry.querySelector('title') || {}).textContent || '';
+          title = title.replace(/\s+/g, ' ').trim();
+
+          var idUrl = (entry.querySelector('id') || {}).textContent || '';
+          var idMatch = idUrl.match(/abs\/([0-9]+\.[0-9]+)/);
+          if (!idMatch) return;
+          var arxivId = idMatch[1];
+
+          var published = (entry.querySelector('published') || {}).textContent || '';
+          var pubDate = published.substring(0, 10); // YYYY-MM-DD
+
+          var summary = (entry.querySelector('summary') || {}).textContent || '';
+          summary = summary.replace(/\s+/g, ' ').trim();
+          if (summary.length > 280) summary = summary.substring(0, 280) + '...';
+
+          var authorEls = entry.querySelectorAll('author > name');
+          var authors = [];
+          authorEls.forEach(function (a) { authors.push(a.textContent); });
+
+          // Build a synthetic OpenAlex-like work object for renderPage
+          papers.push({
+            id: 'arxiv:' + arxivId,
+            title: title,
+            publication_date: pubDate,
+            cited_by_count: 0,
+            abstract_inverted_index: null,
+            _arxiv_abstract: summary,
+            authorships: authors.map(function (name) {
+              return { author: { display_name: name } };
+            }),
+            primary_location: {
+              landing_page_url: 'https://arxiv.org/abs/' + arxivId,
+              pdf_url: 'https://arxiv.org/pdf/' + arxivId,
+              source: null
+            },
+            locations: [],
+            _isArxivFallback: true
+          });
+        });
+
+        return papers;
+      })
+      .catch(function () { return []; });
   }
 
   // ── Paper info extraction ─────────────────────────────────────
@@ -234,7 +307,7 @@
 
       var pubDate = work.publication_date || '';
       var citations = work.cited_by_count || 0;
-      var abstract = reconstructAbstract(work.abstract_inverted_index);
+      var abstract = work._arxiv_abstract || reconstructAbstract(work.abstract_inverted_index);
       var title = work.title || 'Untitled';
       var badgeClass = info.source === 'bioRxiv' ? ' badge-biorxiv' : (info.isConference ? ' badge-conf' : '');
       var displayId = info.id;
