@@ -1,0 +1,65 @@
+{
+  "date": "2026-03-13",
+  "papers": [
+    {
+      "title": "Spatial-TTT: Streaming Visual-based Spatial Intelligence with Test-Time Training",
+      "url": "https://huggingface.co/papers/2603.12255",
+      "arxiv_url": "https://arxiv.org/abs/2603.12255",
+      "summary": "Spatial-TTT enables streaming visual-based spatial intelligence through test-time training that adapts parameters to capture spatial evidence over long video sequences using hybrid architecture and 3D spatiotemporal convolution.",
+      "upvotes": 63,
+      "authors": [
+        "Fangfu Liu",
+        "Diankun Wu",
+        "Jiawei Chi"
+      ]
+    },
+    {
+      "title": "Strategic Navigation or Stochastic Search? How Agents and Humans Reason Over Document Collections",
+      "url": "https://huggingface.co/papers/2603.12180",
+      "arxiv_url": "https://arxiv.org/abs/2603.12180",
+      "summary": "MADQA benchmark evaluates multimodal agents' strategic reasoning capabilities through diverse PDF document questions, revealing gaps between human-level accuracy and efficient reasoning performance.",
+      "upvotes": 39,
+      "authors": [
+        "Łukasz Borchmann",
+        "Jordy Van Landeghem",
+        "Michał Turski"
+      ]
+    },
+    {
+      "title": "IndexCache: Accelerating Sparse Attention via Cross-Layer Index Reuse",
+      "url": "https://huggingface.co/papers/2603.12201",
+      "arxiv_url": "https://arxiv.org/abs/2603.12201",
+      "summary": "IndexCache reduces sparse attention computation in large language models by reusing top-k token selections across layers, achieving significant speedups with minimal quality loss.",
+      "upvotes": 32,
+      "authors": [
+        "Yushi Bai",
+        "Qian Dong",
+        "Ting Jiang"
+      ]
+    },
+    {
+      "title": "Video-Based Reward Modeling for Computer-Use Agents",
+      "url": "https://huggingface.co/papers/2603.10178",
+      "arxiv_url": "https://arxiv.org/abs/2603.10178",
+      "summary": "Video-execution reward modeling enables scalable evaluation of computer-using agents by predicting task success from user instructions and execution videos, outperforming proprietary models across multiple operating systems.",
+      "upvotes": 30,
+      "authors": [
+        "Linxin Song",
+        "Jieyu Zhang",
+        "Huanxin Sheng"
+      ]
+    },
+    {
+      "title": "DreamVideo-Omni: Omni-Motion Controlled Multi-Subject Video Customization with Latent Identity Reinforcement Learning",
+      "url": "https://huggingface.co/papers/2603.12257",
+      "arxiv_url": "https://arxiv.org/abs/2603.12257",
+      "summary": "DreamVideo-Omni is a unified framework for video synthesis that enables precise multi-subject identity control and multi-granularity motion manipulation through a two-stage training approach combining condition-aware 3D positional embeddings, hierarchical motion injection, and latent identity reward learning.",
+      "upvotes": 24,
+      "authors": [
+        "Yujie Wei",
+        "Xinyu Liu",
+        "Shiwei Zhang"
+      ]
+    }
+  ]
+}
