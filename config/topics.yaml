@@ -1,0 +1,21 @@
+# Paper Knowledge Base - Topic Configuration
+# Add new topics here to track in daily auto-fetch
+
+topics:
+  - name: Color Constancy
+    keywords:
+      - "color constancy"
+      - "illuminant estimation"
+      - "chromatic adaptation"
+    arxiv_categories:
+      - cs.CV
+      - eess.IV
+
+  - name: Auto White Balance
+    keywords:
+      - "auto white balance"
+      - "white balance"
+      - "AWB"
+    arxiv_categories:
+      - cs.CV
+      - eess.IV

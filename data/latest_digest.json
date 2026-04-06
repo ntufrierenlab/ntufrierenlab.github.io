@@ -1,0 +1,65 @@
+{
+  "date": "2026-04-06",
+  "papers": [
+    {
+      "title": "A Simple Baseline for Streaming Video Understanding",
+      "url": "https://huggingface.co/papers/2604.02317",
+      "arxiv_url": "https://arxiv.org/abs/2604.02317",
+      "summary": "A simple sliding-window approach using recent video frames outperforms complex memory-based streaming video understanding methods, revealing trade-offs between real-time perception and long-term memory capabilities.",
+      "upvotes": 48,
+      "authors": [
+        "Yujiao Shen",
+        "Shulin Tian",
+        "Jingkang Yang"
+      ]
+    },
+    {
+      "title": "Agentic-MME: What Agentic Capability Really Brings to Multimodal Intelligence?",
+      "url": "https://huggingface.co/papers/2604.03016",
+      "arxiv_url": "https://arxiv.org/abs/2604.03016",
+      "summary": "A new benchmark evaluates multimodal agentic capabilities by verifying tool usage and process efficiency rather than just final answers, revealing significant challenges in real-world multimodal problem-solving.",
+      "upvotes": 18,
+      "authors": [
+        "Qianshan Wei",
+        "Yishan Yang",
+        "Siyi Wang"
+      ]
+    },
+    {
+      "title": "Token Warping Helps MLLMs Look from Nearby Viewpoints",
+      "url": "https://huggingface.co/papers/2604.02870",
+      "arxiv_url": "https://arxiv.org/abs/2604.02870",
+      "summary": "Token-level warping in vision-language models demonstrates superior stability and semantic coherence for viewpoint transformation compared to pixel-wise methods, achieving better visual reasoning performance.",
+      "upvotes": 17,
+      "authors": [
+        "Phillip Y. Lee",
+        "Chanho Park",
+        "Mingue Park"
+      ]
+    },
+    {
+      "title": "Self-Distilled RLVR",
+      "url": "https://huggingface.co/papers/2604.03128",
+      "arxiv_url": "https://arxiv.org/abs/2604.03128",
+      "summary": "RLSD combines reinforcement learning with verifiable rewards and self-distillation to achieve stable training with fine-grained updates and reliable policy direction from environmental feedback.",
+      "upvotes": 17,
+      "authors": [
+        "Chenxu Yang",
+        "Chuanyu Qin",
+        "Qingyi Si"
+      ]
+    },
+    {
+      "title": "InCoder-32B-Thinking: Industrial Code World Model for Thinking",
+      "url": "https://huggingface.co/papers/2604.03144",
+      "arxiv_url": "https://arxiv.org/abs/2604.03144",
+      "summary": "Industrial software development lacks expert reasoning traces for hardware constraints, so a model was trained on error-driven reasoning chains and domain-specific execution traces to generate high-quality code reasoning and performance.",
+      "upvotes": 4,
+      "authors": [
+        "Jian Yang",
+        "Wei Zhang",
+        "Jiajun Wu"
+      ]
+    }
+  ]
+}
