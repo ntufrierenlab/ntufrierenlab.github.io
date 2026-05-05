@@ -1,0 +1,65 @@
+{
+  "date": "2026-05-05",
+  "papers": [
+    {
+      "title": "MolmoAct2: Action Reasoning Models for Real-world Deployment",
+      "url": "https://huggingface.co/papers/2605.02881",
+      "arxiv_url": "https://arxiv.org/abs/2605.02881",
+      "summary": "MolmoAct2 presents an open-action reasoning model for robotics that improves upon previous systems through specialized vision-language-model backbones, new datasets, open-weight action tokenizers, architectural redesign for continuous-action prediction, and adaptive reasoning for reduced latency.",
+      "upvotes": 156,
+      "authors": [
+        "Haoquan Fang",
+        "Jiafei Duan",
+        "Donovan Clay"
+      ]
+    },
+    {
+      "title": "From Context to Skills: Can Language Models Learn from Context Skillfully?",
+      "url": "https://huggingface.co/papers/2604.27660",
+      "arxiv_url": "https://arxiv.org/abs/2604.27660",
+      "summary": "A self-evolving framework autonomously discovers and refines context-specific skills for language models through a multi-agent self-play loop with Challenger, Reasoner, and Judge components, improving context learning performance without human supervision.",
+      "upvotes": 118,
+      "authors": [
+        "Shuzheng Si",
+        "Haozhe Zhao",
+        "Yu Lei"
+      ]
+    },
+    {
+      "title": "Repetition over Diversity: High-Signal Data Filtering for Sample-Efficient German Language Modeling",
+      "url": "https://huggingface.co/papers/2604.28075",
+      "arxiv_url": "https://arxiv.org/abs/2604.28075",
+      "summary": "Training high-quality filtered data multiple times yields better performance than single-pass training on larger, less filtered datasets for non-English language models.",
+      "upvotes": 12,
+      "authors": [
+        "Ansar Aynetdinov",
+        "Patrick Haller",
+        "Alan Akbik"
+      ]
+    },
+    {
+      "title": "Persistent Visual Memory: Sustaining Perception for Deep Generation in LVLMs",
+      "url": "https://huggingface.co/papers/2605.00814",
+      "arxiv_url": "https://arxiv.org/abs/2605.00814",
+      "summary": "Large vision-language models suffer from visual signal dilution during long sequence generation, which is mitigated by a lightweight persistent visual memory module that maintains visual attention and improves reasoning performance.",
+      "upvotes": 11,
+      "authors": [
+        "Siyuan Huang",
+        "Xiaoye Qu",
+        "Yafu Li"
+      ]
+    },
+    {
+      "title": "OceanPile: A Large-Scale Multimodal Ocean Corpus for Foundation Models",
+      "url": "https://huggingface.co/papers/2605.00877",
+      "arxiv_url": "https://arxiv.org/abs/2605.00877",
+      "summary": "OceanPile presents a large-scale multimodal corpus for ocean science, combining diverse data types and a knowledge graph-guided instruction dataset to advance marine AI applications.",
+      "upvotes": 8,
+      "authors": [
+        "Yida Xue",
+        "Ningyu Zhang",
+        "Tingwei Wu"
+      ]
+    }
+  ]
+}
