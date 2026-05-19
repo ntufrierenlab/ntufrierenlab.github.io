@@ -1,0 +1,65 @@
+{
+  "date": "2026-05-19",
+  "papers": [
+    {
+      "title": "Code as Agent Harness",
+      "url": "https://huggingface.co/papers/2605.18747",
+      "arxiv_url": "https://arxiv.org/abs/2605.18747",
+      "summary": "Large language models are increasingly used as operational substrates for agent reasoning and execution in agentic systems, with code serving as a unified infrastructure layer across multiple domains and applications.",
+      "upvotes": 133,
+      "authors": [
+        "Xuying Ning",
+        "Katherine Tieu",
+        "Dongqi Fu"
+      ]
+    },
+    {
+      "title": "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution",
+      "url": "https://huggingface.co/papers/2605.18401",
+      "arxiv_url": "https://arxiv.org/abs/2605.18401",
+      "summary": "SkillsVote is a governance framework for long-horizon LLM agents that manages reusable skills through structured collection, recommendation, and evolution processes.",
+      "upvotes": 111,
+      "authors": [
+        "Hongyi Liu",
+        "Haoyan Yang",
+        "Tao Jiang"
+      ]
+    },
+    {
+      "title": "LongLive-2.0: An NVFP4 Parallel Infrastructure for Long Video Generation",
+      "url": "https://huggingface.co/papers/2605.18739",
+      "arxiv_url": "https://arxiv.org/abs/2605.18739",
+      "summary": "LongLive-2.0 presents an NVFP4-based parallel infrastructure for long video generation that addresses training and inference bottlenecks through sequence-parallel autoregressive training and diffusion model tuning.",
+      "upvotes": 90,
+      "authors": [
+        "Yukang Chen",
+        "Luozhou Wang",
+        "Wei Huang"
+      ]
+    },
+    {
+      "title": "Lance: Unified Multimodal Modeling by Multi-Task Synergy",
+      "url": "https://huggingface.co/papers/2605.18678",
+      "arxiv_url": "https://arxiv.org/abs/2605.18678",
+      "summary": "Lance is a unified multimodal model that combines understanding, generation, and editing capabilities for images and videos through collaborative multi-task training and a dual-stream architecture.",
+      "upvotes": 61,
+      "authors": [
+        "Fengyi Fu",
+        "Mengqi Huang",
+        "Shaojin Wu"
+      ]
+    },
+    {
+      "title": "AI for Auto-Research: Roadmap & User Guide",
+      "url": "https://huggingface.co/papers/2605.18661",
+      "arxiv_url": "https://arxiv.org/abs/2605.18661",
+      "summary": "AI systems demonstrate varying reliability across research stages, excelling in structured tasks but struggling with novel ideas and scientific judgment, necessitating human oversight for credible outcomes.",
+      "upvotes": 50,
+      "authors": [
+        "Lingdong Kong",
+        "Xian Sun",
+        "Wei Chow"
+      ]
+    }
+  ]
+}
