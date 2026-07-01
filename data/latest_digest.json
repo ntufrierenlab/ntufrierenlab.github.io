@@ -1,0 +1,65 @@
+{
+  "date": "2026-07-01",
+  "papers": [
+    {
+      "title": "Orca: The World is in Your Mind",
+      "url": "https://huggingface.co/papers/2606.30534",
+      "arxiv_url": "https://arxiv.org/abs/2606.30534",
+      "summary": "Orca establishes a unified world latent space through next-state-prediction modeling using multimodal data and demonstrates superior performance in downstream tasks compared to specialized baselines.",
+      "upvotes": 176,
+      "authors": [
+        "Yihao Wang",
+        "Yuheng Ji",
+        "Mingyu Cao"
+      ]
+    },
+    {
+      "title": "Dockerless: Environment-Free Program Verifier for Coding Agents",
+      "url": "https://huggingface.co/papers/2606.28436",
+      "arxiv_url": "https://arxiv.org/abs/2606.28436",
+      "summary": "A Dockerless environment-free agentic patch verifier improves code patch evaluation accuracy and enables effective post-training without execution-based verification costs.",
+      "upvotes": 86,
+      "authors": [
+        "Wenhao Zeng",
+        "Yuling Shi",
+        "Xiaodong Gu"
+      ]
+    },
+    {
+      "title": "DOPD: Dual On-policy Distillation",
+      "url": "https://huggingface.co/papers/2606.30626",
+      "arxiv_url": "https://arxiv.org/abs/2606.30626",
+      "summary": "DOPD addresses privilege illusion in on-policy distillation by dynamically routing token-level supervision between teacher and student policies based on advantage gaps and probabilities, improving capability transfer in large and vision-language models.",
+      "upvotes": 75,
+      "authors": [
+        "Xinlei Yu",
+        "Gen Li",
+        "Qingyi Si"
+      ]
+    },
+    {
+      "title": "BlockPilot: Instance-Adaptive Policy Learning for Diffusion-based Speculative Decoding",
+      "url": "https://huggingface.co/papers/2606.31315",
+      "arxiv_url": "https://arxiv.org/abs/2606.31315",
+      "summary": "Speculative decoding with adaptive block size selection improves inference efficiency by predicting optimal block sizes from prefilling representations, achieving significant speedup with minimal overhead.",
+      "upvotes": 67,
+      "authors": [
+        "Hao Zhang",
+        "Yiming Hu",
+        "Yong Wang"
+      ]
+    },
+    {
+      "title": "Does VLA Even Know the Basics? Measuring Commonsense and World Knowledge Retention in Vision-Language-Action Models",
+      "url": "https://huggingface.co/papers/2606.19297",
+      "arxiv_url": "https://arxiv.org/abs/2606.19297",
+      "summary": "Act2Answer protocol evaluates embodied vision-language-action models by having agents answer questions through physical actions, revealing knowledge retention and generalization patterns across different semantic categories.",
+      "upvotes": 41,
+      "authors": [
+        "Nikita Kachaev",
+        "Andrey Moskalenko",
+        "Matvey Skripkin"
+      ]
+    }
+  ]
+}
