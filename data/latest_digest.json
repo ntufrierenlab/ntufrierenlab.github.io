@@ -1,0 +1,65 @@
+{
+  "date": "2026-08-07",
+  "papers": [
+    {
+      "title": "AgentOPSD: Recursive Self-Distillation for Agentic Reinforcement Learning",
+      "url": "https://huggingface.co/papers/2608.05987",
+      "arxiv_url": "https://arxiv.org/abs/2608.05987",
+      "summary": "",
+      "upvotes": 66,
+      "authors": [
+        "Zi-Han Wang",
+        "Zhengxi Lu",
+        "Zhiyuan Yao"
+      ]
+    },
+    {
+      "title": "OSReward: Instituting Standardized Evaluation for Cross-Platform Computer-Use Reward Models",
+      "url": "https://huggingface.co/papers/2607.28609",
+      "arxiv_url": "https://arxiv.org/abs/2607.28609",
+      "summary": "",
+      "upvotes": 51,
+      "authors": [
+        "Qiushi Sun",
+        "Kanzhi Cheng",
+        "Yian Wang"
+      ]
+    },
+    {
+      "title": "WorldClaw: Agentic 3D Open-World Generation at Scale",
+      "url": "https://huggingface.co/papers/2608.05248",
+      "arxiv_url": "https://arxiv.org/abs/2608.05248",
+      "summary": "",
+      "upvotes": 46,
+      "authors": [
+        "Chunchao Guo",
+        "Jinpeng Li",
+        "Yang Li"
+      ]
+    },
+    {
+      "title": "Interpretable MEG Decoding of Perceived Speech: Cortical Sources and the Stimulus Features That Drive Retrieval",
+      "url": "https://huggingface.co/papers/2608.01481",
+      "arxiv_url": "https://arxiv.org/abs/2608.01481",
+      "summary": "",
+      "upvotes": 46,
+      "authors": [
+        "Ilia Semenkov",
+        "Daria Kleeva",
+        "Ivan Dakhtin"
+      ]
+    },
+    {
+      "title": "GST-Bench: Can VLMs Develop Global Spatial Awareness from Video?",
+      "url": "https://huggingface.co/papers/2608.05747",
+      "arxiv_url": "https://arxiv.org/abs/2608.05747",
+      "summary": "",
+      "upvotes": 30,
+      "authors": [
+        "Qifeng Zhang",
+        "Kaixiang Huang",
+        "Heng Dong"
+      ]
+    }
+  ]
+}
