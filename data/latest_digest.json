@@ -1,0 +1,65 @@
+{
+  "date": "2026-09-04",
+  "papers": [
+    {
+      "title": "Compile by Training: Turning Natural-Language Specifications into Local Neural Functions",
+      "url": "https://huggingface.co/papers/2609.04199",
+      "arxiv_url": "https://arxiv.org/abs/2609.04199",
+      "summary": "Compile by training converts natural-language specifications into reusable neural functions by distilling teacher-generated examples into small adapters, enabling efficient deployment without remote model dependencies.",
+      "upvotes": 252,
+      "authors": [
+        "Yuntian Deng",
+        "Pengyu Nie",
+        "Stuart Shieber"
+      ]
+    },
+    {
+      "title": "Terminal-Universe: Turning Agent Trajectories into Scalable Terminal Environments",
+      "url": "https://huggingface.co/papers/2609.04148",
+      "arxiv_url": "https://arxiv.org/abs/2609.04148",
+      "summary": "Terminal-Universe reconstructs executable workspaces from agent trajectories to synthesize diverse training tasks and improves post-training performance through supervised fine-tuning.",
+      "upvotes": 213,
+      "authors": [
+        "Jie Wu",
+        "Zhenru Zhang",
+        "Beichen Zhang"
+      ]
+    },
+    {
+      "title": "LLaDA-Image: Building Strong Image Generators with Fully Open Training Recipes",
+      "url": "https://huggingface.co/papers/2609.03796",
+      "arxiv_url": "https://arxiv.org/abs/2609.03796",
+      "summary": "LLaDA-Image unifies a 6B diffusion transformer with a frozen vision-language module, using image-only pre-training and a Muon optimizer to generate photorealistic images with precise editing, and is distilled into a fast 2-4 step variant that achieves state-of-the-art open-source results.",
+      "upvotes": 192,
+      "authors": [
+        "Chuyan Chen",
+        "Haoxing Chen",
+        "Kun Chen"
+      ]
+    },
+    {
+      "title": "Knowing When Not to Reuse: Conditional Experience Transfer in Autonomous LLM Post-Training",
+      "url": "https://huggingface.co/papers/2608.26730",
+      "arxiv_url": "https://arxiv.org/abs/2608.26730",
+      "summary": "Boundary-Calibrated Intervention Transfer selectively reuses past training evidence by checking contextual applicability and running bounded trials, reducing harmful updates and improving final model quality in autonomous post-training.",
+      "upvotes": 139,
+      "authors": [
+        "Tingyun Li",
+        "Wenfeng Feng",
+        "Weiqing Li"
+      ]
+    },
+    {
+      "title": "Random Attention: Rethinking KV Cache Eviction for Efficient Reasoning",
+      "url": "https://huggingface.co/papers/2609.03430",
+      "arxiv_url": "https://arxiv.org/abs/2609.03430",
+      "summary": "Random eviction of reasoning tokens matches selective KV cache compression because reasoning traces are self-protecting through redundancy, making scoring unnecessary once prompts are preserved.",
+      "upvotes": 123,
+      "authors": [
+        "Heng Wang",
+        "Jielin Qiu",
+        "Wenting Zhao"
+      ]
+    }
+  ]
+}
