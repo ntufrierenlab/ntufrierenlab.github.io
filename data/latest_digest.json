@@ -1,0 +1,65 @@
+{
+  "date": "2026-09-11",
+  "papers": [
+    {
+      "title": "NCP-ArchPreview Technical Report: Moving towards Latent Space Language Models through Next Concept Prediction",
+      "url": "https://huggingface.co/papers/2609.10715",
+      "arxiv_url": "https://arxiv.org/abs/2609.10715",
+      "summary": "NCP-ArchPreview is a large latent-space language model that jointly trains next-token and next-concept prediction to improve pretraining efficiency and downstream performance.",
+      "upvotes": 176,
+      "authors": [
+        "NCP Team",
+        "Jiaqi Cao",
+        "Chiyu Chen"
+      ]
+    },
+    {
+      "title": "SenseNova-U1.5: Towards Native Unified Visual Intelligence",
+      "url": "https://huggingface.co/papers/2609.11929",
+      "arxiv_url": "https://arxiv.org/abs/2609.11929",
+      "summary": "SenseNova-U1.5 is an 8B native unified multimodal model that performs visual understanding, reasoning, and generation without encoders or VAEs, achieving high fidelity and instruction following through patch reconstruction, curated data, expert optimization, and on-policy distillation.",
+      "upvotes": 139,
+      "authors": [
+        "Haiwen Diao",
+        "Jiahao Wang",
+        "Chenjing Ding"
+      ]
+    },
+    {
+      "title": "SpatialBlock: Enhancing Spatial Intelligence in LVLMs via Synthetic Block-Stacking Problem",
+      "url": "https://huggingface.co/papers/2609.07064",
+      "arxiv_url": "https://arxiv.org/abs/2609.07064",
+      "summary": "Large vision-language models trained on synthetic block-manipulation tasks improve 3D spatial reasoning and generalize to real-world visual tasks.",
+      "upvotes": 68,
+      "authors": [
+        "Soohyun Ryu",
+        "Sohee Kim",
+        "Eunho Yang"
+      ]
+    },
+    {
+      "title": "EvoSafeHarness: Evolving Model- and Domain-Specific Harnesses for Securing Agents",
+      "url": "https://huggingface.co/papers/2609.05903",
+      "arxiv_url": "https://arxiv.org/abs/2609.05903",
+      "summary": "EvoSafeHarness optimizes deployable safety harnesses by jointly searching natural-language policies and executable logic tailored to a frozen model and target domain, improving safety-utility trade-offs across agent benchmarks.",
+      "upvotes": 36,
+      "authors": [
+        "Nanxi Li",
+        "Yingzi Ma",
+        "Yulong Cao"
+      ]
+    },
+    {
+      "title": "Mi-Ripple: Restoring Images Degraded by Iterative AI Editing",
+      "url": "https://huggingface.co/papers/2609.11317",
+      "arxiv_url": "https://arxiv.org/abs/2609.11317",
+      "summary": "Mi-Ripple reduces digital ripple artifacts in edited images by separating lattice artifacts from texture and applying targeted spectral filtering and reference cleaning.",
+      "upvotes": 20,
+      "authors": [
+        "Jiayin Chen",
+        "Yicheng Xu",
+        "Muting Wang"
+      ]
+    }
+  ]
+}

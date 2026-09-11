@@ -1,0 +1,69 @@
+{{ define "main" }}
+  <div class="list-page">
+    <h1 class="list-title">{{ .Title }}</h1>
+    {{ .Content }}
+    {{ $paginator := .Paginate (.Pages.ByDate.Reverse) 12 }}
+    <div class="paper-grid">
+      {{ range $paginator.Pages }}
+      {{ $paper := . }}
+      <article class="paper-card">
+        <div class="paper-card-header">
+          <div class="paper-date">{{ .Date | time.Format "Jan 2, 2006" }}</div>
+          {{ with .Params.topics }}
+          <div class="paper-topics">
+            {{ range . }}
+            <a href="{{ printf "topics/%s/" (urlize .) | relURL }}" class="topic-badge">{{ . }}</a>
+            {{ end }}
+          </div>
+          {{ end }}
+        </div>
+        <h3 class="paper-card-title">
+          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </h3>
+        {{ with .Params.authors }}
+        <p class="paper-authors">{{ delimit . ", " }}</p>
+        {{ end }}
+        {{ with .Params.one_line_summary }}
+        <p class="paper-summary">{{ . }}</p>
+        {{ end }}
+        <div class="paper-card-footer">
+          {{ with .Params.arxiv_url }}
+          <a href="{{ . }}" class="paper-link" target="_blank" rel="noopener">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            {{ with $paper.Params.source }}{{ . }}{{ else }}arXiv{{ end }}
+          </a>
+          {{ end }}
+          {{ with .Params.tags }}
+          <div class="paper-tags">
+            {{ range first 3 . }}
+            <span class="tag">{{ . }}</span>
+            {{ end }}
+          </div>
+          {{ end }}
+        </div>
+      </article>
+      {{ end }}
+    </div>
+    {{ if gt $paginator.TotalPages 1 }}
+    <nav class="pagination">
+      {{ if $paginator.HasPrev }}
+      <a href="{{ $paginator.Prev.URL }}" class="pagination-btn">Previous</a>
+      {{ else }}
+      <span class="pagination-btn" disabled>Previous</span>
+      {{ end }}
+      {{ range $paginator.Pagers }}
+      {{ if eq . $paginator }}
+      <span class="pagination-btn active">{{ .PageNumber }}</span>
+      {{ else }}
+      <a href="{{ .URL }}" class="pagination-btn">{{ .PageNumber }}</a>
+      {{ end }}
+      {{ end }}
+      {{ if $paginator.HasNext }}
+      <a href="{{ $paginator.Next.URL }}" class="pagination-btn">Next</a>
+      {{ else }}
+      <span class="pagination-btn" disabled>Next</span>
+      {{ end }}
+    </nav>
+    {{ end }}
+  </div>
+{{ end }}

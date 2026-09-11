@@ -1,0 +1,13 @@
+name = "frieren-lab-proxy"
+main = "index.js"
+compatibility_date = "2024-01-01"
+
+# Secrets (set via `wrangler secret put`):
+#   AUTH_PASSWORD  - your chosen simple password
+#   GITHUB_PAT    - GitHub Personal Access Token with repo scope
+#   GITHUB_REPO   - e.g. "ntufrierenlab/ntufrierenlab.github.io"
+#   R2_PUBLIC_URL  - public R2 bucket URL (e.g. "https://pub-xxx.r2.dev")
+
+[[r2_buckets]]
+binding = "PDF_BUCKET"
+bucket_name = "frieren-lab-pdfs"
