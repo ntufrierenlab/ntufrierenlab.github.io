@@ -1,0 +1,57 @@
+name: Add Note to Paper
+
+on:
+  workflow_dispatch:
+    inputs:
+      paper_filename:
+        description: Paper filename
+        required: true
+        type: string
+      note_text:
+        description: Note text content
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  add-note:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Append note to paper front matter
+        env:
+          NOTE_TEXT: ${{ inputs.note_text }}
+        run: |
+          FILENAME="${{ inputs.paper_filename }}"
+          if echo "$FILENAME" | grep -qE '[/\\]|\.\.'; then
+            echo "Error: Invalid filename" >&2
+            exit 1
+          fi
+          FILEPATH="content/papers/${FILENAME}"
+          if [ ! -f "$FILEPATH" ]; then
+            echo "Error: File not found: ${FILEPATH}" >&2
+            exit 1
+          fi
+          python3 scripts/add-note.py "$FILEPATH"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add content/papers/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          FILENAME="${{ inputs.paper_filename }}"
+          git commit -m "Add note to: ${FILENAME}"
+          for i in 1 2 3 4 5; do
+            git push && break
+            echo "Push failed (attempt $i), pulling and retrying..."
+            git pull --rebase
+            sleep 2
+          done

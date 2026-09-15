@@ -1,0 +1,65 @@
+{
+  "date": "2026-09-15",
+  "papers": [
+    {
+      "title": "Vidu S2: Real-Time Interactive, Editable, and Spatial Video Generation",
+      "url": "https://huggingface.co/papers/2609.11638",
+      "arxiv_url": "https://arxiv.org/abs/2609.11638",
+      "summary": "Vidu S2 introduces real-time interactive avatar and video editing models that support high-resolution spatial video generation and dynamic reference updates.",
+      "upvotes": 448,
+      "authors": [
+        "Jintao Zhang",
+        "Kai Jiang",
+        "Jintao Chen"
+      ]
+    },
+    {
+      "title": "Atria Dawn: The Dawn of Agentic Superintelligence",
+      "url": "https://huggingface.co/papers/2609.15818",
+      "arxiv_url": "https://arxiv.org/abs/2609.15818",
+      "summary": "Atria Dawn Preview is a foundation agentic language model trained through verified tool interactions that achieves strong benchmark results and demonstrates a shift toward human-AI project-level collaboration in scientific research.",
+      "upvotes": 366,
+      "authors": [
+        "Honglin Guo",
+        "Tao Gui",
+        "Yicheng Chen"
+      ]
+    },
+    {
+      "title": "ZGCM-1: A Fully Open and Extremely Efficient Foundation Model for Math and Agentic Search",
+      "url": "https://huggingface.co/papers/2609.13356",
+      "arxiv_url": "https://arxiv.org/abs/2609.13356",
+      "summary": "ZGCM-1 is a 7B open foundation model that combines internal reasoning with external tool use, trained via efficient architecture-system co-design, progressive long-context scaling, and autonomous agent workflows to achieve strong reasoning and efficiency.",
+      "upvotes": 290,
+      "authors": [
+        "Jiyan He",
+        "Guang Liang",
+        "Hao Liu"
+      ]
+    },
+    {
+      "title": "Dream-RSI: Recursive Self-Improvement through Evolving Worlds",
+      "url": "https://huggingface.co/papers/2609.14858",
+      "arxiv_url": "https://arxiv.org/abs/2609.14858",
+      "summary": "Dream-RSI enables scalable recursive self-improvement by using historical discovery replay to evaluate exploration policies offline, reducing costly online evaluations.",
+      "upvotes": 256,
+      "authors": [
+        "Tong Zheng",
+        "Xidong Wu",
+        "Zheng Zhang"
+      ]
+    },
+    {
+      "title": "PhysBrain 1.5: From Vision-Language Models to Physical Foundation Models",
+      "url": "https://huggingface.co/papers/2609.14973",
+      "arxiv_url": "https://arxiv.org/abs/2609.14973",
+      "summary": "PhysBrain 1.5 unifies physical environment understanding, action generation, and future state prediction via joint autoregressive training on discrete vision-language, motion, and visual target sequences, achieving state-of-the-art open-source embodied performance.",
+      "upvotes": 169,
+      "authors": [
+        "DeepCybo Team",
+        "Yu Bin",
+        "Haipeng Cao"
+      ]
+    }
+  ]
+}
