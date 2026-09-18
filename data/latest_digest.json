@@ -1,0 +1,65 @@
+{
+  "date": "2026-09-18",
+  "papers": [
+    {
+      "title": "DeepSeek-V4.1-Flash: Pushing the Limits of KV Cache Compression",
+      "url": "https://huggingface.co/papers/2609.19969",
+      "arxiv_url": "https://arxiv.org/abs/2609.19969",
+      "summary": "",
+      "upvotes": 57,
+      "authors": [
+        "DeepSeek-AI",
+        "Anyi Xu",
+        "B. Li"
+      ]
+    },
+    {
+      "title": "SoL-Pi: Recursively Scaling Auto-Research Loops for Efficient Agent Harness",
+      "url": "https://huggingface.co/papers/2609.20519",
+      "arxiv_url": "https://arxiv.org/abs/2609.20519",
+      "summary": "",
+      "upvotes": 46,
+      "authors": [
+        "Haozhe Liu",
+        "Tian Ye",
+        "Sensen Gao"
+      ]
+    },
+    {
+      "title": "An Empirical Study of Harness Design for Coding Agents",
+      "url": "https://huggingface.co/papers/2609.20804",
+      "arxiv_url": "https://arxiv.org/abs/2609.20804",
+      "summary": "",
+      "upvotes": 37,
+      "authors": [
+        "Run-Ze Fan",
+        "Zihao Zhang",
+        "Simin Ma"
+      ]
+    },
+    {
+      "title": "When EOS Tokens Disagree: Understanding Length Inflation in On-Policy Distillation",
+      "url": "https://huggingface.co/papers/2609.20511",
+      "arxiv_url": "https://arxiv.org/abs/2609.20511",
+      "summary": "",
+      "upvotes": 30,
+      "authors": [
+        "Yuxiao Yang",
+        "Tianrun Yu",
+        "Shangzhe Li"
+      ]
+    },
+    {
+      "title": "JEPA-Anything: Learning Predictive Models across Different Worlds",
+      "url": "https://huggingface.co/papers/2609.20800",
+      "arxiv_url": "https://arxiv.org/abs/2609.20800",
+      "summary": "",
+      "upvotes": 23,
+      "authors": [
+        "Taoyong Cui",
+        "Zhongyao Wang",
+        "Xinyue Xu"
+      ]
+    }
+  ]
+}

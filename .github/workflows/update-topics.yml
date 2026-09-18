@@ -1,0 +1,42 @@
+name: Update Paper Topics
+
+on:
+  workflow_dispatch:
+    inputs:
+      paper_filename:
+        description: 'Paper markdown filename'
+        required: true
+        type: string
+      topics:
+        description: 'Comma-separated topic names'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update topics
+        run: bash scripts/update-topics.sh "${{ inputs.paper_filename }}" "${{ inputs.topics }}"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add content/papers/
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Update topics: ${{ inputs.paper_filename }}"
+            for i in 1 2 3 4 5; do
+              git push && break
+              echo "Push failed (attempt $i), pulling and retrying..."
+              git pull --rebase
+              sleep 2
+            done
+          fi
