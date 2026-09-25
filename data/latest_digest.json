@@ -1,0 +1,65 @@
+{
+  "date": "2026-09-25",
+  "papers": [
+    {
+      "title": "Training Object Permanence in World Models",
+      "url": "https://huggingface.co/papers/2609.28654",
+      "arxiv_url": "https://arxiv.org/abs/2609.28654",
+      "summary": "",
+      "upvotes": 154,
+      "authors": [
+        "Haotian Zhang",
+        "Fengyuan Yu",
+        "Dezhi Luo"
+      ]
+    },
+    {
+      "title": "Your Transformer Can Hold Two Thoughts at Once: Evidence of Linear Superposition in LLMs",
+      "url": "https://huggingface.co/papers/2609.29845",
+      "arxiv_url": "https://arxiv.org/abs/2609.29845",
+      "summary": "",
+      "upvotes": 55,
+      "authors": [
+        "Pavel Tikhonov",
+        "Anton Korznikov",
+        "Matvey Mikhalchuk"
+      ]
+    },
+    {
+      "title": "WanPE: Towards Cinematic Prompt Enhancement for Modern Text-to-Video Generation",
+      "url": "https://huggingface.co/papers/2609.30221",
+      "arxiv_url": "https://arxiv.org/abs/2609.30221",
+      "summary": "",
+      "upvotes": 25,
+      "authors": [
+        "Yubo Zhu",
+        "Yawen Shao",
+        "Ziyun Dai"
+      ]
+    },
+    {
+      "title": "OmniEcho: Spatial Audio Understanding for Embodied Agents",
+      "url": "https://huggingface.co/papers/2609.23407",
+      "arxiv_url": "https://arxiv.org/abs/2609.23407",
+      "summary": "",
+      "upvotes": 20,
+      "authors": [
+        "Ruixun Liu",
+        "Yuxuan Wang",
+        "Jiacheng Xie"
+      ]
+    },
+    {
+      "title": "Agent-Editing World Model: Rethinking World Modeling for LLM Agents",
+      "url": "https://huggingface.co/papers/2609.28416",
+      "arxiv_url": "https://arxiv.org/abs/2609.28416",
+      "summary": "",
+      "upvotes": 13,
+      "authors": [
+        "Shuang Sun",
+        "Guoxin Chen",
+        "Fanzhe Meng"
+      ]
+    }
+  ]
+}
