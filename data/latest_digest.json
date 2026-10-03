@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-02",
+  "papers": [
+    {
+      "title": "OneStreamer: Unifying Perception, Memory, and Proactive Response in Streaming Video Interaction",
+      "url": "https://huggingface.co/papers/2610.01762",
+      "arxiv_url": "https://arxiv.org/abs/2610.01762",
+      "summary": "",
+      "upvotes": 146,
+      "authors": [
+        "Xiangyu Zeng",
+        "Yuandong Yang",
+        "Zhiqiu Zhang"
+      ]
+    },
+    {
+      "title": "On-Policy or Off-Policy Learning? A Systematic Study of Distillation Dynamics",
+      "url": "https://huggingface.co/papers/2609.35259",
+      "arxiv_url": "https://arxiv.org/abs/2609.35259",
+      "summary": "",
+      "upvotes": 122,
+      "authors": [
+        "Julianna Piskorz",
+        "Antonin Berthon",
+        "Mihaela van der Schaar"
+      ]
+    },
+    {
+      "title": "Adaptive Reward Routing: Dynamic Multi-Reward Optimization for Joint Audio-Video Diffusion via Forward-Process RL",
+      "url": "https://huggingface.co/papers/2609.37200",
+      "arxiv_url": "https://arxiv.org/abs/2609.37200",
+      "summary": "",
+      "upvotes": 117,
+      "authors": [
+        "Songlin Yang",
+        "Xiaotong Zhao",
+        "Jiacheng Zhang"
+      ]
+    },
+    {
+      "title": "Beyond Memory: Harnessing Long-Horizon Agents with Explicit Belief States",
+      "url": "https://huggingface.co/papers/2610.01415",
+      "arxiv_url": "https://arxiv.org/abs/2610.01415",
+      "summary": "",
+      "upvotes": 69,
+      "authors": [
+        "Yu Luo",
+        "Jiamin Jiang",
+        "Yimin Zuo"
+      ]
+    },
+    {
+      "title": "Hierarchical Continuous Diffusion Language Models",
+      "url": "https://huggingface.co/papers/2610.02193",
+      "arxiv_url": "https://arxiv.org/abs/2610.02193",
+      "summary": "",
+      "upvotes": 69,
+      "authors": [
+        "Hui Ren",
+        "Zihan Li",
+        "Chang Liu"
+      ]
+    }
+  ]
+}
