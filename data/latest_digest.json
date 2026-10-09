@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-09",
+  "papers": [
+    {
+      "title": "AgentGarten: Code Worlds for Evolving Agents",
+      "url": "https://huggingface.co/papers/2610.12374",
+      "arxiv_url": "https://arxiv.org/abs/2610.12374",
+      "summary": "",
+      "upvotes": 131,
+      "authors": [
+        "Jiawei Chi",
+        "Shangchen Miao",
+        "Zhiyuan Shi"
+      ]
+    },
+    {
+      "title": "TokenRouter: Efficient Serving System for Token-Level LLM Routing",
+      "url": "https://huggingface.co/papers/2610.12242",
+      "arxiv_url": "https://arxiv.org/abs/2610.12242",
+      "summary": "",
+      "upvotes": 102,
+      "authors": [
+        "Tianyu Fu",
+        "Tengxuan Liu",
+        "Ruoxi Wang"
+      ]
+    },
+    {
+      "title": "From Traces to Agentic Worlds: Agentic Language World Models for Interactive Environment Simulation",
+      "url": "https://huggingface.co/papers/2610.06100",
+      "arxiv_url": "https://arxiv.org/abs/2610.06100",
+      "summary": "",
+      "upvotes": 97,
+      "authors": [
+        "Quanyu Long",
+        "Xiao Chen",
+        "Jianda Chen"
+      ]
+    },
+    {
+      "title": "Learn2Play Bench: How Well Do LLM Agents Learn from Experience in Unfamiliar Environments?",
+      "url": "https://huggingface.co/papers/2610.08215",
+      "arxiv_url": "https://arxiv.org/abs/2610.08215",
+      "summary": "",
+      "upvotes": 76,
+      "authors": [
+        "Yibo Li",
+        "Jinhang Qiu",
+        "Zhi Zheng"
+      ]
+    },
+    {
+      "title": "SuperNav: An Agentic Navigation System for Any Task in Any Scene",
+      "url": "https://huggingface.co/papers/2610.12126",
+      "arxiv_url": "https://arxiv.org/abs/2610.12126",
+      "summary": "",
+      "upvotes": 62,
+      "authors": [
+        "Jinkai Zhang",
+        "Jingyi Xu",
+        "Yuanhong Yu"
+      ]
+    }
+  ]
+}
