@@ -1,0 +1,33 @@
+<header class="page-header">
+  <div class="header-content">
+    {{ if .IsHome }}
+    <div class="hero">
+      <h1 class="hero-title">Paper Knowledge Base</h1>
+      <p class="hero-subtitle">{{ site.Params.description }}</p>
+      <div class="hero-stats">
+        {{ $papers := where site.RegularPages "Section" "papers" }}
+        <div class="stat">
+          <span class="stat-number">{{ len $papers }}</span>
+          <span class="stat-label">Papers</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">{{ len site.Taxonomies.topics }}</span>
+          <span class="stat-label">Topics</span>
+        </div>
+      </div>
+    </div>
+    {{ else }}
+    <nav class="breadcrumb">
+      <a href="{{ site.BaseURL }}">Home</a>
+      {{ if .Parent }}
+        {{ if ne .Parent.IsHome true }}
+        <span class="breadcrumb-sep">/</span>
+        <a href="{{ .Parent.RelPermalink }}">{{ .Parent.Title }}</a>
+        {{ end }}
+      {{ end }}
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">{{ .Title }}</span>
+    </nav>
+    {{ end }}
+  </div>
+</header>

@@ -1,0 +1,43 @@
+name: Daily Digest
+
+on:
+  schedule:
+    # Run every hour Mon-Fri only (HF doesn't update on weekends)
+    - cron: '0 * * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate daily digest
+        run: bash scripts/daily-digest.sh
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/latest_digest.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            # Amend if last commit is a digest update, otherwise create new
+            LAST_MSG=$(git log -1 --pretty=%s)
+            if echo "$LAST_MSG" | grep -q "^Update daily digest:"; then
+              git commit --amend --no-edit --date="$(date -R)"
+            else
+              git commit -m "Update daily digest: $(date +%Y-%m-%d)"
+            fi
+            for i in 1 2 3 4 5; do
+              git push --force-with-lease && break
+              echo "Push failed (attempt $i), pulling and retrying..."
+              git pull --rebase
+              sleep 2
+            done
+          fi

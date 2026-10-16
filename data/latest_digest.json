@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-16",
+  "papers": [
+    {
+      "title": "OmniCompass: A Holistic Benchmark for Omni-Modal Video Grounding and Understanding",
+      "url": "https://huggingface.co/papers/2610.18829",
+      "arxiv_url": "https://arxiv.org/abs/2610.18829",
+      "summary": "OmniCompass is a holistic benchmark for omni-modal video grounding and understanding that evaluates vision-language and audio-visual reasoning through temporal grounding, spatial grounding, and question answering tasks.",
+      "upvotes": 566,
+      "authors": [
+        "Xuyang Liu",
+        "Shihao Wang",
+        "Xinyu Wei"
+      ]
+    },
+    {
+      "title": "Waypoint-OPD: Transferring RL-Induced Policy Shifts via Gated On-Policy Distillation",
+      "url": "https://huggingface.co/papers/2610.21601",
+      "arxiv_url": "https://arxiv.org/abs/2610.21601",
+      "summary": "Waypoint-OPD improves policy-shift distillation by gating endpoint shifts using directional agreement between early and late teacher policy changes, boosting reasoning performance with minimal overhead.",
+      "upvotes": 451,
+      "authors": [
+        "Bingxi Hou",
+        "Guochao Jiang",
+        "Guofeng Quan"
+      ]
+    },
+    {
+      "title": "OpenGCUA: Toward a Fully Open Stack for Generalist Computer Use",
+      "url": "https://huggingface.co/papers/2610.22200",
+      "arxiv_url": "https://arxiv.org/abs/2610.22200",
+      "summary": "OpenGCUA introduces an open generalist computer-use agent that integrates visual and programmatic interfaces, harness-to-model decision transfer, and code execution to improve task performance and efficiency across models.",
+      "upvotes": 266,
+      "authors": [
+        "Hanzhang Zhou",
+        "Long Li",
+        "Quyu Kong"
+      ]
+    },
+    {
+      "title": "FDE-Gym: The Last Mile of AI Delivery",
+      "url": "https://huggingface.co/papers/2610.22350",
+      "arxiv_url": "https://arxiv.org/abs/2610.22350",
+      "summary": "FDE-Gym evaluates AI agents on realistic customer delivery tasks requiring clarification of ambiguous requirements and discovery of unstated constraints, revealing a substantial performance gap compared to well-specified benchmarks.",
+      "upvotes": 228,
+      "authors": [
+        "Dongxu Yang",
+        "Hongda Yan",
+        "Renxin Wang"
+      ]
+    },
+    {
+      "title": "RoTA-Bench: Evaluating 3D Spatial Reasoning through Interactive Projection Alignment",
+      "url": "https://huggingface.co/papers/2610.17665",
+      "arxiv_url": "https://arxiv.org/abs/2610.17665",
+      "summary": "Vision-language models struggle to convert 2D visual observations into precise 3D rotational control, showing large gaps versus humans in projection alignment tasks.",
+      "upvotes": 198,
+      "authors": [
+        "Qingchuan Ma",
+        "Yuexiao Ma",
+        "Xiang Meng"
+      ]
+    }
+  ]
+}
