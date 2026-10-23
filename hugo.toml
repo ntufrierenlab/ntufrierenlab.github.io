@@ -1,0 +1,38 @@
+baseURL = 'https://ntufrierenlab.github.io/'
+languageCode = 'en-us'
+title = 'Frieren Lab | Paper Knowledge Base'
+theme = 'knowbase'
+
+[outputs]
+  home = ['HTML', 'JSON']
+
+[params]
+  description = 'Computer Vision & Image Processing Research'
+  subtitle = 'Research Paper Knowledge Base'
+  github_repo = 'https://github.com/ntufrierenlab/ntufrierenlab.github.io'
+
+[taxonomies]
+  tag = 'tags'
+  topic = 'topics'
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+  [markup.highlight]
+    style = 'github'
+    lineNos = false
+
+[menu]
+  [[menu.main]]
+    name = 'Papers'
+    url = '/papers/'
+    weight = 1
+  [[menu.main]]
+    name = 'Topics'
+    url = '/topics/'
+    weight = 2
+  [[menu.main]]
+    name = 'Search Papers'
+    url = '/search/'
+    weight = 3

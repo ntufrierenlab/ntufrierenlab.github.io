@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-23",
+  "papers": [
+    {
+      "title": "WeVisOne-VL: Unified Visual Perception from Objects to Pixels",
+      "url": "https://huggingface.co/papers/2610.31329",
+      "arxiv_url": "https://arxiv.org/abs/2610.31329",
+      "summary": "WeVisOne-VL unifies object-level and pixel-level visual perception via structured token prediction, supporting detection, localization, counting, OCR, segmentation, and matting with a lightweight pixel decoder and multi-stage training.",
+      "upvotes": 221,
+      "authors": [
+        "Tianming Liang",
+        "Junyi Pan",
+        "Yuxi Li"
+      ]
+    },
+    {
+      "title": "Making MLLM Latents Matter: Factor-Aware Predictive Learning for Cinematic Video Generation",
+      "url": "https://huggingface.co/papers/2610.30926",
+      "arxiv_url": "https://arxiv.org/abs/2610.30926",
+      "summary": "Factor-Aware Predictive Learning enables video diffusion transformers to leverage multimodal language model representations for sparse temporal inference and factor-aware cinematic control through staged grounding and optimization.",
+      "upvotes": 163,
+      "authors": [
+        "Songlin Yang",
+        "Zhe Wang",
+        "Xiaotong Zhao"
+      ]
+    },
+    {
+      "title": "Deep Search in Real-World Web Environments",
+      "url": "https://huggingface.co/papers/2610.30181",
+      "arxiv_url": "https://arxiv.org/abs/2610.30181",
+      "summary": "OpenDS-World introduces a live-web benchmark to evaluate autonomous multi-step deep search agents, revealing significant gaps between frontier models and human performance.",
+      "upvotes": 151,
+      "authors": [
+        "Xiaomin Yu",
+        "Hongliang Chen",
+        "Zhe Huang"
+      ]
+    },
+    {
+      "title": "Editing Images into Reusable Layers via Compositional Edit-Prior Distillation",
+      "url": "https://huggingface.co/papers/2610.24738",
+      "arxiv_url": "https://arxiv.org/abs/2610.24738",
+      "summary": "LayerEditor unifies instruction-guided image editing with reusable RGBA layer generation via joint token modeling and edit-prior distillation, enabling precise local manipulation and layer reuse.",
+      "upvotes": 73,
+      "authors": [
+        "Wen Xue",
+        "Yong Liu",
+        "Xueheng Li"
+      ]
+    },
+    {
+      "title": "IQuest-Q1: Advancing Foundation Capabilities for Agentic CLI Systems",
+      "url": "https://huggingface.co/papers/2610.30949",
+      "arxiv_url": "https://arxiv.org/abs/2610.30949",
+      "summary": "IQuest-Q1 is a sparse Mixture-of-Experts foundation model trained via multi-stage pre-training, mid-training, and post-training to achieve strong agentic coding and general capabilities.",
+      "upvotes": 53,
+      "authors": [
+        "A. Jian Yang",
+        "An Huang",
+        "Bo Dan"
+      ]
+    }
+  ]
+}
