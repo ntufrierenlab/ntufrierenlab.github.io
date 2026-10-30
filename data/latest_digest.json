@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-30",
+  "papers": [
+    {
+      "title": "Intrinsic Distribution Matching",
+      "url": "https://huggingface.co/papers/2610.39633",
+      "arxiv_url": "https://arxiv.org/abs/2610.39633",
+      "summary": "Intrinsic Distribution Matching improves few-step text-to-image generation by adding explicit moment constraints to distribution matching distillation, achieving state-of-the-art long-text rendering with minimal network evaluations.",
+      "upvotes": 235,
+      "authors": [
+        "Deyuan Liu",
+        "Yansen Han",
+        "Kaiwen Zheng"
+      ]
+    },
+    {
+      "title": "A-RSI: Adaptive Task Refresh for Zero-Data Multimodal Self-Improvement",
+      "url": "https://huggingface.co/papers/2610.38568",
+      "arxiv_url": "https://arxiv.org/abs/2610.38568",
+      "summary": "A-RSI improves recursive self-improvement by refreshing training tasks based on declining learning signals and using independently verifiable program-generated answers, raising benchmark performance without external labels.",
+      "upvotes": 148,
+      "authors": [
+        "Yu Liu",
+        "Youxing Li",
+        "Yuedong Tan"
+      ]
+    },
+    {
+      "title": "Your Benchmark Is an Empirical Measure Over Difficulty",
+      "url": "https://huggingface.co/papers/2610.29927",
+      "arxiv_url": "https://arxiv.org/abs/2610.29927",
+      "summary": "This work formalizes benchmark evaluation through difficulty measures, identifies failure modes of measure mismatch and coverage gaps, and proposes diagnostic metrics and a rewriting algorithm to improve benchmark coverage.",
+      "upvotes": 138,
+      "authors": [
+        "Yifan Sun",
+        "Naicheng Yu",
+        "Jiawen Gong"
+      ]
+    },
+    {
+      "title": "Look Only When Needed: Certificate-Guided Visual Routing for Efficient Diffusion VLMs",
+      "url": "https://huggingface.co/papers/2610.36671",
+      "arxiv_url": "https://arxiv.org/abs/2610.36671",
+      "summary": "LOWN adaptively skips image processing during diffusion vision-language model decoding when predictions agree, reducing computation while preserving accuracy.",
+      "upvotes": 90,
+      "authors": [
+        "Donghyeon Cho",
+        "Joowon Kim",
+        "Seungho Shin"
+      ]
+    },
+    {
+      "title": "Proving and Improving the Platonic Representation Hypothesis with JEPAs",
+      "url": "https://huggingface.co/papers/2610.39302",
+      "arxiv_url": "https://arxiv.org/abs/2610.39302",
+      "summary": "Joint-embedding predictive architectures trained on aligned multi-modal observations converge to shared representations with far greater efficiency than next-token prediction, demonstrating that positive view design—not scale alone—drives cross-modal alignment.",
+      "upvotes": 46,
+      "authors": [
+        "Randall Balestriero",
+        "Yann LeCun"
+      ]
+    }
+  ]
+}
