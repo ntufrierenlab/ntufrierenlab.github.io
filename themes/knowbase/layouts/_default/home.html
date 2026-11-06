@@ -1,0 +1,91 @@
+{{ define "main" }}
+  {{ $papers := where site.RegularPages "Section" "papers" }}
+  {{ with site.Data.latest_digest }}
+  {{ if .papers }}
+  <section class="latest-digest">
+    <div class="section-header">
+      <h2 class="section-title">Latest Digest</h2>
+      <span class="latest-digest-meta">{{ .date }}</span>
+    </div>
+    <div class="latest-digest-list">
+      {{ range .papers }}
+      <a href="{{ .url }}" class="latest-digest-item" target="_blank" rel="noopener">
+        <div class="latest-digest-item-right">
+          <div class="latest-digest-title-row">
+            <span class="latest-digest-title">{{ .title }}</span>
+            <span class="latest-digest-upvotes" title="Upvotes">{{ with .upvotes }}{{ . }}{{ end }}</span>
+          </div>
+          <span class="latest-digest-summary">{{ .summary }}</span>
+        </div>
+      </a>
+      {{ end }}
+    </div>
+  </section>
+  {{ end }}
+  {{ end }}
+
+  <section class="recent-papers">
+    <div class="section-header">
+      <h2 class="section-title">Recent Papers</h2>
+      <a href="{{ "papers/" | relURL }}" class="view-all">View all &rarr;</a>
+    </div>
+    <div class="paper-grid">
+      {{ range first 9 $papers.ByDate.Reverse }}
+      {{ $paper := . }}
+      <article class="paper-card">
+        <div class="paper-card-header">
+          <div class="paper-date">{{ .Date | time.Format "Jan 2, 2006" }}</div>
+          {{ with .Params.topics }}
+          <div class="paper-topics">
+            {{ range . }}
+            <a href="{{ printf "topics/%s/" (urlize .) | relURL }}" class="topic-badge">{{ . }}</a>
+            {{ end }}
+          </div>
+          {{ end }}
+        </div>
+        <h3 class="paper-card-title">
+          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </h3>
+        {{ with .Params.authors }}
+        <p class="paper-authors">{{ delimit . ", " }}</p>
+        {{ end }}
+        {{ with .Params.one_line_summary }}
+        <p class="paper-summary">{{ . }}</p>
+        {{ end }}
+        <div class="paper-card-footer">
+          {{ with .Params.arxiv_url }}
+          <a href="{{ . }}" class="paper-link" target="_blank" rel="noopener">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            {{ with $paper.Params.source }}{{ . }}{{ else }}arXiv{{ end }}
+          </a>
+          {{ end }}
+          {{ with .Params.tags }}
+          <div class="paper-tags">
+            {{ range first 3 . }}
+            <span class="tag">{{ . }}</span>
+            {{ end }}
+          </div>
+          {{ end }}
+        </div>
+      </article>
+      {{ end }}
+    </div>
+  </section>
+
+  {{ if site.Taxonomies.topics }}
+  <section class="topics-overview">
+    <div class="section-header">
+      <h2 class="section-title">Topics</h2>
+      <a href="{{ "topics/" | relURL }}" class="view-all">Browse all &rarr;</a>
+    </div>
+    <div class="topic-cards">
+      {{ range site.Taxonomies.topics }}
+      <a href="{{ .Page.RelPermalink }}" class="topic-card">
+        <span class="topic-card-name">{{ .Page.Title }}</span>
+        <span class="topic-card-count">{{ .Count }} {{ if eq .Count 1 }}paper{{ else }}papers{{ end }}</span>
+      </a>
+      {{ end }}
+    </div>
+  </section>
+  {{ end }}
+{{ end }}

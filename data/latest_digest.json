@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-06",
+  "papers": [
+    {
+      "title": "VFlash: Fast, Accurate Visual Planning via Flash Primitive Decoding",
+      "url": "https://huggingface.co/papers/2611.08449",
+      "arxiv_url": "https://arxiv.org/abs/2611.08449",
+      "summary": "",
+      "upvotes": 89,
+      "authors": [
+        "Yu-Cheng Chou",
+        "Shihao Wang",
+        "Jin Huang"
+      ]
+    },
+    {
+      "title": "Harness-S: Learning from Sibling Harnesses for Generalizable Agent Training",
+      "url": "https://huggingface.co/papers/2611.04277",
+      "arxiv_url": "https://arxiv.org/abs/2611.04277",
+      "summary": "A selective harness-rescue training method uses specialized sibling harnesses to replace failed reinforcement learning rollouts and transfer their benefits into a single policy that performs better under the original base harness.",
+      "upvotes": 54,
+      "authors": [
+        "Kangning Zhang",
+        "Wenxiang Jiao",
+        "Bowen Fang"
+      ]
+    },
+    {
+      "title": "Random Is Almost Enough? Stable and Low-Cost Benchmark Compression via BestRand",
+      "url": "https://huggingface.co/papers/2611.00883",
+      "arxiv_url": "https://arxiv.org/abs/2611.00883",
+      "summary": "",
+      "upvotes": 50,
+      "authors": [
+        "George Ling",
+        "Shanshan Zhong",
+        "Lijin Yang"
+      ]
+    },
+    {
+      "title": "SLA: Scaling Spatial-Language-Action Model via Continual Pre-training",
+      "url": "https://huggingface.co/papers/2611.08373",
+      "arxiv_url": "https://arxiv.org/abs/2611.08373",
+      "summary": "SLA is a spatial-language-action model that continually pre-trains and post-trains a pretrained VLA policy with spatial alignment to a frozen 3D perception model, using feature-dependent gates and probabilistic state dropout to improve spatial understanding across diverse robot data while preserving inference architecture.",
+      "upvotes": 48,
+      "authors": [
+        "Fuhao Li",
+        "Wenxuan Song",
+        "Qizhou Huang"
+      ]
+    },
+    {
+      "title": "WeLM-Image: A Unified Image Generation Model towards Visual Intelligence",
+      "url": "https://huggingface.co/papers/2611.07392",
+      "arxiv_url": "https://arxiv.org/abs/2611.07392",
+      "summary": "",
+      "upvotes": 37,
+      "authors": [
+        "Canmiao Fu",
+        "Chen Li",
+        "Guohui Zhang"
+      ]
+    }
+  ]
+}

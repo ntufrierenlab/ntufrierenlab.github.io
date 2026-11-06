@@ -1,0 +1,56 @@
+name: Delete Paper from Knowledge Base
+
+on:
+  workflow_dispatch:
+    inputs:
+      paper_filename:
+        description: 'Paper filename to delete (e.g. 2026-01-08-rl-awb-....md)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  delete-paper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate and delete paper
+        run: |
+          FILENAME="${{ inputs.paper_filename }}"
+
+          # Security: reject path traversal
+          if echo "$FILENAME" | grep -qE '[/\\]|\.\.'; then
+            echo "Error: Invalid filename" >&2
+            exit 1
+          fi
+
+          FILEPATH="content/papers/${FILENAME}"
+          if [ ! -f "$FILEPATH" ]; then
+            echo "Error: File not found: ${FILEPATH}" >&2
+            exit 1
+          fi
+
+          echo "Deleting ${FILEPATH}"
+          rm "$FILEPATH"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A content/papers/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            FILENAME="${{ inputs.paper_filename }}"
+            git commit -m "Delete paper: ${FILENAME}"
+            for i in 1 2 3 4 5; do
+              git push && break
+              echo "Push failed (attempt $i), pulling and retrying..."
+              git pull --rebase
+              sleep 2
+            done
+          fi
