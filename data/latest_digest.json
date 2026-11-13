@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-13",
+  "papers": [
+    {
+      "title": "SO-Arena: Benchmarking the Capability Spectrum and Reliability of System One Models",
+      "url": "https://huggingface.co/papers/2611.15777",
+      "arxiv_url": "https://arxiv.org/abs/2611.15777",
+      "summary": "SO-Arena evaluates System One models across domains and capability families, revealing that scaling and reasoning gains vary and that high overall accuracy does not ensure reliable decision-making.",
+      "upvotes": 71,
+      "authors": [
+        "Lichen Li",
+        "Ziping Dong",
+        "Sicheng Feng"
+      ]
+    },
+    {
+      "title": "BirdDreams: Joint Perspective and BEV Video Generation for a Plausible, Reactive Driving World Model",
+      "url": "https://huggingface.co/papers/2611.14815",
+      "arxiv_url": "https://arxiv.org/abs/2611.14815",
+      "summary": "",
+      "upvotes": 45,
+      "authors": [
+        "Junyoung Seo",
+        "Jaewoo Seo",
+        "Seungryong Kim"
+      ]
+    },
+    {
+      "title": "PhysLoop: Harnessing LLMs' Physics Awareness for Self-Improving Video Generation Models",
+      "url": "https://huggingface.co/papers/2611.16748",
+      "arxiv_url": "https://arxiv.org/abs/2611.16748",
+      "summary": "PhysLoop leverages large language models to guide video generation, selection, and correction, enabling physically consistent self-improvement and controllable data construction for video models.",
+      "upvotes": 41,
+      "authors": [
+        "Yuxuan Chen",
+        "Xiaojie Li",
+        "Hao Chen"
+      ]
+    },
+    {
+      "title": "G-STAR: Group-Scaled Token Capacity for Deeply Compressed Autoregressive Generation",
+      "url": "https://huggingface.co/papers/2611.13004",
+      "arxiv_url": "https://arxiv.org/abs/2611.13004",
+      "summary": "",
+      "upvotes": 40,
+      "authors": [
+        "Xu Huang",
+        "Ye Huang",
+        "Xiaotong Li"
+      ]
+    },
+    {
+      "title": "Duo: A Reciprocal World Model for Full-Duplex Interaction",
+      "url": "https://huggingface.co/papers/2611.15131",
+      "arxiv_url": "https://arxiv.org/abs/2611.15131",
+      "summary": "A reciprocal world model enables real-time full-duplex audiovisual interaction by jointly modeling intent and realization using autoregressive reasoning, synchronized attention, and dual rollout distillation.",
+      "upvotes": 34,
+      "authors": [
+        "Hengyuan Cao",
+        "Biao Gong",
+        "Guoshan Lu"
+      ]
+    }
+  ]
+}
