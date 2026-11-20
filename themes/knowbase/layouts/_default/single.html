@@ -1,0 +1,158 @@
+{{ define "main" }}
+<article class="paper-detail">
+  <header class="paper-detail-header">
+    <div class="paper-meta-top">
+      <time datetime="{{ .Date | time.Format "2006-01-02" }}">{{ .Date | time.Format "January 2, 2006" }}</time>
+      {{ with .Params.topics }}
+      <div class="paper-topics">
+        {{ range . }}
+        <a href="{{ printf "topics/%s/" (urlize .) | relURL }}" class="topic-badge">{{ . }}</a>
+        {{ end }}
+        <button class="btn-edit-topics" id="btn-edit-topics"
+                data-filename="{{ $.File.LogicalName }}"
+                data-topics="{{ delimit . "," }}"
+                style="display:none;"
+                title="Edit topics">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+      </div>
+      {{ end }}
+    </div>
+    <h1 class="paper-detail-title">{{ .Title }}</h1>
+    {{ with .Params.authors }}
+    <p class="paper-detail-authors">{{ delimit . ", " }}</p>
+    {{ end }}
+    <div class="paper-detail-actions">
+      <div class="paper-detail-links">
+        {{ if ne .Params.source "Upload" }}
+        {{ $pdfLink := .Params.pdf_url | default .Params.arxiv_url }}
+        {{ with $pdfLink }}
+        <a href="{{ . }}" class="btn btn-outline" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          {{ with $.Params.source }}{{ . }}{{ else }}PDF{{ end }}
+        </a>
+        {{ end }}
+        {{ end }}
+        {{ if .Params.one_line_summary_zh }}
+        <button class="btn btn-outline btn-lang-toggle" id="lang-toggle" data-lang="en">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span class="lang-label">中文</span>
+        </button>
+        {{ end }}
+      </div>
+      <button class="btn btn-danger btn-delete-paper" id="btn-delete-paper"
+              data-filename="{{ .File.LogicalName }}"
+              data-title="{{ .Title }}"
+              style="display:none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        Delete
+      </button>
+    </div>
+  </header>
+
+  {{ if .Params.one_line_summary_zh }}
+  <div class="paper-highlight lang-en">
+    <p>{{ .Params.one_line_summary }}</p>
+  </div>
+  <div class="paper-highlight lang-zh" style="display:none;">
+    <p>{{ .Params.one_line_summary_zh }}</p>
+  </div>
+  {{ else }}
+  {{ with .Params.one_line_summary }}
+  <div class="paper-highlight">
+    <p>{{ . }}</p>
+  </div>
+  {{ end }}
+  {{ end }}
+
+  <div class="paper-content">
+    {{ .Content }}
+  </div>
+
+  <section class="paper-notes" id="paper-notes" data-filename="{{ .File.LogicalName }}">
+    <h2 class="notes-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Notes
+      <span class="notes-count" id="notes-count">{{ with .Params.notes }}({{ len . }}){{ end }}</span>
+    </h2>
+
+    <div class="notes-list" id="notes-list">
+      {{ if .Params.notes }}
+      {{ range .Params.notes }}
+      <div class="note-item" data-date="{{ .date }}">
+        <div class="note-body">{{ .text | markdownify }}</div>
+        <div class="note-meta">
+          <span>{{ dateFormat "Jan 2, 2006 · 3:04 PM" .date }}</span>
+          <button class="note-delete-btn" title="Delete note">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+      {{ end }}
+      {{ else }}
+      <p class="notes-empty" id="notes-empty">No notes yet.</p>
+      {{ end }}
+    </div>
+
+    <div class="note-form" id="note-form" style="display:none;">
+      <textarea id="note-input" placeholder="Write a note..." rows="3"></textarea>
+      <div class="note-form-actions">
+        <span class="note-hint">Ctrl + Enter to submit</span>
+        <button class="btn btn-primary btn-sm" id="note-submit">Add Note</button>
+      </div>
+    </div>
+  </section>
+
+  {{ with .Params.tags }}
+  <footer class="paper-detail-footer">
+    <div class="paper-tags-full">
+      {{ range . }}
+      <a href="{{ printf "tags/%s/" (urlize .) | relURL }}" class="tag">{{ . }}</a>
+      {{ end }}
+    </div>
+  </footer>
+  {{ end }}
+</article>
+
+<div id="edit-topics-modal" class="modal" style="display:none;">
+  <div class="modal-overlay" id="edit-topics-overlay"></div>
+  <div class="modal-content">
+    <h2>Edit Topics</h2>
+    <p class="modal-desc">Select topics for this paper.</p>
+    <div id="edit-topics-list" class="topic-picker-list"></div>
+    <div class="topic-picker-new">
+      <input type="text" id="edit-topics-new-input" placeholder="New topic name...">
+      <button class="btn btn-outline btn-sm" id="edit-topics-new-add">Add</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="edit-topics-cancel">Cancel</button>
+      <button class="btn btn-primary" id="edit-topics-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="note-delete-modal" class="modal" style="display:none;">
+  <div class="modal-overlay" id="note-delete-overlay"></div>
+  <div class="modal-content">
+    <h2>Delete this note?</h2>
+    <p class="delete-confirm-warn">This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="note-delete-cancel">Cancel</button>
+      <button class="btn btn-danger" id="note-delete-confirm">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="delete-confirm-modal" class="modal" style="display:none;">
+  <div class="modal-overlay" id="delete-modal-overlay"></div>
+  <div class="modal-content">
+    <h2>Delete this paper?</h2>
+    <p id="delete-confirm-title" class="delete-confirm-title"></p>
+    <p class="delete-confirm-warn">This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="delete-cancel">Cancel</button>
+      <button class="btn btn-danger" id="delete-confirm">Delete</button>
+    </div>
+  </div>
+</div>
+{{ end }}

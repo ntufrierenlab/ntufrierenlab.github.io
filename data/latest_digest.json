@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-20",
+  "papers": [
+    {
+      "title": "WeVisForensics: Self-Evolving Agent for Omni AI-Generated Video Detection",
+      "url": "https://huggingface.co/papers/2611.21373",
+      "arxiv_url": "https://arxiv.org/abs/2611.21373",
+      "summary": "WeVisForensics coordinates self-evolving visual and audio forensic inspector agents under a dual-timescale reinforcement learning policy to detect generated-video artifacts with localized evidence and high accuracy.",
+      "upvotes": 47,
+      "authors": [
+        "Yipeng Du",
+        "Yuxi Li",
+        "Ying Zhang"
+      ]
+    },
+    {
+      "title": "Mind2Act World: A Diagnostic Benchmark for Embodied Mind, Physical Action, and Mind-Action Composition in Robotic Manipulation",
+      "url": "https://huggingface.co/papers/2611.26444",
+      "arxiv_url": "https://arxiv.org/abs/2611.26444",
+      "summary": "A diagnostic benchmark of 180 simulated manipulation configurations evaluates whether embodied systems can combine history-based reasoning, precise execution, and closed-loop environmental feedback, revealing that single-view competence does not transfer to composed tasks.",
+      "upvotes": 45,
+      "authors": [
+        "Yuzhi Huang",
+        "Jie Wu",
+        "Fanding Huang"
+      ]
+    },
+    {
+      "title": "WeMM-Video: Pushing the Frontiers of Open-Source Omni-Modal Video Understanding",
+      "url": "https://huggingface.co/papers/2611.26409",
+      "arxiv_url": "https://arxiv.org/abs/2611.26409",
+      "summary": "WeMM-Video is a family of Chinese-English bilingual omni-modal foundation models that unify text, image, audio, and video processing for joint audio-visual perception and reasoning, using hybrid thinking modes and large-scale training to achieve strong open-source video understanding results.",
+      "upvotes": 39,
+      "authors": [
+        "Changli Tang",
+        "Jie Yang",
+        "Tianyi Wang"
+      ]
+    },
+    {
+      "title": "Probing the \"Conscious\" Mind: Selective Access and Global Workspace in Vision-Language Models",
+      "url": "https://huggingface.co/papers/2611.26590",
+      "arxiv_url": "https://arxiv.org/abs/2611.26590",
+      "summary": "",
+      "upvotes": 33,
+      "authors": [
+        "Jiahao Huang",
+        "Jun Wang"
+      ]
+    },
+    {
+      "title": "Coda-DaVinci: Reimagining Video Generation with Code2Video",
+      "url": "https://huggingface.co/papers/2611.26595",
+      "arxiv_url": "https://arxiv.org/abs/2611.26595",
+      "summary": "A task-adaptive agentic framework utilizes 3D proxies, physics simulation, and multi-agent coordination to enhance the structural control, physical plausibility, and visual realism of generated videos.",
+      "upvotes": 31,
+      "authors": [
+        "Yiyan Ji",
+        "Qixun Wang",
+        "Yang Shi"
+      ]
+    }
+  ]
+}
