@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-27",
+  "papers": [
+    {
+      "title": "Stable Gated DeltaNet-2: Understanding and Mitigating Recurrent State Instability",
+      "url": "https://huggingface.co/papers/2611.34051",
+      "arxiv_url": "https://arxiv.org/abs/2611.34051",
+      "summary": "",
+      "upvotes": 128,
+      "authors": [
+        "Xichong Zhang",
+        "Xixuan Hao",
+        "Zhichen Liu"
+      ]
+    },
+    {
+      "title": "OS-Omni: Benchmarking Generalist Computer-Using Agents on Long-Horizon Workflows Across Platforms",
+      "url": "https://huggingface.co/papers/2611.34232",
+      "arxiv_url": "https://arxiv.org/abs/2611.34232",
+      "summary": "A live cross-platform benchmark evaluates computer-using agents on long-horizon workflows across Windows, Ubuntu, macOS, iOS, Android, and Web, showing that current agents remain far from platform-robust computer use and trail humans on iOS and macOS.",
+      "upvotes": 104,
+      "authors": [
+        "Hui Shen",
+        "Yunta Hsieh",
+        "Jianing Ma"
+      ]
+    },
+    {
+      "title": "Solve Vision with Code: Coding Agents Are Stronger Visual Reasoners Than Video Models",
+      "url": "https://huggingface.co/papers/2611.34813",
+      "arxiv_url": "https://arxiv.org/abs/2611.34813",
+      "summary": "",
+      "upvotes": 59,
+      "authors": [
+        "Dezhi Luo",
+        "Fengyuan Yu",
+        "Haotian Zhang"
+      ]
+    },
+    {
+      "title": "What a Forecasting Leaderboard Can Establish: Resolution Reporting for Zero-Shot Time-Series Models",
+      "url": "https://huggingface.co/papers/2611.31619",
+      "arxiv_url": "https://arxiv.org/abs/2611.31619",
+      "summary": "A tool called Vernier measures the smallest score difference a time-series forecasting leaderboard can distinguish, showing that most boards cannot separate top entries and that ranking order can change with pool composition.",
+      "upvotes": 57,
+      "authors": [
+        "Arya Sikder",
+        "Sriram Pillutla"
+      ]
+    },
+    {
+      "title": "ProxyGenBench: Benchmarking Proxy-Guided Video Generation",
+      "url": "https://huggingface.co/papers/2611.34457",
+      "arxiv_url": "https://arxiv.org/abs/2611.34457",
+      "summary": "A benchmark assesses how well video generators follow animated 3D blockouts while preserving structure, filling missing content, correcting proxy artifacts, and binding multimodal conditions to the correct entities and events.",
+      "upvotes": 36,
+      "authors": [
+        "Zhenchen Tang",
+        "Haolin Lu",
+        "Songlin Yang"
+      ]
+    }
+  ]
+}
